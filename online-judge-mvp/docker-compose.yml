@@ -20,9 +20,14 @@ services:
     environment:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - JOB_TMP_ROOT=/worker_tmp
+      - HOST_JOB_TMP_ROOT=${PWD}/worker_tmp
+      - PROBLEMS_ROOT=/problems
+      - HOST_PROBLEMS_ROOT=${PWD}/problems
     volumes:
       - ./problems:/problems:ro
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./worker_tmp:/worker_tmp
     depends_on: [redis]
 
   web:

@@ -8,6 +8,11 @@ r = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, decode_responses=True)
 JUDGE_IMAGE = "oj_judge:latest"  # name từ build judge riêng (ta sẽ build bằng compose hoặc tay)
 CPU_LIMIT = "1"   # 1 CPU
 MEM_LIMIT = "1g"  # 1 GB
+JOB_TMP_ROOT = os.getenv("JOB_TMP_ROOT", "/worker_tmp")
+HOST_JOB_TMP_ROOT = os.getenv("HOST_JOB_TMP_ROOT", JOB_TMP_ROOT)
+PROBLEMS_ROOT = os.getenv("PROBLEMS_ROOT", "/problems")
+HOST_PROBLEMS_ROOT = os.getenv("HOST_PROBLEMS_ROOT", PROBLEMS_ROOT)
+os.makedirs(JOB_TMP_ROOT, exist_ok=True)
 
 def docker_run(cmd, mounts=None, readonly_root=True):
     base = ["docker", "run", "--rm",
@@ -15,7 +20,10 @@ def docker_run(cmd, mounts=None, readonly_root=True):
             "--memory", MEM_LIMIT,
             "--network", "none"]
     if readonly_root:
-        base += ["--read-only", "--tmpfs", "/tmp", "--tmpfs", "/work"]
+        base += ["--read-only", "--tmpfs", "/tmp"]
+        has_work_mount = mounts and any(cont_path == "/work" for _, cont_path, _ in mounts)
+        if not has_work_mount:
+            base += ["--tmpfs", "/work"]
     if mounts:
         for host_path, cont_path, mode in mounts:
             base += ["-v", f"{host_path}:{cont_path}:{mode}"]
@@ -36,14 +44,19 @@ def compile_submission(sub_id):
     problem_id = meta["problem_id"]
 
     # Tạo thư mục tạm
-    tmpdir = tempfile.mkdtemp(prefix=f"job_{sub_id}_")
+    tmpdir = tempfile.mkdtemp(prefix=f"job_{sub_id}_", dir=JOB_TMP_ROOT)
+    os.chmod(tmpdir, 0o777)
     try:
         src_file = os.path.join(tmpdir, "main.c" if lang=="c" else "main.cpp")
         with open(src_file, "w", encoding="utf-8") as f:
             f.write(code)
 
         # Chạy container để biên dịch (không chạy test ở bước này)
-        mounts = [(tmpdir, "/work", "rw")]
+        host_tmpdir = tmpdir
+        if tmpdir.startswith(JOB_TMP_ROOT):
+            suffix = tmpdir[len(JOB_TMP_ROOT):]
+            host_tmpdir = HOST_JOB_TMP_ROOT.rstrip("/") + suffix
+        mounts = [(host_tmpdir, "/work", "rw")]
         cmd = ["bash", "-lc", f"compile_run.sh {lang} {os.path.basename(src_file)} {opt} {std} && true"]
         res = docker_run(cmd, mounts=mounts)
         compile_log = (res.stdout or "") + "\n" + (res.stderr or "")
@@ -68,15 +81,25 @@ def run_submission(job):
     problem_id = job["problem_id"]
     lang = job["lang"]; opt = job["opt"]; std = job["std"]
 
-    tests_dir = os.path.abspath(os.path.join("/problems", problem_id))
+    tests_dir = os.path.abspath(os.path.join(PROBLEMS_ROOT, problem_id))
     if not os.path.isdir(tests_dir):
         r.hset(f"sub:{sub_id}", "status", "problem_not_found")
         return
 
     try:
+        host_tmpdir = tmpdir
+        if tmpdir.startswith(JOB_TMP_ROOT):
+            suffix = tmpdir[len(JOB_TMP_ROOT):]
+            host_tmpdir = HOST_JOB_TMP_ROOT.rstrip("/") + suffix
+
+        host_tests_dir = tests_dir
+        if tests_dir.startswith(PROBLEMS_ROOT):
+            suffix2 = tests_dir[len(PROBLEMS_ROOT):]
+            host_tests_dir = HOST_PROBLEMS_ROOT.rstrip("/") + suffix2
+
         mounts = [
-            (tmpdir, "/work", "rw"),
-            (tests_dir, "/tests", "ro")
+            (host_tmpdir, "/work", "rw"),
+            (host_tests_dir, "/tests", "ro")
         ]
         # Gọi container chạy lại binary trên bộ test (compile_run.sh đã sinh main)
         cmd = ["bash", "-lc", f"ls -l && /usr/bin/time -v true && ./main </dev/null >/dev/null 2>/dev/null || true; compile_run.sh {lang} {('main.c' if lang=='c' else 'main.cpp')} {opt} {std} && true"]
