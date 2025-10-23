@@ -12,6 +12,8 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
     ports: ["8000:8000"]
+    volumes:
+      - ./problems:/problems:ro
     depends_on: [redis]
 
   worker:

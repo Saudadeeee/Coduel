@@ -4,54 +4,262 @@
   <meta charset="utf-8"/>
   <title>MVP Online Judge</title>
   <style>
-    body { margin:0; font-family:system-ui, sans-serif; }
-    .wrap { display:flex; height:100vh; }
-    textarea { width:50%; height:100%; padding:12px; font-family:ui-monospace, monospace; font-size:14px; }
-    .right { width:50%; padding:12px; overflow:auto; border-left:1px solid #ddd; }
-    .row { margin-bottom:8px; }
-    button { padding:8px 12px; }
-    pre { background:#f7f7f7; padding:8px; }
+    :root { color-scheme: light; }
+    body {
+      margin:0;
+      font-family:system-ui, sans-serif;
+      height:100vh;
+      display:flex;
+      background:#E1D9CC;
+      color:#434D59;
+    }
+    .wrap { flex:1; display:flex; height:100%; overflow:hidden; }
+    .pane {
+      flex-basis:50%;
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+      background:rgba(67,77,89,0.08);
+      backdrop-filter: blur(2px);
+    }
+    .pane.results {
+      border-right:2px solid rgba(67,77,89,0.2);
+      padding:16px;
+      gap:12px;
+    }
+    .pane.workspace { padding:0; }
+    .vertical-wrap {
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+    }
+    .panel {
+      flex-basis:50%;
+      overflow:auto;
+      background:rgba(225,217,204,0.8);
+    }
+    .panel.statement {
+      padding:16px;
+      border-bottom:2px solid rgba(67,77,89,0.2);
+    }
+    .panel.statement h2 { margin-top:0; font-size:20px; }
+    .panel.statement p { line-height:1.5; }
+    .panel.editor {
+      display:flex;
+      flex-direction:column;
+      padding:16px;
+      gap:12px;
+    }
+    .code-controls {
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      align-items:center;
+    }
+    label { font-size:14px; font-weight:600; }
+    select, input {
+      padding:6px 10px;
+      border:1px solid rgba(67,77,89,0.3);
+      background:#E1D9CC;
+      color:#434D59;
+      border-radius:6px;
+    }
+    textarea {
+      flex:1;
+      padding:12px;
+      resize:none;
+      font-family:ui-monospace, monospace;
+      font-size:14px;
+      border:1px solid rgba(67,77,89,0.25);
+      border-radius:8px;
+      background:#F3EEE4;
+      color:#434D59;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.08);
+    }
+    textarea:focus { outline:2px solid rgba(67,77,89,0.5); background:#fff; }
+    .divider {
+      width:8px;
+      cursor:col-resize;
+      background:rgba(67,77,89,0.2);
+    }
+    .vertical-divider {
+      height:8px;
+      cursor:row-resize;
+      background:rgba(67,77,89,0.2);
+    }
+    .status-line { font-weight:700; font-size:15px; }
+    .log-block {
+      background:#F3EEE4;
+      border-radius:8px;
+      padding:12px;
+      border:1px solid rgba(67,77,89,0.25);
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+      min-height:140px;
+      overflow:auto;
+      white-space:pre-wrap;
+    }
+    .floating-btn {
+      position:fixed;
+      bottom:24px;
+      right:24px;
+      padding:14px 24px;
+      background:#434D59;
+      color:#E1D9CC;
+      border:none;
+      border-radius:999px;
+      box-shadow:0 8px 20px rgba(67,77,89,0.35);
+      font-size:15px;
+      font-weight:600;
+      cursor:pointer;
+      transition:transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .floating-btn:hover {
+      transform:translateY(-2px);
+      box-shadow:0 12px 24px rgba(67,77,89,0.4);
+    }
+    .floating-btn:active {
+      transform:translateY(0);
+      box-shadow:0 6px 16px rgba(67,77,89,0.35);
+    }
+    body.resizing, body.resizing-vertical { user-select:none; }
+    body.resizing { cursor:col-resize; }
+    body.resizing-vertical { cursor:row-resize; }
+    @media (max-width: 900px) {
+      .wrap { flex-direction:column; }
+      .divider { height:8px; width:auto; cursor:row-resize; }
+    }
   </style>
 </head>
 <body>
-<div class="wrap">
-  <textarea id="code">// C++20 sample
-#include <bits/stdc++.h>
+<div class="wrap" id="split">
+  <div class="pane results" id="left-pane">
+    <div class="status-line">Status: <span id="status">idle</span></div>
+    <div>
+      <strong>Compile log</strong>
+      <pre class="log-block" id="clog"></pre>
+    </div>
+    <div>
+      <strong>Run result</strong>
+      <pre class="log-block" id="rlog"></pre>
+    </div>
+  </div>
+  <div class="divider" id="divider"></div>
+  <div class="pane workspace" id="right-pane">
+    <div class="vertical-wrap" id="vertical">
+      <div class="panel statement" id="statement-panel">
+        <h2 id="statement-title">Problem</h2>
+        <div id="statement-body">Select a problem to view its statement.</div>
+      </div>
+      <div class="vertical-divider" id="vertical-divider"></div>
+      <div class="panel editor" id="editor-panel">
+        <div class="code-controls">
+          <label>Problem:</label>
+          <input id="pid" value="sum-two" />
+          <label>Language:</label>
+          <select id="lang">
+            <option value="cpp">C++ (C++20)</option>
+            <option value="c">C (C17)</option>
+          </select>
+          <label>Opt:</label>
+          <select id="opt">
+            <option>O2</option><option>O1</option><option>O0</option>
+          </select>
+        </div>
+        <textarea id="code">// C++20 sample
+#include &lt;bits/stdc++.h&gt;
 using namespace std;
 int main(){
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
-    long long a,b; if(!(cin>>a>>b)) return 0;
-    cout << (a+b) << "\n";
+    long long a,b; if(!(cin&gt;&gt;a&gt;&gt;b)) return 0;
+    cout &lt;&lt; (a+b) &lt;&lt; "\n";
     return 0;
 }
-  </textarea>
-  <div class="right">
-    <div class="row">
-      <label>Language:</label>
-      <select id="lang">
-        <option value="cpp">C++ (C++20)</option>
-        <option value="c">C (C17)</option>
-      </select>
-      <label>Opt:</label>
-      <select id="opt">
-        <option>O2</option><option>O1</option><option>O0</option>
-      </select>
-      <label>Problem:</label>
-      <input id="pid" value="sum-two" />
-      <button id="btn">Compile & Run</button>
+        </textarea>
+      </div>
     </div>
-    <div class="row"><b>Status:</b> <span id="status">idle</span></div>
-    <div class="row"><b>Compile log:</b><pre id="clog"></pre></div>
-    <div class="row"><b>Run result:</b><pre id="rlog"></pre></div>
   </div>
 </div>
+<button id="btn" class="floating-btn">Compile & Run</button>
 <script>
 const api = "http://localhost:8000";
 const btn = document.getElementById("btn");
 const statusEl = document.getElementById("status");
 const clog = document.getElementById("clog");
 const rlog = document.getElementById("rlog");
+const pidInput = document.getElementById("pid");
+const statementBody = document.getElementById("statement-body");
+const statementTitle = document.getElementById("statement-title");
+const leftPane = document.getElementById("left-pane");
+const rightPane = document.getElementById("right-pane");
+const divider = document.getElementById("divider");
+const split = document.getElementById("split");
+const vertical = document.getElementById("vertical");
+const statementPanel = document.getElementById("statement-panel");
+const editorPanel = document.getElementById("editor-panel");
+const verticalDivider = document.getElementById("vertical-divider");
+
+async function loadStatement(problemId) {
+  statementTitle.textContent = `Problem: ${problemId}`;
+  statementBody.textContent = "Loading statement...";
+  try {
+    const res = await fetch(`${api}/v1/problem/${encodeURIComponent(problemId)}`);
+    if (!res.ok) throw new Error(res.statusText);
+    const data = await res.json();
+    if (data.statement) {
+      statementBody.innerHTML = marked.parse(data.statement);
+    } else {
+      statementBody.textContent = "No statement available for this problem.";
+    }
+  } catch (err) {
+    statementBody.textContent = "Unable to load statement.";
+    console.error(err);
+  }
+}
+
+let isDragging = false;
+divider.addEventListener("mousedown", () => {
+  isDragging = true;
+  document.body.classList.add("resizing");
+});
+window.addEventListener("mousemove", (e) => {
+  if (!isDragging) return;
+  const rect = split.getBoundingClientRect();
+  let percent = ((e.clientX - rect.left) / rect.width) * 100;
+  percent = Math.min(75, Math.max(25, percent));
+  leftPane.style.flexBasis = `${percent}%`;
+  rightPane.style.flexBasis = `${100 - percent}%`;
+});
+window.addEventListener("mouseup", () => {
+  if (isDragging) {
+    isDragging = false;
+    document.body.classList.remove("resizing");
+  }
+});
+
+let isVerticalDragging = false;
+verticalDivider.addEventListener("mousedown", () => {
+  isVerticalDragging = true;
+  document.body.classList.add("resizing-vertical");
+});
+window.addEventListener("mousemove", (e) => {
+  if (!isVerticalDragging) return;
+  const rect = vertical.getBoundingClientRect();
+  let percent = ((e.clientY - rect.top) / rect.height) * 100;
+  percent = Math.min(75, Math.max(25, percent));
+  statementPanel.style.flexBasis = `${percent}%`;
+  editorPanel.style.flexBasis = `${100 - percent}%`;
+});
+window.addEventListener("mouseup", () => {
+  if (isVerticalDragging) {
+    isVerticalDragging = false;
+    document.body.classList.remove("resizing-vertical");
+  }
+});
+
+pidInput.addEventListener("change", () => loadStatement(pidInput.value.trim()));
+pidInput.addEventListener("blur", () => loadStatement(pidInput.value.trim()));
 
 btn.onclick = async () => {
   statusEl.textContent = "submitting...";
@@ -81,6 +289,26 @@ btn.onclick = async () => {
     tries++;
   }
 };
+
+// Lightweight markdown renderer for statements (only when needed)
+const marked = {
+  parse(text) {
+    const escape = (t) => t
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+    return text.split(/\n\n+/).map(block => {
+      if (/^#/.test(block)) {
+        const level = block.match(/^#+/)[0].length;
+        const content = escape(block.replace(/^#+\s*/, ""));
+        return `<h${level}>${content}</h${level}>`;
+      }
+      return `<p>${escape(block)}</p>`;
+    }).join("");
+  }
+};
+
+loadStatement(pidInput.value.trim());
 </script>
 </body>
 </html>

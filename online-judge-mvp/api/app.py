@@ -1,4 +1,5 @@
 import os, json, time, uuid
+from pathlib import Path
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, field_validator
 import redis
@@ -12,7 +13,7 @@ app = FastAPI(title="OJ API")
 
 ALLOWED_LANG = {"c", "cpp"}
 ALLOWED_OPT = {"O0","O1","O2"}
-PROBLEMS_DIR = "/problems"  # worker mount; api chỉ làm enqueue
+PROBLEMS_DIR = Path(os.getenv("PROBLEMS_DIR", "/problems"))
 
 app.add_middleware(
     CORSMiddleware,
@@ -73,3 +74,17 @@ def status(sub_id: str):
         "compile_log": compile_log[:8192] if compile_log else None,
         "run_result": json.loads(run_result) if run_result else None
     }
+
+@app.get("/v1/problem/{problem_id}")
+def problem_detail(problem_id: str):
+    base = PROBLEMS_DIR / problem_id
+    if not base.is_dir():
+        raise HTTPException(404, "not found")
+    statement_path = base / "statement.md"
+    statement = None
+    if statement_path.exists():
+        try:
+            statement = statement_path.read_text(encoding="utf-8")
+        except UnicodeDecodeError:
+            statement = statement_path.read_text(errors="replace")
+    return {"problem_id": problem_id, "statement": statement}

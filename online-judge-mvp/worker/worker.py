@@ -46,6 +46,7 @@ def compile_submission(sub_id):
     # Tạo thư mục tạm
     tmpdir = tempfile.mkdtemp(prefix=f"job_{sub_id}_", dir=JOB_TMP_ROOT)
     os.chmod(tmpdir, 0o777)
+    cleanup_tmp = True
     try:
         src_file = os.path.join(tmpdir, "main.c" if lang=="c" else "main.cpp")
         with open(src_file, "w", encoding="utf-8") as f:
@@ -67,6 +68,7 @@ def compile_submission(sub_id):
             return
 
         # Sau compile OK: đẩy sang hàng chạy
+        cleanup_tmp = False  # giữ thư mục cho bước run, sẽ dọn trong run_submission
         r.hset(f"sub:{sub_id}", "status", "compiled")
         r.lpush("queue:run", json.dumps({"submission_id": sub_id, "tmpdir": tmpdir, "problem_id": problem_id, "lang": lang, "opt": opt, "std": std}))
     except subprocess.TimeoutExpired:
@@ -74,6 +76,9 @@ def compile_submission(sub_id):
     except Exception as e:
         r.hset(f"sub:{sub_id}", "status", "error")
         r.set(f"compile_log:{sub_id}", str(e), ex=3600)
+    finally:
+        if cleanup_tmp:
+            shutil.rmtree(tmpdir, ignore_errors=True)
 
 def run_submission(job):
     sub_id = job["submission_id"]
