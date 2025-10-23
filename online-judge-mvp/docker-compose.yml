@@ -1,0 +1,32 @@
+version: "3.9"
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: oj_redis
+    ports: ["6379:6379"]
+
+  api:
+    build: ./api
+    container_name: oj_api
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    ports: ["8000:8000"]
+    depends_on: [redis]
+
+  worker:
+    build: ./worker
+    container_name: oj_worker
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    volumes:
+      - ./problems:/problems:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on: [redis]
+
+  web:
+    build: ./web
+    container_name: oj_web
+    ports: ["5173:5173"]   # web UI dev server
+    depends_on: [api]
