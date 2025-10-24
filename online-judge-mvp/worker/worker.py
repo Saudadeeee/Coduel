@@ -1,3 +1,10 @@
+#  Run file tips:
+# docker compose down 
+# docker build -t oj_judge:latest ./judge    
+# DOCKER_BUILDKIT=0 docker compose build worker 
+# docker compose up -d 
+
+
 import os, json, time, subprocess, tempfile, shutil, uuid, re, shlex
 import redis
 
@@ -15,7 +22,7 @@ def _env_limit(name, default):
 
 def _default_cpu_limit():
     count = os.cpu_count() or 1
-    half = max(1.0, count / 2.0)  # tối thiểu 1 CPU
+    half = max(1.0, count / 2.0) 
     if abs(half - round(half)) < 1e-9:
         return str(int(round(half)))
     return f"{half:.2f}".rstrip("0").rstrip(".")
@@ -46,6 +53,23 @@ HOST_JOB_TMP_ROOT = os.getenv("HOST_JOB_TMP_ROOT", JOB_TMP_ROOT)
 PROBLEMS_ROOT = os.getenv("PROBLEMS_ROOT", "/problems")
 HOST_PROBLEMS_ROOT = os.getenv("HOST_PROBLEMS_ROOT", PROBLEMS_ROOT)
 os.makedirs(JOB_TMP_ROOT, exist_ok=True)
+
+def _parse_elapsed_seconds(val):
+    if not val:
+        return None
+    val = val.strip()
+    if not val:
+        return None
+    try:
+        parts = val.split(":")
+        if len(parts) == 1:
+            return float(parts[0])
+        seconds = 0.0
+        for p in parts:
+            seconds = seconds * 60 + float(p)
+        return seconds
+    except ValueError:
+        return None
 
 def docker_run(cmd, mounts=None, readonly_root=True, timeout=None):
     base = ["docker", "run", "--rm", "--network", "none"]
@@ -167,18 +191,56 @@ def run_submission(job):
             if os.path.exists(mfile):
                 txt = open(mfile).read()
                 elapsed = None; maxrss = None
-                # /usr/bin/time -v keys
-                m1 = re.search(r"Elapsed \(wall clock\) time\s*:\s*(.*)", txt)
+                # /usr/bin/time -v keys (allow optional hints in parenthesis)
+                m1 = re.search(r"Elapsed \(wall clock\) time.*:\s*(.*)", txt)
                 m2 = re.search(r"Maximum resident set size \(kbytes\):\s*(\d+)", txt)
                 if m1: elapsed = m1.group(1).strip()
                 if m2: maxrss = int(m2.group(1))
-                metrics.append({"test": i, "elapsed": elapsed, "max_rss_kb": maxrss})
+                metrics.append({
+                    "test": i,
+                    "elapsed": elapsed,
+                    "elapsed_seconds": _parse_elapsed_seconds(elapsed),
+                    "max_rss_kb": maxrss
+                })
         ok = all(v == "OK" for v in verdicts) if verdicts else False
+
+        metrics_map = {m["test"]: m for m in metrics}
+        tests_summary = []
+        passed_count = 0
+        for idx, verdict in enumerate(verdicts, start=1):
+            passed = verdict.upper() == "OK"
+            if passed:
+                passed_count += 1
+            metric = metrics_map.get(idx)
+            tests_summary.append({
+                "label": f"Test {idx}",
+                "test": idx,
+                "passed": passed,
+                "verdict": verdict,
+                "elapsed": metric["elapsed"] if metric else None,
+                "elapsed_seconds": metric["elapsed_seconds"] if metric else None,
+                "max_rss_kb": metric["max_rss_kb"] if metric else None
+            })
+
+        elapsed_values = [m["elapsed_seconds"] for m in metrics if m.get("elapsed_seconds") is not None]
+        max_elapsed = max(elapsed_values) if elapsed_values else None
+        avg_elapsed = sum(elapsed_values) / len(elapsed_values) if elapsed_values else None
+        max_mem = max((m["max_rss_kb"] for m in metrics if m.get("max_rss_kb") is not None), default=None)
+
+        performance = {
+            "total_tests": len(verdicts),
+            "passed": passed_count,
+            "failed": len(verdicts) - passed_count,
+            "max_elapsed_seconds": max_elapsed,
+            "avg_elapsed_seconds": avg_elapsed,
+            "max_memory_kb": max_mem,
+            "overall": "passed" if ok else "failed"
+        }
 
         run_result = {
             "ok": ok,
-            "verdicts": verdicts,
-            "metrics": metrics,
+            "tests": tests_summary,
+            "performance": performance,
             "stdout_tail": (res.stdout or "")[-4000:],
             "stderr_tail": (res.stderr or "")[-2000:]
         }
