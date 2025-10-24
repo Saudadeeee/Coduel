@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8"/>
-  <title>MVP Online Judge</title>
+  <title>MVP Online Judge – Problem</title>
   <style>
     :root { color-scheme: light; }
     body {
@@ -13,7 +13,34 @@
       background:#E1D9CC;
       color:#434D59;
     }
-    .wrap { flex:1; display:flex; height:100%; overflow:hidden; }
+    header {
+      position:fixed;
+      top:0; left:0; right:0;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:14px 20px;
+      background:rgba(67,77,89,0.92);
+      color:#F3EEE4;
+      z-index:10;
+      box-shadow:0 8px 16px rgba(67,77,89,0.25);
+    }
+    header h1 {
+      font-size:18px;
+      margin:0;
+      letter-spacing:0.02em;
+    }
+    header a {
+      color:#F3EEE4;
+      text-decoration:none;
+      font-weight:600;
+      padding:8px 14px;
+      border-radius:999px;
+      background:rgba(243,238,228,0.2);
+      transition:background 0.15s ease;
+    }
+    header a:hover { background:rgba(243,238,228,0.35); }
+    .wrap { flex:1; display:flex; height:100%; overflow:hidden; padding-top:70px; box-sizing:border-box; }
     .pane {
       flex-basis:50%;
       display:flex;
@@ -42,9 +69,22 @@
     .panel.statement {
       padding:16px;
       border-bottom:2px solid rgba(67,77,89,0.2);
+      display:flex;
+      flex-direction:column;
+      gap:12px;
     }
-    .panel.statement h2 { margin-top:0; font-size:20px; }
+    .panel.statement h2 { margin:0; font-size:20px; }
     .panel.statement p { line-height:1.5; }
+    .difficulty-badge {
+      align-self:flex-start;
+      padding:6px 12px;
+      border-radius:999px;
+      background:rgba(243,238,228,0.9);
+      border:1px solid rgba(67,77,89,0.25);
+      font-size:13px;
+      font-weight:600;
+      letter-spacing:0.02em;
+    }
     .panel.editor {
       display:flex;
       flex-direction:column;
@@ -132,6 +172,12 @@
   </style>
 </head>
 <body>
+<header>
+  <h1>MVP Online Judge</h1>
+  <nav>
+    <a href="/problem-add">+ Add problem</a>
+  </nav>
+</header>
 <div class="wrap" id="split">
   <div class="pane results" id="left-pane">
     <div class="status-line">Status: <span id="status">idle</span></div>
@@ -148,14 +194,17 @@
   <div class="pane workspace" id="right-pane">
     <div class="vertical-wrap" id="vertical">
       <div class="panel statement" id="statement-panel">
-        <h2 id="statement-title">Problem</h2>
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+          <h2 id="statement-title">Problem</h2>
+          <span class="difficulty-badge" id="difficulty">Difficulty: unknown</span>
+        </div>
         <div id="statement-body">Select a problem to view its statement.</div>
       </div>
       <div class="vertical-divider" id="vertical-divider"></div>
       <div class="panel editor" id="editor-panel">
         <div class="code-controls">
           <label>Problem:</label>
-          <input id="pid" value="sum-two" />
+          <input id="pid" value="001-sum-two" />
           <label>Language:</label>
           <select id="lang">
             <option value="cpp">C++ (C++20)</option>
@@ -191,6 +240,7 @@ const rlog = document.getElementById("rlog");
 const pidInput = document.getElementById("pid");
 const statementBody = document.getElementById("statement-body");
 const statementTitle = document.getElementById("statement-title");
+const difficultyBadge = document.getElementById("difficulty");
 const leftPane = document.getElementById("left-pane");
 const rightPane = document.getElementById("right-pane");
 const divider = document.getElementById("divider");
@@ -200,11 +250,20 @@ const statementPanel = document.getElementById("statement-panel");
 const editorPanel = document.getElementById("editor-panel");
 const verticalDivider = document.getElementById("vertical-divider");
 
+const difficultyLabels = {
+  fast: "Fast",
+  easy: "Easy",
+  medium: "Medium",
+  hard: "Hard"
+};
+
 async function loadStatement(problemId) {
+  if (!problemId) return;
   statementTitle.textContent = `Problem: ${problemId}`;
   statementBody.textContent = "Loading statement...";
+  difficultyBadge.textContent = "Difficulty: …";
   try {
-    const res = await fetch(`${api}/v1/problem/${encodeURIComponent(problemId)}`);
+    const res = await fetch(`${api}/problem/${encodeURIComponent(problemId)}`);
     if (!res.ok) throw new Error(res.statusText);
     const data = await res.json();
     if (data.statement) {
@@ -212,8 +271,11 @@ async function loadStatement(problemId) {
     } else {
       statementBody.textContent = "No statement available for this problem.";
     }
+    const label = difficultyLabels[data.difficulty] || (data.difficulty || "unknown");
+    difficultyBadge.textContent = `Difficulty: ${label}`;
   } catch (err) {
     statementBody.textContent = "Unable to load statement.";
+    difficultyBadge.textContent = "Difficulty: unknown";
     console.error(err);
   }
 }
@@ -270,16 +332,15 @@ btn.onclick = async () => {
     problem_id: document.getElementById("pid").value,
     opt: document.getElementById("opt").value
   };
-  const res = await fetch(api + "/v1/submit", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body)});
+  const res = await fetch(api + "/problem/submit", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body)});
   const js = await res.json();
   const id = js.submission_id;
   statusEl.textContent = "queued ("+id+")";
 
-  // poll
   let tries=0;
   while (tries<120) {
     await new Promise(r=>setTimeout(r,1000));
-    const sres = await fetch(api + "/v1/submission/" + id);
+    const sres = await fetch(api + "/problem/submission/" + id);
     if (!sres.ok) break;
     const data = await sres.json();
     statusEl.textContent = data.meta.status;
@@ -290,21 +351,38 @@ btn.onclick = async () => {
   }
 };
 
-// Lightweight markdown renderer for statements (only when needed)
 const marked = {
   parse(text) {
     const escape = (t) => t
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;");
-    return text.split(/\n\n+/).map(block => {
-      if (/^#/.test(block)) {
-        const level = block.match(/^#+/)[0].length;
-        const content = escape(block.replace(/^#+\s*/, ""));
-        return `<h${level}>${content}</h${level}>`;
+
+    const segments = text.split(/```/);
+    let html = "";
+    let inCode = false;
+
+    for (const segment of segments) {
+      if (inCode) {
+        html += `<pre><code>${escape(segment.trim())}</code></pre>`;
+      } else {
+        const blocks = segment.split(/\n\n+/);
+        for (const block of blocks) {
+          const trimmed = block.trim();
+          if (!trimmed) continue;
+          if (/^#/.test(trimmed)) {
+            const level = trimmed.match(/^#+/)[0].length;
+            const content = escape(trimmed.replace(/^#+\s*/, ""));
+            html += `<h${level}>${content}</h${level}>`;
+          } else {
+            const content = escape(trimmed).replace(/\n/g, "<br/>");
+            html += `<p>${content}</p>`;
+          }
+        }
       }
-      return `<p>${escape(block)}</p>`;
-    }).join("");
+      inCode = !inCode;
+    }
+    return html;
   }
 };
 

@@ -1,12 +1,7 @@
-# Python caches
 __pycache__/
-*.pyc
-
-# Node artifacts
+*.py[cod]
+.pytest_cache/
 node_modules/
-
-# Local environment
-.env
-
-# Worker temp directories generated at runtime
 worker_tmp/
+*.log
+*.swp
