@@ -17,57 +17,87 @@ case "${1-}" in
     ;;
 esac
 
-LANGUAGE="${1}"         # c | cpp
-SRC_FILE="${2}"         # main.c | main.cpp
+LANGUAGE="${1}"
+SRC_FILE="${2}"
 EXE_NAME="main"
-OPT="${3:-O2}"          # O0|O1|O2 cho MVP
-STD="${4:-c17}"         # c17|c++20
+OPT="${3:-O2}"
+STD="${4:-}"
 
 cd /work
 
-# Biên dịch (nếu không ở chế độ run-only)
-if [ "$MODE" != "run" ]; then
-  if [ "$LANGUAGE" = "c" ]; then
-    /usr/bin/gcc -std=$STD -$OPT -pipe -Wall -Wextra -ffile-prefix-map="$PWD"=. "$SRC_FILE" -o "$EXE_NAME"
-  elif [ "$LANGUAGE" = "cpp" ]; then
-    /usr/bin/g++ -std=$STD -$OPT -pipe -Wall -Wextra -ffile-prefix-map="$PWD"=. "$SRC_FILE" -o "$EXE_NAME"
-  else
+case "$LANGUAGE" in
+  c)
+    BUILD_CMD=(/usr/bin/gcc -std=${STD:-c17} -$OPT -pipe -Wall -Wextra -ffile-prefix-map="$PWD"=. "$SRC_FILE" -o "$EXE_NAME")
+    RUN_CMD=("./$EXE_NAME")
+    ;;
+  cpp)
+    BUILD_CMD=(/usr/bin/g++ -std=${STD:-c++20} -$OPT -pipe -Wall -Wextra -ffile-prefix-map="$PWD"=. "$SRC_FILE" -o "$EXE_NAME")
+    RUN_CMD=("./$EXE_NAME")
+    ;;
+  py)
+    BUILD_CMD=(python3 -m py_compile "$SRC_FILE")
+    RUN_CMD=(python3 "$SRC_FILE")
+    ;;
+  java)
+    BUILD_CMD=(javac "$SRC_FILE")
+    RUN_CMD=(java Main)
+    ;;
+  js)
+    BUILD_CMD=(node --check "$SRC_FILE")
+    RUN_CMD=(node "$SRC_FILE")
+    ;;
+  *)
     echo "Unsupported language" >&2
     exit 2
-  fi
+    ;;
+esac
+
+if [ "$MODE" != "run" ]; then
+  "${BUILD_CMD[@]}"
 fi
 
-if [ "$MODE" != "compile" ]; then
+if [ "$MODE" = "compile" ]; then
+  echo "DONE"
+  exit 0
+fi
+
+if [ "$LANGUAGE" = "c" ] || [ "$LANGUAGE" = "cpp" ]; then
   if [ ! -x "$EXE_NAME" ]; then
     echo "Executable $EXE_NAME not found" >&2
     exit 3
   fi
-
-  # Chạy qua tất cả test *.txt theo cặp inputX/outputX nếu tồn tại
-  RESULT_JSON='{"tests":[],"ok":true,"metrics":[]}'
-  i=1
-  while true; do
-    IN="/tests/input${i}.txt"
-    OUT="/tests/output${i}.txt"
-    [ -f "$IN" ] || break
-
-    # Chạy với giới hạn thời gian tổng quát (demo: 2s) & đo bằng /usr/bin/time -v
-    # (Ở MVP, ta chỉ demo giới hạn logic; thực tế khuyên dùng cgroups qua Docker run options)
-    /usr/bin/time -v --output=metrics_${i}.txt ./"$EXE_NAME" < "$IN" > "user_out_${i}.txt" 2> "run_${i}.stderr" || true
-
-    # So sánh exact (MVP). Sau này thay bằng checker linh hoạt.
-    if diff -q "user_out_${i}.txt" "$OUT" > /dev/null 2>&1; then
-      echo "TEST $i: OK"
-      echo "OK" > "verdict_${i}.txt"
-    else
-      echo "TEST $i: WA"
-      echo "WA" > "verdict_${i}.txt"
-      RESULT_JSON='{"tests":[],"ok":false,"metrics":[]}'
-    fi
-
-    i=$((i+1))
-  done
 fi
 
-# In gói kết quả về stdout theo format thô, worker sẽ parse file (verdict_*.txt + metrics_*.txt)
+i=1
+while true; do
+  IN="/tests/input${i}.txt"
+  OUT="/tests/output${i}.txt"
+  [ -f "$IN" ] || break
+
+  case "$LANGUAGE" in
+    c|cpp)
+      /usr/bin/time -v --output=metrics_${i}.txt "${RUN_CMD[@]}" < "$IN" > "user_out_${i}.txt" 2> "run_${i}.stderr" || true
+      ;;
+    java)
+      /usr/bin/time -v --output=metrics_${i}.txt java Main < "$IN" > "user_out_${i}.txt" 2> "run_${i}.stderr" || true
+      ;;
+    py)
+      /usr/bin/time -v --output=metrics_${i}.txt python3 "$SRC_FILE" < "$IN" > "user_out_${i}.txt" 2> "run_${i}.stderr" || true
+      ;;
+    js)
+      /usr/bin/time -v --output=metrics_${i}.txt node "$SRC_FILE" < "$IN" > "user_out_${i}.txt" 2> "run_${i}.stderr" || true
+      ;;
+  esac
+
+  if diff -q "user_out_${i}.txt" "$OUT" > /dev/null 2>&1; then
+    echo "TEST $i: OK"
+    echo "OK" > "verdict_${i}.txt"
+  else
+    echo "TEST $i: WA"
+    echo "WA" > "verdict_${i}.txt"
+  fi
+
+  i=$((i+1))
+done
+
 echo "DONE"

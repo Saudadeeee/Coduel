@@ -12,7 +12,17 @@ r = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, decode_responses=True)
 
 app = FastAPI(title="OJ API")
 
-ALLOWED_LANG = {"c", "cpp"}
+LANGUAGE_ALIASES = {
+    "c": "c",
+    "cpp": "cpp",
+    "c++": "cpp",
+    "py": "py",
+    "python": "py",
+    "java": "java",
+    "js": "js",
+    "javascript": "js"
+}
+ALLOWED_LANG = set(LANGUAGE_ALIASES.keys())
 ALLOWED_OPT = {"O0","O1","O2"}
 PROBLEMS_DIR = Path(os.getenv("PROBLEMS_DIR", "/problems"))
 ALLOWED_DIFFICULTY = {"fast", "easy", "medium", "hard"}
@@ -37,9 +47,10 @@ class SubmitReq(BaseModel):
 
     @field_validator("language")
     def val_lang(cls, v):
-        if v not in ALLOWED_LANG:
-            raise ValueError("language must be c or cpp")
-        return v
+        lang = v.lower()
+        if lang not in ALLOWED_LANG:
+            raise ValueError("language must be one of c, cpp, py, java, js")
+        return LANGUAGE_ALIASES[lang]
 
     @field_validator("opt")
     def val_opt(cls, v):
@@ -451,7 +462,7 @@ def submit(s: SubmitReq):
         "problem_id": s.problem_id,
         "language": s.language,
         "opt": s.opt,
-        "std": s.std or ("c17" if s.language=="c" else "c++20"),
+        "std": s.std or {"c": "c17", "cpp": "c++20"}.get(s.language, ""),
         "created_at": str(int(time.time()))
     })
     # Lưu code

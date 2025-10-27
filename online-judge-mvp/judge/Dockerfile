@@ -2,6 +2,9 @@ FROM debian:12-slim
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential gcc g++ time ca-certificates procps \
+    python3 python3-venv python3-pip \
+    nodejs \
+    openjdk-17-jdk-headless \
     && rm -rf /var/lib/apt/lists/*
 
 ENV LC_ALL=C TZ=UTC

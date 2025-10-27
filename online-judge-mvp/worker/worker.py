@@ -54,6 +54,14 @@ PROBLEMS_ROOT = os.getenv("PROBLEMS_ROOT", "/problems")
 HOST_PROBLEMS_ROOT = os.getenv("HOST_PROBLEMS_ROOT", PROBLEMS_ROOT)
 os.makedirs(JOB_TMP_ROOT, exist_ok=True)
 
+SOURCE_FILE_MAP = {
+    "c": "main.c",
+    "cpp": "main.cpp",
+    "py": "main.py",
+    "java": "Main.java",
+    "js": "main.js"
+}
+
 def _parse_elapsed_seconds(val):
     if not val:
         return None
@@ -100,7 +108,7 @@ def compile_submission(sub_id):
 
     lang = meta["language"]
     opt = meta["opt"]
-    std = meta["std"]
+    std = meta.get("std")
     problem_id = meta["problem_id"]
 
     # Tạo thư mục tạm
@@ -108,7 +116,8 @@ def compile_submission(sub_id):
     os.chmod(tmpdir, 0o777)
     cleanup_tmp = True
     try:
-        src_file = os.path.join(tmpdir, "main.c" if lang=="c" else "main.cpp")
+        src_name = SOURCE_FILE_MAP.get(lang, "main.cpp")
+        src_file = os.path.join(tmpdir, src_name)
         with open(src_file, "w", encoding="utf-8") as f:
             f.write(code)
 
@@ -118,7 +127,8 @@ def compile_submission(sub_id):
             suffix = tmpdir[len(JOB_TMP_ROOT):]
             host_tmpdir = HOST_JOB_TMP_ROOT.rstrip("/") + suffix
         mounts = [(host_tmpdir, "/work", "rw")]
-        cmd = ["bash", "-lc", f"compile_run.sh --compile-only {lang} {os.path.basename(src_file)} {opt} {std} && true"]
+        std_arg = std or ""
+        cmd = ["bash", "-lc", f"compile_run.sh --compile-only {lang} {os.path.basename(src_file)} {opt} {std_arg} && true"]
         res = docker_run(cmd, mounts=mounts, timeout=COMPILE_TIMEOUT)
         compile_log = (res.stdout or "") + "\n" + (res.stderr or "")
         r.set(f"compile_log:{sub_id}", compile_log, ex=3600)
@@ -144,7 +154,7 @@ def run_submission(job):
     sub_id = job["submission_id"]
     tmpdir = job["tmpdir"]
     problem_id = job["problem_id"]
-    lang = job["lang"]; opt = job["opt"]; std = job["std"]
+    lang = job["lang"]; opt = job["opt"]; std = job.get("std")
 
     tests_dir = os.path.abspath(os.path.join(PROBLEMS_ROOT, problem_id))
     if not os.path.isdir(tests_dir):
@@ -167,7 +177,9 @@ def run_submission(job):
             (host_tests_dir, "/tests", "ro")
         ]
         # Gọi container chạy lại binary trên bộ test (compile_run.sh đã sinh main)
-        cmd = ["bash", "-lc", f"compile_run.sh --run-only {lang} {('main.c' if lang=='c' else 'main.cpp')} {opt} {std} && true"]
+        source_for_run = SOURCE_FILE_MAP.get(lang, "main.cpp")
+        std_arg = std or ""
+        cmd = ["bash", "-lc", f"compile_run.sh --run-only {lang} {source_for_run} {opt} {std_arg} && true"]
         res = docker_run(cmd, mounts=mounts, timeout=RUN_TIMEOUT)
         if res.returncode not in (0,):
             error_payload = {
