@@ -1,7 +1,5 @@
 # Problem 3: hehe
 
-**Difficulty:** hard
-
 heheheh
 
 ## Sample Input
@@ -13,8 +11,3 @@ eheh
 ```
 eheh
 ```
-
-## How To Submit
-Use problem_id:
-
-003-hehe

@@ -146,7 +146,10 @@
 <body>
   <header>
     <h1>Thêm problem mới</h1>
-    <a href="/problem">← Quay lại Problem</a>
+    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+      <a href="/problem">← Quay lại Problem</a>
+      <a href="/problem-edit">Chỉnh sửa problem</a>
+    </div>
   </header>
   <main>
     <section>
@@ -182,6 +185,20 @@
         <textarea id="sample-output" placeholder="Ví dụ: 6"></textarea>
       </div>
     </div>
+    <div class="grid">
+      <div>
+        <label for="time-limit">Time limit (ms)</label>
+        <input type="number" id="time-limit" min="1" placeholder="Ví dụ: 2000">
+      </div>
+      <div>
+        <label for="memory-limit">Memory limit (KB)</label>
+        <input type="number" id="memory-limit" min="1" placeholder="Ví dụ: 262144">
+      </div>
+      <div>
+        <label for="tags">Tags (comma separated)</label>
+        <input type="text" id="tags" placeholder="Ví dụ: math, implementation">
+      </div>
+    </div>
     <section class="tests">
       <div class="test-header">
         <h2>Test cases</h2>
@@ -203,6 +220,11 @@
       <textarea class="test-input" placeholder="Input cho test này"></textarea>
       <label style="margin-top:12px;">Output</label>
       <textarea class="test-output" placeholder="Output mong đợi"></textarea>
+      <label style="margin-top:12px;">Visibility</label>
+      <select class="test-visibility">
+        <option value="hidden">Hidden (judge only)</option>
+        <option value="public">Public</option>
+      </select>
     </div>
   </template>
 
@@ -219,11 +241,13 @@
       });
     }
 
-    function addTest(input = "", output = "") {
+    function addTest(input = "", output = "", visibility = "hidden") {
       const clone = template.content.cloneNode(true);
       const item = clone.querySelector(".test-item");
       item.querySelector(".test-input").value = input;
       item.querySelector(".test-output").value = output;
+      const visibilitySelect = item.querySelector(".test-visibility");
+      if (visibilitySelect) visibilitySelect.value = visibility;
       item.querySelector(".remove").addEventListener("click", () => {
         item.remove();
         refreshTitles();
@@ -245,16 +269,36 @@
 
     submitBtn.addEventListener("click", async () => {
       message.style.display = "none";
+      const title = document.getElementById("title").value.trim();
+      const description = document.getElementById("description").value.trim();
+      const sampleInput = document.getElementById("sample-input").value;
+      const sampleOutput = document.getElementById("sample-output").value;
+      const difficulty = document.getElementById("difficulty").value;
+      const timeLimitRaw = document.getElementById("time-limit").value.trim();
+      const memoryLimitRaw = document.getElementById("memory-limit").value.trim();
+      const tagsRaw = document.getElementById("tags").value;
+
+      const tests = [...testsWrap.querySelectorAll(".test-item")].map(item => {
+        const inputValue = item.querySelector(".test-input").value;
+        const outputValue = item.querySelector(".test-output").value;
+        const visibilityValue = item.querySelector(".test-visibility").value;
+        return {
+          input: inputValue,
+          output: outputValue,
+          visibility: visibilityValue
+        };
+      });
+
       const payload = {
-        title: document.getElementById("title").value.trim(),
-        description: document.getElementById("description").value.trim(),
-        sample_input: document.getElementById("sample-input").value,
-        sample_output: document.getElementById("sample-output").value,
-        difficulty: document.getElementById("difficulty").value,
-        tests: [...testsWrap.querySelectorAll(".test-item")].map(item => ({
-          input: item.querySelector(".test-input").value,
-          output: item.querySelector(".test-output").value
-        }))
+        title,
+        description,
+        sample_input: sampleInput,
+        sample_output: sampleOutput,
+        difficulty,
+        tests,
+        time_limit_ms: null,
+        memory_limit_kb: null,
+        tags: tagsRaw.split(",").map(t => t.trim()).filter(Boolean)
       };
 
       if (!payload.title || !payload.description || !payload.sample_input || !payload.sample_output) {
@@ -264,6 +308,29 @@
       if (!payload.tests.length) {
         showMessage("error", "Cần ít nhất một test case.");
         return;
+      }
+      const emptyTest = payload.tests.find(tc => !tc.input.trim() || !tc.output.trim());
+      if (emptyTest) {
+        showMessage("error", "Mỗi test cần input và output.");
+        return;
+      }
+
+      if (timeLimitRaw) {
+        const parsed = Number(timeLimitRaw);
+        if (!Number.isFinite(parsed) || parsed <= 0) {
+          showMessage("error", "Time limit phải là số dương.");
+          return;
+        }
+        payload.time_limit_ms = Math.round(parsed);
+      }
+
+      if (memoryLimitRaw) {
+        const parsed = Number(memoryLimitRaw);
+        if (!Number.isFinite(parsed) || parsed <= 0) {
+          showMessage("error", "Memory limit phải là số dương.");
+          return;
+        }
+        payload.memory_limit_kb = Math.round(parsed);
       }
 
       submitBtn.disabled = true;
@@ -278,9 +345,14 @@
         const data = await res.json();
         if (!res.ok) throw new Error(data.detail || data.message || res.statusText);
         showMessage("success", `Tạo thành công! problem_id: ${data.problem_id} (number ${data.number})`);
+        document.getElementById("title").value = "";
         document.getElementById("description").value = "";
         document.getElementById("sample-input").value = "";
         document.getElementById("sample-output").value = "";
+        document.getElementById("difficulty").value = "fast";
+        document.getElementById("time-limit").value = "";
+        document.getElementById("memory-limit").value = "";
+        document.getElementById("tags").value = "";
         testsWrap.innerHTML = "";
         addTest();
       } catch (err) {

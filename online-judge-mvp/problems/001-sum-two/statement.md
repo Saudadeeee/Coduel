@@ -1,7 +1,5 @@
 # Problem 1: Sum Two Numbers
 
-**Difficulty:** easy
-
 Cho hai số nguyên `a` và `b`. Nhiệm vụ của bạn là in ra tổng `a + b`.
 
 ## Input
@@ -19,8 +17,3 @@ Cho hai số nguyên `a` và `b`. Nhiệm vụ của bạn là in ra tổng `a +
 ```
 3
 ```
-
-## How To Submit
-Use problem_id:
-
-001-sum-two

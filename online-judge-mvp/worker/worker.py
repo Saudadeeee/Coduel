@@ -1,8 +1,8 @@
-#  Run file tips:
-# docker compose down 
-# docker build -t oj_judge:latest ./judge    
-# DOCKER_BUILDKIT=0 docker compose build worker 
-# docker compose up -d 
+# cd /home/khenh/Code/Project/Cowar/online-judge-mvp
+# DOCKER_BUILDKIT=0 docker compose up -d --build 
+
+
+
 
 
 import os, json, time, subprocess, tempfile, shutil, uuid, re, shlex

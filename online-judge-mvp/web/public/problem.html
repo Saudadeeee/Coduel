@@ -67,23 +67,113 @@
       background:rgba(225,217,204,0.8);
     }
     .panel.statement {
-      padding:16px;
+      padding:20px;
       border-bottom:2px solid rgba(67,77,89,0.2);
       display:flex;
       flex-direction:column;
-      gap:12px;
+      gap:16px;
     }
-    .panel.statement h2 { margin:0; font-size:20px; }
-    .panel.statement p { line-height:1.5; }
+    .panel.statement h2 { margin:0; font-size:22px; }
+    .panel.statement p { line-height:1.6; }
+    .statement-header {
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:16px;
+      flex-wrap:wrap;
+    }
+    .statement-meta {
+      margin-top:6px;
+      font-size:13px;
+      color:rgba(67,77,89,0.75);
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .statement-meta span {
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+    }
+    .statement-meta span + span::before {
+      content:"•";
+      margin-right:6px;
+      color:rgba(67,77,89,0.45);
+    }
+    .statement-meta code {
+      background:rgba(67,77,89,0.1);
+      padding:2px 6px;
+      border-radius:6px;
+      font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Courier New", monospace;
+      font-size:12px;
+      color:rgba(67,77,89,0.85);
+    }
     .difficulty-badge {
       align-self:flex-start;
-      padding:6px 12px;
+      padding:6px 14px;
       border-radius:999px;
-      background:rgba(243,238,228,0.9);
-      border:1px solid rgba(67,77,89,0.25);
+      background:rgba(67,77,89,0.12);
+      border:1px solid rgba(67,77,89,0.18);
       font-size:13px;
+      font-weight:700;
+      letter-spacing:0.04em;
+      text-transform:uppercase;
+    }
+    .statement-body {
+      display:flex;
+      flex-direction:column;
+      gap:18px;
+    }
+    .statement-section {
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .statement-section h3 {
+      margin:0;
+      font-size:16px;
+      text-transform:uppercase;
+      letter-spacing:0.04em;
+      color:rgba(67,77,89,0.75);
+    }
+    .statement-section p {
+      margin:0;
+      line-height:1.6;
+    }
+    .sample-block {
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    .sample-caption {
+      font-size:12px;
       font-weight:600;
-      letter-spacing:0.02em;
+      letter-spacing:0.08em;
+      text-transform:uppercase;
+      color:rgba(67,77,89,0.6);
+    }
+    .sample-box {
+      background:#23292f;
+      color:#e3f2fd;
+      border-radius:10px;
+      padding:14px 16px;
+      font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Courier New", monospace;
+      font-size:13px;
+      overflow:auto;
+      box-shadow:inset 0 1px 2px rgba(0,0,0,0.4);
+    }
+    .sample-box code {
+      white-space:pre;
+      color:inherit;
+    }
+    .statement-body pre {
+      background:#f3eee4;
+      border-radius:8px;
+      padding:12px 14px;
+      font-size:13px;
+      overflow:auto;
+      font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Courier New", monospace;
+      border:1px solid rgba(67,77,89,0.18);
     }
     .panel.editor {
       display:flex;
@@ -105,6 +195,20 @@
       color:#434D59;
       border-radius:6px;
     }
+    select { min-width:160px; }
+    .small-btn {
+      background:rgba(67,77,89,0.12);
+      color:#434D59;
+      border:none;
+      border-radius:8px;
+      padding:6px 12px;
+      font-size:12px;
+      font-weight:600;
+      cursor:pointer;
+      transition:background 0.15s ease, transform 0.15s ease;
+    }
+    .small-btn:hover { background:rgba(67,77,89,0.18); transform:translateY(-1px); }
+    .small-btn:active { transform:translateY(0); }
     textarea {
       flex:1;
       padding:12px;
@@ -138,6 +242,61 @@
       min-height:140px;
       overflow:auto;
       white-space:pre-wrap;
+    }
+    .run-summary {
+      background:#F3EEE4;
+      border-radius:8px;
+      padding:12px;
+      border:1px solid rgba(67,77,89,0.25);
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      font-size:14px;
+    }
+    .run-summary .overall {
+      font-weight:700;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .run-summary .overall.pass { color:#1f7a4d; }
+    .run-summary .overall.fail { color:#c0392b; }
+    .run-tests {
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    .run-tests li {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      background:rgba(67,77,89,0.08);
+      border-radius:6px;
+      padding:6px 10px;
+      font-weight:600;
+    }
+    .run-tests li.pass { color:#1f7a4d; }
+    .run-tests li.fail { color:#c0392b; }
+    .run-tests li span {
+      font-size:12px;
+      font-weight:500;
+      color:rgba(67,77,89,0.7);
+    }
+    .run-metrics {
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      font-size:13px;
+      color:rgba(67,77,89,0.85);
+    }
+    .run-metrics div {
+      background:rgba(67,77,89,0.08);
+      border-radius:6px;
+      padding:6px 10px;
     }
     .floating-btn {
       position:fixed;
@@ -176,6 +335,7 @@
   <h1>MVP Online Judge</h1>
   <nav>
     <a href="/problem-add">+ Add problem</a>
+    <a href="/problem-edit">Edit problem</a>
   </nav>
 </header>
 <div class="wrap" id="split">
@@ -187,24 +347,31 @@
     </div>
     <div>
       <strong>Run result</strong>
-      <pre class="log-block" id="rlog"></pre>
+      <div class="run-summary" id="run-summary">Chưa có kết quả.</div>
+      <pre class="log-block" id="rlog" style="display:none;"></pre>
     </div>
   </div>
   <div class="divider" id="divider"></div>
   <div class="pane workspace" id="right-pane">
     <div class="vertical-wrap" id="vertical">
       <div class="panel statement" id="statement-panel">
-        <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
-          <h2 id="statement-title">Problem</h2>
+        <div class="statement-header">
+          <div>
+            <h2 id="statement-title">Problem</h2>
+            <div class="statement-meta">
+              <span id="problem-meta"></span>
+            </div>
+          </div>
           <span class="difficulty-badge" id="difficulty">Difficulty: unknown</span>
         </div>
-        <div id="statement-body">Select a problem to view its statement.</div>
+        <div id="statement-body" class="statement-body">Select a problem to view its statement.</div>
       </div>
       <div class="vertical-divider" id="vertical-divider"></div>
       <div class="panel editor" id="editor-panel">
         <div class="code-controls">
-          <label>Problem:</label>
-          <input id="pid" value="001-sum-two" />
+          <label for="pid">Problem:</label>
+          <select id="pid"></select>
+          <button type="button" class="small-btn" id="refresh-problems">Refresh</button>
           <label>Language:</label>
           <select id="lang">
             <option value="cpp">C++ (C++20)</option>
@@ -237,10 +404,13 @@ const btn = document.getElementById("btn");
 const statusEl = document.getElementById("status");
 const clog = document.getElementById("clog");
 const rlog = document.getElementById("rlog");
+const runSummary = document.getElementById("run-summary");
 const pidInput = document.getElementById("pid");
+const refreshBtn = document.getElementById("refresh-problems");
 const statementBody = document.getElementById("statement-body");
 const statementTitle = document.getElementById("statement-title");
 const difficultyBadge = document.getElementById("difficulty");
+const problemMeta = document.getElementById("problem-meta");
 const leftPane = document.getElementById("left-pane");
 const rightPane = document.getElementById("right-pane");
 const divider = document.getElementById("divider");
@@ -250,6 +420,9 @@ const statementPanel = document.getElementById("statement-panel");
 const editorPanel = document.getElementById("editor-panel");
 const verticalDivider = document.getElementById("vertical-divider");
 
+let problemsCache = [];
+let currentProblemId = "";
+
 const difficultyLabels = {
   fast: "Fast",
   easy: "Easy",
@@ -258,24 +431,81 @@ const difficultyLabels = {
 };
 
 async function loadStatement(problemId) {
-  if (!problemId) return;
+  if (!problemId) {
+    statementTitle.textContent = "Problem";
+    problemMeta.innerHTML = "";
+    statementBody.textContent = "Select a problem to view its statement.";
+    difficultyBadge.textContent = "Difficulty: unknown";
+    statusEl.textContent = "idle";
+    clog.textContent = "";
+    renderRunResult(null);
+    return;
+  }
+
+  currentProblemId = problemId;
+  statusEl.textContent = "idle";
+  clog.textContent = "";
+  renderRunResult(null);
+  problemMeta.innerHTML = `<span>ID: <code>${escapeHtml(problemId)}</code></span>`;
   statementTitle.textContent = `Problem: ${problemId}`;
   statementBody.textContent = "Loading statement...";
   difficultyBadge.textContent = "Difficulty: …";
+
   try {
     const res = await fetch(`${api}/problem/${encodeURIComponent(problemId)}`);
     if (!res.ok) throw new Error(res.statusText);
     const data = await res.json();
-    if (data.statement) {
-      statementBody.innerHTML = marked.parse(data.statement);
-    } else {
-      statementBody.textContent = "No statement available for this problem.";
+
+    const diffLabel = difficultyLabels[data.difficulty] || (data.difficulty || "unknown");
+    difficultyBadge.textContent = `Difficulty: ${diffLabel}`;
+
+    const metaBits = [`<span>ID: <code>${escapeHtml(problemId)}</code></span>`];
+    if (typeof data.number === "number") {
+      metaBits.push(`<span>Problem #${data.number}</span>`);
     }
-    const label = difficultyLabels[data.difficulty] || (data.difficulty || "unknown");
-    difficultyBadge.textContent = `Difficulty: ${label}`;
+    const timeDisplay = formatTimeLimit(data.time_limit_ms);
+    if (timeDisplay) {
+      metaBits.push(`<span>Time limit: ${timeDisplay}</span>`);
+    }
+    const memoryDisplay = formatMemory(data.memory_limit_kb);
+    if (memoryDisplay) {
+      metaBits.push(`<span>Memory: ${memoryDisplay}</span>`);
+    }
+    if (data.tests_summary && data.tests_summary.total) {
+      const publicCount = data.tests_summary.public ?? 0;
+      const hiddenCount = data.tests_summary.hidden ?? 0;
+      let testsLabel = `${data.tests_summary.total} total`;
+      if (publicCount && hiddenCount) {
+        testsLabel += ` (${publicCount} public)`;
+      } else if (publicCount) {
+        testsLabel += ` (${publicCount} public)`;
+      }
+      metaBits.push(`<span>Tests: ${testsLabel}</span>`);
+    }
+    if (Array.isArray(data.tags) && data.tags.length) {
+      metaBits.push(`<span>Tags: ${data.tags.map(escapeHtml).join(", ")}</span>`);
+    }
+    problemMeta.innerHTML = metaBits.join("");
+
+    const info = renderStatementContent(data.statement || "");
+    let displayTitle = data.title || info.title || null;
+    if (displayTitle) {
+      if (typeof data.number === "number" && !/^problem\s*\d+/i.test(displayTitle)) {
+        statementTitle.textContent = `Problem ${data.number}: ${displayTitle}`;
+      } else {
+        statementTitle.textContent = displayTitle;
+      }
+    } else {
+      statementTitle.textContent = `Problem: ${problemId}`;
+    }
+
+    if (!info.hasSample && Array.isArray(data.samples) && data.samples.length) {
+      appendSampleSections(data.samples);
+    }
   } catch (err) {
     statementBody.textContent = "Unable to load statement.";
     difficultyBadge.textContent = "Difficulty: unknown";
+    problemMeta.innerHTML = `<span>ID: <code>${escapeHtml(problemId)}</code></span>`;
     console.error(err);
   }
 }
@@ -320,34 +550,110 @@ window.addEventListener("mouseup", () => {
   }
 });
 
-pidInput.addEventListener("change", () => loadStatement(pidInput.value.trim()));
-pidInput.addEventListener("blur", () => loadStatement(pidInput.value.trim()));
+pidInput.addEventListener("change", () => {
+  const value = pidInput.value;
+  currentProblemId = value;
+  clog.textContent = "";
+  renderRunResult(null);
+  if (value) {
+    loadStatement(value);
+  } else {
+    loadStatement("");
+  }
+});
+refreshBtn.addEventListener("click", () => loadProblemOptions(true));
+
+async function loadProblemOptions(autoSelect = false) {
+  try {
+    const res = await fetch(`${api}/problems`);
+    if (!res.ok) throw new Error(res.statusText);
+    const data = await res.json();
+    problemsCache = Array.isArray(data.problems) ? data.problems : [];
+  } catch (err) {
+    console.error(err);
+    problemsCache = [];
+  }
+
+  pidInput.innerHTML = "";
+
+  if (!problemsCache.length) {
+    const option = document.createElement("option");
+    option.value = "";
+    option.textContent = "No problems available";
+    pidInput.appendChild(option);
+    pidInput.disabled = true;
+    loadStatement("");
+    return;
+  }
+
+  pidInput.disabled = false;
+
+  problemsCache.forEach((item) => {
+    const option = document.createElement("option");
+    option.value = item.problem_id;
+    const numberLabel = typeof item.number === "number" ? `${String(item.number).padStart(3, "0")} · ` : "";
+    const diffLabel = difficultyLabels[item.difficulty] || (item.difficulty || "unknown");
+    option.textContent = `${numberLabel}${item.title || item.problem_id} (${diffLabel})`;
+    pidInput.appendChild(option);
+  });
+
+  const desired = currentProblemId && problemsCache.some(p => p.problem_id === currentProblemId)
+    ? currentProblemId
+    : problemsCache[0].problem_id;
+
+  pidInput.value = desired;
+  currentProblemId = desired;
+
+  if (autoSelect && desired) {
+    await loadStatement(desired);
+  }
+}
 
 btn.onclick = async () => {
   statusEl.textContent = "submitting...";
   clog.textContent = ""; rlog.textContent = "";
+  renderRunResult(null);
   const body = {
     language: document.getElementById("lang").value,
     code: document.getElementById("code").value,
     problem_id: document.getElementById("pid").value,
     opt: document.getElementById("opt").value
   };
-  const res = await fetch(api + "/problem/submit", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body)});
-  const js = await res.json();
-  const id = js.submission_id;
-  statusEl.textContent = "queued ("+id+")";
+  if (!body.problem_id) {
+    statusEl.textContent = "Please choose a problem before submitting.";
+    return;
+  }
+  try {
+    const res = await fetch(api + "/problem/submit", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) {
+      const errText = await res.text();
+      statusEl.textContent = `submit failed (${res.status})`;
+      console.error("Submit failed:", errText);
+      return;
+    }
+    const js = await res.json();
+    const id = js.submission_id;
+    statusEl.textContent = "queued ("+id+")";
 
-  let tries=0;
-  while (tries<120) {
-    await new Promise(r=>setTimeout(r,1000));
-    const sres = await fetch(api + "/problem/submission/" + id);
-    if (!sres.ok) break;
-    const data = await sres.json();
-    statusEl.textContent = data.meta.status;
-    if (data.compile_log) clog.textContent = data.compile_log;
-    if (data.run_result) rlog.textContent = JSON.stringify(data.run_result, null, 2);
-    if (["done","failed","compile_error","error","run_timeout","compile_timeout","problem_not_found"].includes(data.meta.status)) break;
-    tries++;
+    let tries=0;
+    while (tries<120) {
+      await new Promise(r=>setTimeout(r,1000));
+      const sres = await fetch(api + "/problem/submission/" + id);
+      if (!sres.ok) break;
+      const data = await sres.json();
+      statusEl.textContent = data.meta.status;
+      if (data.compile_log) clog.textContent = data.compile_log;
+      renderRunResult(data.run_result);
+      if (["done","failed","compile_error","error","run_timeout","compile_timeout","problem_not_found"].includes(data.meta.status)) break;
+      tries++;
+    }
+  } catch (err) {
+    statusEl.textContent = "submit failed";
+    console.error(err);
   }
 };
 
@@ -386,7 +692,204 @@ const marked = {
   }
 };
 
-loadStatement(pidInput.value.trim());
+loadProblemOptions(true);
+
+function renderRunResult(run) {
+  if (!run) {
+    runSummary.textContent = "Chưa có kết quả.";
+    rlog.textContent = "";
+    return;
+  }
+  const overallClass = run.ok ? "pass" : "fail";
+  const tests = Array.isArray(run.tests) ? run.tests : [];
+  const testsHtml = tests.map((test, idx) => {
+    const passed = !!test.passed;
+    const cls = passed ? "pass" : "fail";
+    const verdict = passed ? "pass" : (test.verdict || "fail");
+    const elapsed = formatMetric(test.elapsed_seconds, test.elapsed);
+    const memory = formatMemory(test.max_rss_kb);
+    return `<li class="${cls}">Test case ${test.test || idx + 1}: ${verdict}<span>${elapsed}${elapsed && memory ? " · " : ""}${memory}</span></li>`;
+  }).join("");
+
+  const perf = run.performance || {};
+  const metrics = [];
+  const maxElapsed = formatSeconds(perf.max_elapsed_seconds);
+  if (maxElapsed) metrics.push(`Max time: ${maxElapsed}s`);
+  const avgElapsed = formatSeconds(perf.avg_elapsed_seconds);
+  if (avgElapsed) metrics.push(`Avg time: ${avgElapsed}s`);
+  const maxMem = formatMemory(perf.max_memory_kb);
+  if (maxMem) metrics.push(`Max RAM: ${maxMem}`);
+
+  runSummary.innerHTML = `
+    <div class="overall ${overallClass}">${overallText}</div>
+    ${testsHtml ? `<ul class="run-tests">${testsHtml}</ul>` : "<em>No test summary.</em>"}
+    ${metrics.length ? `<div class="run-metrics">${metrics.map(m => `<div>${m}</div>`).join("")}</div>` : ""}
+  `;
+  rlog.textContent = JSON.stringify(run, null, 2);
+}
+
+function renderStatementContent(markdown) {
+  statementBody.innerHTML = "";
+  if (!markdown) {
+    statementBody.textContent = "No statement available for this problem.";
+    return { title: null, hasSample: false };
+  }
+  const temp = document.createElement("div");
+  temp.innerHTML = marked.parse(markdown);
+
+  let docTitle = null;
+  const sections = [];
+  let current = null;
+  let hasSampleSection = false;
+
+  const ensureSection = () => {
+    if (!current) {
+      current = { heading: "Problem Description", nodes: [] };
+      sections.push(current);
+    }
+  };
+
+  Array.from(temp.children).forEach((node) => {
+    if (!(node instanceof HTMLElement)) return;
+    const tag = node.tagName.toUpperCase();
+    if (tag === "H1") {
+      docTitle = node.textContent.trim();
+      return;
+    }
+    if (/^H[2-6]$/.test(tag)) {
+      const heading = node.textContent.trim();
+      current = { heading, nodes: [] };
+      sections.push(current);
+      return;
+    }
+    const textContent = node.textContent.trim();
+    if (tag === "P" && !textContent) return;
+    if (tag === "P" && /use problem_id/i.test(textContent)) return;
+    ensureSection();
+    current.nodes.push(node);
+  });
+
+  sections.forEach((section) => {
+    if (!section.nodes.length) return;
+    const block = document.createElement("div");
+    block.className = "statement-section";
+    const heading = section.heading;
+    const isDefault = heading === "Problem Description";
+    const headingLower = (heading || "").toLowerCase();
+    const isSampleInput = headingLower.includes("sample input");
+    const isSampleOutput = headingLower.includes("sample output");
+    const isSample = isSampleInput || isSampleOutput;
+    if (!isDefault && heading) {
+      const h3 = document.createElement("h3");
+      h3.textContent = heading;
+      block.appendChild(h3);
+    }
+    section.nodes.forEach((node) => {
+      if (isSample && node.tagName.toUpperCase() === "PRE") {
+        hasSampleSection = true;
+        const box = document.createElement("div");
+        box.className = "sample-box";
+        const code = document.createElement("code");
+        code.textContent = node.textContent.trimEnd();
+        box.appendChild(code);
+        block.appendChild(box);
+      } else {
+        block.appendChild(node);
+      }
+    });
+    statementBody.appendChild(block);
+  });
+
+  if (!statementBody.childElementCount) {
+    statementBody.textContent = "No statement available for this problem.";
+  }
+
+  return { title: docTitle, hasSample: hasSampleSection };
+}
+
+function appendSampleSections(samples) {
+  samples.forEach((sample, index) => {
+    const section = document.createElement("div");
+    section.className = "statement-section";
+
+    const heading = document.createElement("h3");
+    const label = sample.label || (samples.length > 1 ? `Sample ${index + 1}` : "Sample");
+    heading.textContent = label;
+    section.appendChild(heading);
+
+    if (typeof sample.input === "string") {
+      section.appendChild(createSampleBlock("Input", sample.input));
+    }
+    if (typeof sample.output === "string") {
+      section.appendChild(createSampleBlock("Output", sample.output));
+    }
+
+    statementBody.appendChild(section);
+  });
+}
+
+function createSampleBlock(title, content) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "sample-block";
+  const caption = document.createElement("span");
+  caption.className = "sample-caption";
+  caption.textContent = title;
+  wrapper.appendChild(caption);
+
+  const box = document.createElement("div");
+  box.className = "sample-box";
+  const code = document.createElement("code");
+  code.textContent = (content || "").trimEnd();
+  box.appendChild(code);
+  wrapper.appendChild(box);
+  return wrapper;
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function formatTimeLimit(ms) {
+  if (ms === null || ms === undefined) return "";
+  const num = Number(ms);
+  if (!Number.isFinite(num) || num <= 0) return "";
+  if (num >= 1000) {
+    const seconds = num / 1000;
+    const formatted = seconds >= 10 ? seconds.toFixed(1) : seconds.toFixed(2);
+    return `${formatted.replace(/\.0+$/, "").replace(/\.([1-9])0$/, ".$1")} s`;
+  }
+  return `${Math.round(num)} ms`;
+}
+
+function formatSeconds(val) {
+  if (val === null || val === undefined) return "";
+  const num = Number(val);
+  if (!Number.isFinite(num)) return "";
+  return num.toFixed(num >= 1 ? 2 : 3).replace(/\.0+$/, "").replace(/\.([1-9])0$/, ".$1");
+}
+
+function formatMetric(seconds, fallback) {
+  const sec = formatSeconds(seconds);
+  if (sec) return `${sec}s`;
+  if (fallback) return fallback;
+  return "";
+}
+
+function formatMemory(kb) {
+  if (kb === null || kb === undefined) return "";
+  const num = Number(kb);
+  if (!Number.isFinite(num) || num <= 0) return "";
+  if (num >= 1024 * 5) {
+    const mb = num / 1024;
+    return `${mb.toFixed(mb >= 10 ? 1 : 2).replace(/\.0+$/, "").replace(/\.([1-9])0$/, ".$1")} MB`;
+  }
+  return `${num} KB`;
+}
 </script>
 </body>
 </html>
