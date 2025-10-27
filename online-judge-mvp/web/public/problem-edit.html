@@ -178,7 +178,8 @@
   <header>
     <h1>Chỉnh sửa problem</h1>
     <nav>
-      <a href="/problem">← Về trang luyện tập</a>
+      <a href="/dashboard">Dashboard</a>
+      <a href="/problem">Workspace</a>
       <a href="/problem-add">+ Thêm problem</a>
     </nav>
   </header>
@@ -300,8 +301,9 @@
     const saveBtn = document.getElementById("save-problem");
     const deleteBtn = document.getElementById("delete-problem");
 
+    const initialHashId = decodeURIComponent(window.location.hash.slice(1) || "");
     let problemsCache = [];
-    let currentProblemId = "";
+    let currentProblemId = initialHashId;
 
     function showMessage(type, text) {
       messageBox.className = `message ${type}`;
@@ -370,6 +372,7 @@
         selectEl.appendChild(option);
         selectEl.disabled = true;
         currentProblemId = "";
+        location.hash = "";
         resetForm();
         return;
       }
@@ -389,6 +392,8 @@
       selectEl.value = currentProblemId;
       if (autoLoad && currentProblemId) {
         await loadProblemDetail(currentProblemId);
+      } else if (currentProblemId) {
+        location.hash = encodeURIComponent(currentProblemId);
       }
     }
 
@@ -403,6 +408,8 @@
         if (!res.ok) throw new Error(res.statusText);
         const data = await res.json();
         currentProblemId = problemId;
+        selectEl.value = problemId;
+        location.hash = encodeURIComponent(problemId);
         fillForm(data);
       } catch (err) {
         console.error(err);
@@ -484,9 +491,23 @@
     selectEl.addEventListener("change", async () => {
       currentProblemId = selectEl.value;
       if (currentProblemId) {
+        location.hash = encodeURIComponent(currentProblemId);
         await loadProblemDetail(currentProblemId);
       } else {
+        location.hash = "";
         resetForm();
+      }
+    });
+
+    window.addEventListener("hashchange", () => {
+      const hashId = decodeURIComponent(window.location.hash.slice(1) || "");
+      if (!hashId) {
+        return;
+      }
+      if (hashId !== currentProblemId && problemsCache.some(p => p.problem_id === hashId)) {
+        currentProblemId = hashId;
+        selectEl.value = currentProblemId;
+        loadProblemDetail(currentProblemId);
       }
     });
 

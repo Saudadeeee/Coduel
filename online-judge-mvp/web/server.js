@@ -10,7 +10,8 @@ const publicDir = path.join(__dirname, "public");
 
 app.use(express.static(publicDir));
 
-app.get("/", (_req, res) => res.redirect("/problem"));
+app.get("/", (_req, res) => res.redirect("/dashboard"));
+app.get("/dashboard", (_req, res) => res.sendFile(path.join(publicDir, "dashboard.html")));
 app.get("/problem", (_req, res) => res.sendFile(path.join(publicDir, "problem.html")));
 app.get("/problem-add", (_req, res) => res.sendFile(path.join(publicDir, "problem-add.html")));
 app.get("/problem-edit", (_req, res) => res.sendFile(path.join(publicDir, "problem-edit.html")));

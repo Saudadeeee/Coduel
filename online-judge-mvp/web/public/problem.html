@@ -119,6 +119,20 @@
       letter-spacing:0.04em;
       text-transform:uppercase;
     }
+    .status-badge {
+      align-self:flex-start;
+      padding:6px 14px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      letter-spacing:0.04em;
+      text-transform:uppercase;
+      background:rgba(67,77,89,0.08);
+      color:#2f3b46;
+    }
+    .status-badge.completed { background:#bbf7d0; color:#166534; }
+    .status-badge.in-progress { background:#fde68a; color:#b45309; }
+    .status-badge.new { background:#e5e7eb; color:#374151; }
     .statement-body {
       display:flex;
       flex-direction:column;
@@ -334,6 +348,7 @@
 <header>
   <h1>MVP Online Judge</h1>
   <nav>
+    <a href="/dashboard">Dashboard</a>
     <a href="/problem-add">+ Add problem</a>
     <a href="/problem-edit">Edit problem</a>
   </nav>
@@ -362,7 +377,10 @@
               <span id="problem-meta"></span>
             </div>
           </div>
-          <span class="difficulty-badge" id="difficulty">Difficulty: unknown</span>
+          <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+            <span class="difficulty-badge" id="difficulty">Difficulty: unknown</span>
+            <span class="status-badge" id="status-badge">Status: new</span>
+          </div>
         </div>
         <div id="statement-body" class="statement-body">Select a problem to view its statement.</div>
       </div>
@@ -410,6 +428,7 @@ const refreshBtn = document.getElementById("refresh-problems");
 const statementBody = document.getElementById("statement-body");
 const statementTitle = document.getElementById("statement-title");
 const difficultyBadge = document.getElementById("difficulty");
+const statusBadge = document.getElementById("status-badge");
 const problemMeta = document.getElementById("problem-meta");
 const leftPane = document.getElementById("left-pane");
 const rightPane = document.getElementById("right-pane");
@@ -420,8 +439,12 @@ const statementPanel = document.getElementById("statement-panel");
 const editorPanel = document.getElementById("editor-panel");
 const verticalDivider = document.getElementById("vertical-divider");
 
+const STATUS_KEY = "oj-problem-status";
+const urlParams = new URLSearchParams(window.location.search);
+const initialProblemId = urlParams.get("pid") || "";
+
 let problemsCache = [];
-let currentProblemId = "";
+let currentProblemId = initialProblemId;
 
 const difficultyLabels = {
   fast: "Fast",
@@ -429,6 +452,56 @@ const difficultyLabels = {
   medium: "Medium",
   hard: "Hard"
 };
+
+function loadStatuses() {
+  try {
+    return JSON.parse(localStorage.getItem(STATUS_KEY) || "{}");
+  } catch {
+    return {};
+  }
+}
+
+function getProblemStatus(problemId) {
+  if (!problemId) return "new";
+  const statuses = loadStatuses();
+  return statuses[problemId] || "new";
+}
+
+function setProblemStatus(problemId, status) {
+  if (!problemId) return;
+  const statuses = loadStatuses();
+  statuses[problemId] = status;
+  localStorage.setItem(STATUS_KEY, JSON.stringify(statuses));
+}
+
+function statusLabel(status) {
+  if (status === "completed") return "Completed";
+  if (status === "in-progress") return "In Progress";
+  return "Not Started";
+}
+
+function updateStatusBadge() {
+  if (!statusBadge) return;
+  if (!currentProblemId) {
+    statusBadge.textContent = "Status: –";
+    statusBadge.className = "status-badge new";
+    return;
+  }
+  const status = getProblemStatus(currentProblemId);
+  statusBadge.textContent = `Status: ${statusLabel(status)}`;
+  statusBadge.className = `status-badge ${status}`;
+}
+
+function updateStatusFromMeta(metaStatus) {
+  if (!currentProblemId) return;
+  const normalized = String(metaStatus || "").toLowerCase();
+  if (normalized === "done") {
+    setProblemStatus(currentProblemId, "completed");
+  } else if (["failed", "compile_error", "error", "run_timeout", "compile_timeout"].includes(normalized)) {
+    setProblemStatus(currentProblemId, "in-progress");
+  }
+  updateStatusBadge();
+}
 
 async function loadStatement(problemId) {
   if (!problemId) {
@@ -439,10 +512,13 @@ async function loadStatement(problemId) {
     statusEl.textContent = "idle";
     clog.textContent = "";
     renderRunResult(null);
+    currentProblemId = "";
+    updateStatusBadge();
     return;
   }
 
   currentProblemId = problemId;
+  updateStatusBadge();
   statusEl.textContent = "idle";
   clog.textContent = "";
   renderRunResult(null);
@@ -502,11 +578,13 @@ async function loadStatement(problemId) {
     if (!info.hasSample && Array.isArray(data.samples) && data.samples.length) {
       appendSampleSections(data.samples);
     }
+    updateStatusBadge();
   } catch (err) {
     statementBody.textContent = "Unable to load statement.";
     difficultyBadge.textContent = "Difficulty: unknown";
     problemMeta.innerHTML = `<span>ID: <code>${escapeHtml(problemId)}</code></span>`;
     console.error(err);
+    updateStatusBadge();
   }
 }
 
@@ -550,15 +628,22 @@ window.addEventListener("mouseup", () => {
   }
 });
 
-pidInput.addEventListener("change", () => {
+pidInput.addEventListener("change", async () => {
   const value = pidInput.value;
   currentProblemId = value;
   clog.textContent = "";
   renderRunResult(null);
+  const url = new URL(window.location.href);
   if (value) {
-    loadStatement(value);
+    url.searchParams.set("pid", value);
   } else {
-    loadStatement("");
+    url.searchParams.delete("pid");
+  }
+  history.replaceState(null, "", url);
+  if (value) {
+    await loadStatement(value);
+  } else {
+    await loadStatement("");
   }
 });
 refreshBtn.addEventListener("click", () => loadProblemOptions(true));
@@ -603,9 +688,12 @@ async function loadProblemOptions(autoSelect = false) {
 
   pidInput.value = desired;
   currentProblemId = desired;
+  updateStatusBadge();
 
   if (autoSelect && desired) {
     await loadStatement(desired);
+  } else if (!desired) {
+    loadStatement("");
   }
 }
 
@@ -646,6 +734,7 @@ btn.onclick = async () => {
       if (!sres.ok) break;
       const data = await sres.json();
       statusEl.textContent = data.meta.status;
+      updateStatusFromMeta(data.meta.status);
       if (data.compile_log) clog.textContent = data.compile_log;
       renderRunResult(data.run_result);
       if (["done","failed","compile_error","error","run_timeout","compile_timeout","problem_not_found"].includes(data.meta.status)) break;
@@ -698,9 +787,11 @@ function renderRunResult(run) {
   if (!run) {
     runSummary.textContent = "Chưa có kết quả.";
     rlog.textContent = "";
+    updateStatusBadge();
     return;
   }
   const overallClass = run.ok ? "pass" : "fail";
+  const overallText = run.ok ? "Tất cả test đều pass." : "Có test chưa pass.";
   const tests = Array.isArray(run.tests) ? run.tests : [];
   const testsHtml = tests.map((test, idx) => {
     const passed = !!test.passed;
@@ -726,6 +817,11 @@ function renderRunResult(run) {
     ${metrics.length ? `<div class="run-metrics">${metrics.map(m => `<div>${m}</div>`).join("")}</div>` : ""}
   `;
   rlog.textContent = JSON.stringify(run, null, 2);
+  if (currentProblemId) {
+    const statusValue = run.ok ? "completed" : "in-progress";
+    setProblemStatus(currentProblemId, statusValue);
+    updateStatusBadge();
+  }
 }
 
 function renderStatementContent(markdown) {

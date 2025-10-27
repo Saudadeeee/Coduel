@@ -639,7 +639,7 @@ def edit_problem(req: UpdateProblemReq):
 
     time_limit_ms = req.time_limit_ms if req.time_limit_ms is not None else meta.get("time_limit_ms", DEFAULT_TIME_LIMIT_MS)
     memory_limit_kb = req.memory_limit_kb if req.memory_limit_kb is not None else meta.get("memory_limit_kb", DEFAULT_MEMORY_LIMIT_KB)
-    tags = req.tags or []
+    tags = _normalize_tags(req.tags if req.tags is not None else meta.get("tags"))
     description_text = req.description.strip() if req.description is not None else meta.get("description")
 
     statement_content = req.statement.strip() if req.statement and req.statement.strip() else _compose_statement(
