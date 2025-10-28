@@ -4,41 +4,41 @@
 
 Coduel is a multiplayer online judge system that allows programmers to compete head-to-head by solving algorithmic challenges. Built with modern web technologies and Docker-based isolation, it provides a secure, scalable, and engaging platform for coding competitions.
 
-## ✨ Features
+##  Features
 
-### 🎮 Competitive Programming
+###  Competitive Programming
 - **Real-time Multiplayer Battles**: Compete against opponents in private rooms
 - **Multiple Rounds**: Configurable best-of-N format (default: 3 rounds)
 - **Performance-Based Judging**: Winner determined by accuracy → execution time → memory usage
 - **Anti-Cheat System**: Real-time code spectating prevents cheating
 
-### 💻 Language Support
+###  Language Support
 - **C** (C17 standard)
 - **C++** (C++20 standard)
 - **Python 3**
 - **Java**
 - **JavaScript** (Node.js)
 
-### 🔒 Secure Execution
+###  Secure Execution
 - **Docker Isolation**: Each submission runs in isolated containers
 - **Resource Limits**: CPU and memory constraints prevent abuse
 - **Timeout Protection**: Configurable time limits per test case
 - **Multi-Run Testing**: Each test runs multiple times for accurate performance metrics
 
-### 📊 Real-time Features
+###  Real-time Features
 - **Live Code Spectating**: Watch opponent's code as they type
 - **Socket.IO Integration**: Instant updates for all room participants
 - **Ready Check System**: Both players must be ready before match starts
 - **Match Results**: Detailed performance comparison after each round
 
-### 🛠️ Problem Management
+###  Problem Management
 - **CRUD Operations**: Create, read, update, and delete problems
 - **Markdown Support**: Rich problem statements with formatting
 - **Test Case Visibility**: Public samples + hidden test cases
 - **Difficulty Levels**: Easy, Medium, Hard, Fast
 - **Tagging System**: Organize problems by topics
 
-## 🏗️ Architecture
+##  Architecture
 
 ### System Overview
 ```
@@ -102,7 +102,7 @@ Coduel is a multiplayer online judge system that allows programmers to compete h
 
 ### Component Details
 
-#### 🌐 Web Server (`web/`)
+####  Web Server (`web/`)
 - **Technology**: Node.js + Express + Socket.IO
 - **Port**: 5173
 - **Responsibilities**:
@@ -112,7 +112,7 @@ Coduel is a multiplayer online judge system that allows programmers to compete h
   - Code synchronization between players
   - Match result broadcasting
 
-#### 🔌 API Server (`api/`)
+#### API Server (`api/`)
 - **Technology**: FastAPI (Python)
 - **Port**: 8000
 - **Endpoints**:
@@ -127,7 +127,7 @@ Coduel is a multiplayer online judge system that allows programmers to compete h
   - Redis queue integration
   - Problem metadata management
 
-#### ⚙️ Worker (`worker/`)
+####  Worker (`worker/`)
 - **Technology**: Python + Docker SDK
 - **Responsibilities**:
   1. **Compilation**: Compile source code with appropriate compiler
@@ -141,7 +141,7 @@ Coduel is a multiplayer online judge system that allows programmers to compete h
   - `RUNS_PER_TEST`: Default = 3 (for median calculation)
   - `PERFORMANCE_TOLERANCE`: Default = 0.10 (10%)
 
-#### 🐳 Judge Engine (`judge/`)
+####  Judge Engine (`judge/`)
 - **Base Image**: Ubuntu-based with multiple compilers
 - **Installed Tools**:
   - GCC (C/C++)
@@ -151,7 +151,7 @@ Coduel is a multiplayer online judge system that allows programmers to compete h
   - GNU Time (resource monitoring)
 - **Security**: Network disabled, filesystem read-only
 
-#### 📦 Redis
+####  Redis
 - **Version**: 7 (Alpine)
 - **Usage**:
   - Job queue (`queue:compile`)
@@ -161,7 +161,7 @@ Coduel is a multiplayer online judge system that allows programmers to compete h
   - Compilation logs (`compile_log:{id}`)
   - Room state (in-memory)
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Prerequisites
 - **Docker** (20.10+)
@@ -298,7 +298,7 @@ If enabled by host:
 - See when they submit
 - Promotes fair play and transparency
 
-## 📚 API Documentation
+##  API Documentation
 
 ### Problem Management
 
@@ -432,7 +432,7 @@ GET /problem/submission/{submission_id}
 }
 ```
 
-## 🔧 Configuration
+##  Configuration
 
 ### Environment Variables
 
@@ -498,7 +498,7 @@ Player B: 100% accuracy, 0.006s, 2048KB
 Time difference: 20% → Player A wins
 ```
 
-## 🛠️ Project Structure
+##  Project Structure
 
 ```
 Coduel/
@@ -543,7 +543,7 @@ Coduel/
 └── .env.judge                    # Worker configuration
 ```
 
-## 🧪 Testing
+##  Testing
 
 ### Manual Testing
 
@@ -622,7 +622,7 @@ docker-compose up
 4. Click eye icon in Browser 2
 5. Verify code appears in real-time
 
-## 🐛 Troubleshooting
+##  Troubleshooting
 
 ### Common Issues
 
@@ -716,9 +716,9 @@ Check all logs:
 docker-compose logs -f
 ```
 
-## 🎯 Roadmap
+##  Roadmap
 
-### Phase 1: Core Features ✅
+### Phase 1: Core Features 
 - [x] Docker-based judge system
 - [x] Multi-language support (C/C++/Python/Java/JS)
 - [x] Problem CRUD operations
@@ -729,7 +729,7 @@ docker-compose logs -f
 - [x] Multi-round matches
 - [x] Winner modal with statistics
 
-### Phase 2: Enhanced Features 🔄
+### Phase 2: Enhanced Features 
 - [ ] User authentication & profiles
 - [ ] Persistent leaderboard
 - [ ] Problem difficulty rating
@@ -738,7 +738,7 @@ docker-compose logs -f
 - [ ] Syntax highlighting in spectator
 - [ ] Match replay system
 
-### Phase 3: Advanced Features 📋
+### Phase 3: Advanced Features 
 - [ ] Tournament bracket system
 - [ ] Team battles (2v2)
 - [ ] Spectator-only role
@@ -748,7 +748,7 @@ docker-compose logs -f
 - [ ] Rating system (ELO)
 - [ ] Achievement badges
 
-### Phase 4: Scale & Polish 🚀
+### Phase 4: Scale & Polish 
 - [ ] Kubernetes deployment
 - [ ] CDN for static assets
 - [ ] Database persistence (PostgreSQL)
@@ -758,15 +758,15 @@ docker-compose logs -f
 - [ ] Dark/light theme toggle
 - [ ] Accessibility improvements
 
-## 🤝 Contributing
+##  Contributing
 
 We welcome contributions! Here's how:
 
 1. **Fork the repository**
 ```bash
-git clone https://github.com/YOUR_USERNAME/Cowar.git
+git clone https://github.com/Saudadeeee/Coduel.git
 cd Cowar
-git remote add upstream https://github.com/Saudadeeee/Cowar.git
+git remote add upstream https://github.com/Saudadeeee/Coduel.git
 ```
 
 2. **Create a feature branch**
@@ -802,7 +802,7 @@ git push origin feature/amazing-feature
 - **Testing**: Test manually before submitting PR
 - **Documentation**: Update README if adding features
 
-## 📄 License
+##  License
 
 This project is licensed under the MIT License - see below for details:
 
@@ -830,7 +830,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-## 🙏 Acknowledgments
+##  Acknowledgments
 
 - **Inspiration**: [CodinGame's Clash of Code](https://www.codingame.com/multiplayer/clashofcode)
 - **Technologies**:
@@ -842,13 +842,13 @@ SOFTWARE.
   - [Monaco Editor](https://microsoft.github.io/monaco-editor/) - Code editor
 - **Community**: Thanks to all beta testers and contributors
 
-## 📞 Support
+##  Support
 
 Need help? Here are your options:
 
 1. **Documentation**: Check the `/Coduel` directory for detailed guides
-2. **Issues**: [Open a GitHub issue](https://github.com/Saudadeeee/Cowar/issues)
-3. **Discussions**: [Join GitHub Discussions](https://github.com/Saudadeeee/Cowar/discussions)
+2. **Issues**: [Open a GitHub issue](https://github.com/Saudadeeee/Coduel/issues)
+3. **Discussions**: [Join GitHub Discussions](https://github.com/Saudadeeee/Coduel/issues)
 4. **Logs**: Run `docker-compose logs -f` for debugging
 
 ### Quick Links
@@ -863,6 +863,6 @@ Need help? Here are your options:
 
 **Built with ❤️ by competitive programmers, for competitive programmers**
 
-[⭐ Star this repo](https://github.com/Saudadeeee/Cowar) | [🐛 Report Bug](https://github.com/Saudadeeee/Cowar/issues) | [✨ Request Feature](https://github.com/Saudadeeee/Cowar/issues)
+[ Star this repo](https://github.com/Saudadeeee/Coduel.git) | [ Report Bug](https://github.com/Saudadeeee/Coduel/issues) | [ Request Feature](https://github.com/Saudadeeee/Coduel.git)
 
 </div>

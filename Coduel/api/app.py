@@ -255,10 +255,7 @@ def _compose_statement(number: int | None, title: str, difficulty: str | None, d
         sample_output.rstrip("\n"),
         "```",
         "",
-        "## Problem ID",
-        "```",
-        problem_id,
-        "```",
+
     ])
     return "\n".join(sections).strip() + "\n"
 

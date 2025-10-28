@@ -1,0 +1,29 @@
+{
+  "number": 3,
+  "difficulty": "medium",
+  "title": "Solving for Carrots",
+  "time_limit_ms": 2000,
+  "memory_limit_kb": 262144,
+  "tags": [],
+  "created_at": 1761674759,
+  "description": "You will be given the number of contestants in a\n    hypothetical contest, the number of huffle-puff problems that\n    people solved in the contest and a description of each\n    contestant. Now, find the number of carrots that will be handed\n    out during the contest.",
+  "samples": [
+    {
+      "input": "sample_input.txt",
+      "output": "sample_output.txt",
+      "label": "Sample"
+    }
+  ],
+  "tests": [
+    {
+      "input": "input1.txt",
+      "output": "output1.txt",
+      "visibility": "public"
+    },
+    {
+      "input": "input2.txt",
+      "output": "output2.txt",
+      "visibility": "hidden"
+    }
+  ]
+}

@@ -1,8 +1,3 @@
-# cd /home/khenh/Code/Project/Cowar/online-judge-mvp
-# DOCKER_BUILDKIT=0 docker compose up -d --build 
-
-
-
 
 
 import os, json, time, subprocess, tempfile, shutil, uuid, re, shlex

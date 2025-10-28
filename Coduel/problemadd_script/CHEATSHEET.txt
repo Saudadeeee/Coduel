@@ -1,0 +1,104 @@
+╔══════════════════════════════════════════════════════════════════╗
+║                   KATTIS TO CODUEL IMPORTER                      ║
+║                      Quick Reference Card                        ║
+╚══════════════════════════════════════════════════════════════════╝
+
+📦 SETUP
+──────────────────────────────────────────────────────────────────
+  1. cd problemadd_script
+  2. pip install -r requirements.txt
+  3. Ensure API is running at http://localhost:8000
+
+🎯 BASIC USAGE
+──────────────────────────────────────────────────────────────────
+  Single problem:
+    python kattis_to_api.py hello
+
+  Multiple problems:
+    python kattis_to_api.py hello carrots r2
+
+  Preview only (no submit):
+    python kattis_to_api.py hello --dry-run
+
+  Custom API URL:
+    python kattis_to_api.py hello --api-url http://server:8000
+
+🚀 BATCH IMPORT
+──────────────────────────────────────────────────────────────────
+  Import all easy problems:
+    python batch_import.py --difficulty easy
+
+  Import all medium problems:
+    python batch_import.py --difficulty medium
+
+  Preview batch:
+    python batch_import.py --difficulty easy --dry-run
+
+📝 STRUCTURE
+──────────────────────────────────────────────────────────────────
+  kattis_scrape.py     → Core scraper (already exists)
+  kattis_to_api.py     → API integration (NEW)
+  batch_import.py      → Batch processing (NEW)
+  requirements.txt     → Dependencies
+  README.md            → Full documentation
+  QUICKSTART.md        → Quick start guide
+
+🔗 WORKFLOW
+──────────────────────────────────────────────────────────────────
+  Kattis URL: https://open.kattis.com/problems/hello
+                                                    └─────┘
+                                                      slug
+       ↓
+  python kattis_to_api.py hello
+       ↓
+  1. Fetch from Kattis (scraper)
+  2. Parse & format data
+  3. POST to /problem-add API
+  4. Create files in /problems/NNN-title/
+       ↓
+  View at: http://localhost:3000/mainmenu.html
+
+📊 OUTPUT FILES CREATED
+──────────────────────────────────────────────────────────────────
+  /problems/002-hello/
+    ├── meta.json           (metadata)
+    ├── statement.md        (problem description)
+    ├── sample_input.txt    (sample input)
+    ├── sample_output.txt   (sample output)
+    ├── input1.txt          (test case 1 input)
+    └── output1.txt         (test case 1 output)
+
+🎓 POPULAR PROBLEMS
+──────────────────────────────────────────────────────────────────
+  Easy/Fast:
+    hello, carrots, r2, planina, quadrant, timeloop, 
+    oddities, fizzbuzz, twostones, spavanac
+
+  Medium:
+    addtwonumbers, different, sumkindofproblem, grassseed, 
+    pet, bijele, cold, nastyhacks
+
+💡 PRO TIPS
+──────────────────────────────────────────────────────────────────
+  ✓ Always --dry-run first to preview
+  ✓ Import in small batches (5-10 at a time)
+  ✓ Check API logs for any errors
+  ✓ Edit test cases later via web UI if needed
+  ✓ System auto-increments problem numbers
+
+🐛 TROUBLESHOOTING
+──────────────────────────────────────────────────────────────────
+  Connection refused → Start API server first
+  404 Not Found → Check slug spelling
+  Rate limited → Wait & retry with smaller batch
+  Missing deps → pip install -r requirements.txt
+
+📞 HELP
+──────────────────────────────────────────────────────────────────
+  python kattis_to_api.py --help
+  cat README.md
+  cat QUICKSTART.md
+
+╔══════════════════════════════════════════════════════════════════╗
+║  Ready to import? Try: python kattis_to_api.py hello --dry-run  ║
+╚══════════════════════════════════════════════════════════════════╝

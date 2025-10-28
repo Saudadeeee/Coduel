@@ -39,5 +39,5 @@ services:
   web:
     build: ./web
     container_name: oj_web
-    ports: ["5173:5173"]   # web UI dev server
+    ports: ["5173:5173"]   
     depends_on: [api]
