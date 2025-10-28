@@ -1,0 +1,32 @@
+{
+  "number": 1,
+  "difficulty": "easy",
+  "title": "Sum Two Numbers",
+  "time_limit_ms": 2000,
+  "memory_limit_kb": 262144,
+  "tags": [
+    "math",
+    "implementation"
+  ],
+  "created_at": 1761540634,
+  "description": "Given two integers a and b. Your task is to print the sum a + b.",
+  "samples": [
+    {
+      "input": "sample_input.txt",
+      "output": "sample_output.txt",
+      "label": "Sample"
+    }
+  ],
+  "tests": [
+    {
+      "input": "input1.txt",
+      "output": "output1.txt",
+      "visibility": "public"
+    },
+    {
+      "input": "input2.txt",
+      "output": "output2.txt",
+      "visibility": "hidden"
+    }
+  ]
+}

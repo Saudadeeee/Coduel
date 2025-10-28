@@ -1,0 +1,540 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>MVP Online Judge – Dashboard</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg-top: #11151c;
+      --bg-bottom: #212d40;
+      --panel-bg: rgba(17,21,28,0.6);
+      --panel-bg-soft: rgba(17,21,28,0.3);
+      --border: #364156;
+      --border-soft: rgba(54,65,86,0.4);
+      --accent: #7d4e57;
+      --accent-hover: #915763;
+      --text-main: #ffffff;
+      --text-dim: #9aa4ba;
+      --text-dimmer: rgba(154,164,186,0.6);
+      --code-bg: #1a1f29;
+      --code-fg: #e8e9f4;
+      --chip-pass-bg: #1f3a2a;
+      --chip-pass-fg: #85ffa8;
+      --chip-warn-bg: #3a2f1f;
+      --chip-warn-fg: #ffb37a;
+      --chip-new-bg: #2f3442;
+      --chip-new-fg: #d0d4e6;
+    }
+
+    * {
+      box-sizing:border-box;
+      margin:0;
+      padding:0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      margin:0;
+      font-family:system-ui, sans-serif;
+      background:
+        radial-gradient(circle at 50% 20%, rgba(125,78,87,0.22) 0%, rgba(33,45,64,0) 60%),
+        linear-gradient(to bottom, var(--bg-top) 0%, var(--bg-bottom) 100%);
+      color:var(--text-main);
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+    }
+
+    header {
+      background:rgba(17,21,28,0.8);
+      color:var(--text-main);
+      padding:18px 28px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      border-bottom:1px solid var(--border);
+      box-shadow:0 24px 48px rgba(0,0,0,0.7), 0 2px 4px rgba(0,0,0,0.8);
+      backdrop-filter: blur(4px);
+      position:sticky;
+      top:0;
+      z-index:10;
+    }
+
+    header h1 {
+      margin:0;
+      font-size:20px;
+      font-weight:600;
+      letter-spacing:-0.03em;
+      color:var(--text-main);
+    }
+
+    .nav-links {
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    header a {
+      color:var(--text-main);
+      text-decoration:none;
+      font-weight:600;
+      padding:8px 14px;
+      border:1px solid rgba(125,78,87,0.4);
+      border-radius:999px;
+      background:rgba(125,78,87,0.18);
+      font-size:13px;
+      line-height:1.2rem;
+      box-shadow:0 16px 32px rgba(0,0,0,0.7);
+      transition:all 0.15s ease;
+    }
+    header a:hover {
+      background:rgba(145,87,99,0.3);
+      box-shadow:0 24px 48px rgba(0,0,0,0.8),
+                 0 0 12px rgba(125,78,87,0.6);
+    }
+
+    main {
+      flex:1;
+      width:100%;
+      max-width:1200px;
+      margin:0 auto;
+      padding:30px 20px;
+      display:flex;
+      flex-direction:column;
+      gap:24px;
+    }
+
+    .stats-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
+      gap:18px;
+    }
+
+    .stat-card {
+      background:var(--panel-bg);
+      border-radius:12px;
+      padding:20px;
+      border:1px solid var(--border);
+      box-shadow:
+        0 24px 48px rgba(0,0,0,0.7),
+        0 2px 4px rgba(0,0,0,0.8);
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+
+    .stat-label {
+      font-size:13px;
+      font-weight:600;
+      color:var(--text-dim);
+      text-transform:uppercase;
+      letter-spacing:0.08em;
+    }
+
+    .stat-value {
+      font-size:32px;
+      font-weight:700;
+      color:var(--text-main);
+      line-height:1;
+    }
+
+    .section-header {
+      display:flex;
+      justify-content:space-between;
+      align-items:baseline;
+      flex-wrap:wrap;
+      gap:12px;
+    }
+
+    .section-title {
+      font-size:20px;
+      font-weight:600;
+      color:var(--text-main);
+      letter-spacing:-0.03em;
+    }
+
+    .filter-bar {
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .filter-btn {
+      background:transparent;
+      border:1px solid var(--border);
+      color:var(--text-dim);
+      padding:6px 14px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:600;
+      cursor:pointer;
+      transition:all 0.15s ease;
+    }
+
+    .filter-btn.active,
+    .filter-btn:hover {
+      background:rgba(125,78,87,0.2);
+      border-color:var(--accent);
+      color:var(--text-main);
+    }
+
+    .problems-table-wrapper {
+      background:var(--panel-bg);
+      border-radius:12px;
+      padding:20px;
+      border:1px solid var(--border);
+      box-shadow:
+        0 24px 48px rgba(0,0,0,0.7),
+        0 2px 4px rgba(0,0,0,0.8);
+      overflow-x:auto;
+    }
+
+    .problems-table {
+      width:100%;
+      border-collapse:collapse;
+      min-width:600px;
+    }
+
+    .problems-table thead th {
+      text-align:left;
+      padding:12px;
+      font-size:12px;
+      font-weight:600;
+      color:var(--text-dim);
+      text-transform:uppercase;
+      letter-spacing:0.08em;
+      border-bottom:2px solid var(--border);
+    }
+
+    .problems-table tbody tr {
+      border-bottom:1px solid var(--border-soft);
+      transition:background 0.15s ease;
+    }
+
+    .problems-table tbody tr:hover {
+      background:rgba(125,78,87,0.08);
+    }
+
+    .problems-table tbody td {
+      padding:14px 12px;
+      font-size:14px;
+      color:var(--text-main);
+    }
+
+    .problem-number {
+      font-family:ui-monospace, monospace;
+      color:var(--text-dim);
+      font-size:13px;
+    }
+
+    .problem-title {
+      font-weight:600;
+      color:var(--text-main);
+    }
+
+    .problem-link {
+      color:var(--text-main);
+      text-decoration:none;
+      transition:color 0.15s ease;
+    }
+
+    .problem-link:hover {
+      color:var(--accent-hover);
+    }
+
+    .difficulty-badge {
+      display:inline-block;
+      padding:4px 10px;
+      border-radius:999px;
+      font-size:11px;
+      font-weight:700;
+      letter-spacing:0.06em;
+      text-transform:uppercase;
+    }
+
+    .difficulty-badge.fast {
+      background:rgba(133,255,168,0.15);
+      color:#85ffa8;
+      border:1px solid rgba(133,255,168,0.3);
+    }
+
+    .difficulty-badge.easy {
+      background:rgba(52,211,153,0.15);
+      color:#34d399;
+      border:1px solid rgba(52,211,153,0.3);
+    }
+
+    .difficulty-badge.medium {
+      background:rgba(251,191,36,0.15);
+      color:#fbbf24;
+      border:1px solid rgba(251,191,36,0.3);
+    }
+
+    .difficulty-badge.hard {
+      background:rgba(239,68,68,0.15);
+      color:#ef4444;
+      border:1px solid rgba(239,68,68,0.3);
+    }
+
+    .status-indicator {
+      display:inline-block;
+      width:8px;
+      height:8px;
+      border-radius:50%;
+      margin-right:6px;
+    }
+
+    .status-indicator.completed {
+      background:var(--chip-pass-fg);
+      box-shadow:0 0 6px var(--chip-pass-fg);
+    }
+
+    .status-indicator.in-progress {
+      background:var(--chip-warn-fg);
+      box-shadow:0 0 6px var(--chip-warn-fg);
+    }
+
+    .status-indicator.new {
+      background:var(--text-dimmer);
+    }
+
+    .empty-state {
+      text-align:center;
+      padding:60px 20px;
+      color:var(--text-dim);
+      font-size:14px;
+    }
+
+    .loading {
+      text-align:center;
+      padding:40px;
+      color:var(--text-dim);
+    }
+
+    @media (max-width:640px) {
+      main {
+        padding:20px 14px;
+      }
+      .stats-grid {
+        grid-template-columns:1fr;
+      }
+      header {
+        flex-direction:column;
+        gap:12px;
+        align-items:flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Dashboard</h1>
+    <div class="nav-links">
+      <a href="/mainmenu.html">← Main Menu</a>
+      <a href="/workspace.html">Workspace</a>
+      <a href="/problem-add">+ Add Problem</a>
+      <a href="/problem-edit">Edit Problem</a>
+    </div>
+  </header>
+
+  <main>
+    <!-- Stats -->
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Problems</div>
+        <div class="stat-value" id="stat-total">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Completed</div>
+        <div class="stat-value" id="stat-completed">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">In Progress</div>
+        <div class="stat-value" id="stat-progress">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Not Started</div>
+        <div class="stat-value" id="stat-new">0</div>
+      </div>
+    </section>
+
+    <!-- Problems List -->
+    <section>
+      <div class="section-header">
+        <h2 class="section-title">Problems</h2>
+        <div class="filter-bar">
+          <button class="filter-btn active" data-filter="all">All</button>
+          <button class="filter-btn" data-filter="fast">Fast</button>
+          <button class="filter-btn" data-filter="easy">Easy</button>
+          <button class="filter-btn" data-filter="medium">Medium</button>
+          <button class="filter-btn" data-filter="hard">Hard</button>
+        </div>
+      </div>
+
+      <div class="problems-table-wrapper">
+        <div id="loading" class="loading">Loading problems...</div>
+        <table class="problems-table" id="problems-table" style="display:none;">
+          <thead>
+            <tr>
+              <th style="width:60px;">Status</th>
+              <th style="width:80px;">#</th>
+              <th>Title</th>
+              <th style="width:120px;">Difficulty</th>
+              <th style="width:100px;">Tests</th>
+            </tr>
+          </thead>
+          <tbody id="problems-tbody">
+          </tbody>
+        </table>
+        <div id="empty-state" class="empty-state" style="display:none;">
+          No problems found. <a href="/problem-add" style="color:var(--accent);">Add your first problem</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const api = "http://localhost:8000";
+    const STATUS_KEY = "oj-problem-status";
+
+    let allProblems = [];
+    let currentFilter = "all";
+
+    function loadStatuses() {
+      try {
+        return JSON.parse(localStorage.getItem(STATUS_KEY) || "{}");
+      } catch {
+        return {};
+      }
+    }
+
+    function getProblemStatus(problemId) {
+      const statuses = loadStatuses();
+      return statuses[problemId] || "new";
+    }
+
+    function updateStats(problems) {
+      const statuses = loadStatuses();
+      let completed = 0;
+      let inProgress = 0;
+      let newCount = 0;
+
+      problems.forEach(p => {
+        const status = statuses[p.problem_id] || "new";
+        if (status === "completed") completed++;
+        else if (status === "in-progress") inProgress++;
+        else newCount++;
+      });
+
+      document.getElementById("stat-total").textContent = problems.length;
+      document.getElementById("stat-completed").textContent = completed;
+      document.getElementById("stat-progress").textContent = inProgress;
+      document.getElementById("stat-new").textContent = newCount;
+    }
+
+    function renderProblems(problems) {
+      const tbody = document.getElementById("problems-tbody");
+      tbody.innerHTML = "";
+
+      problems.forEach(problem => {
+        const status = getProblemStatus(problem.problem_id);
+        const row = document.createElement("tr");
+
+        const statusClass = status === "completed" ? "completed" :
+                           status === "in-progress" ? "in-progress" : "new";
+
+        const numberDisplay = typeof problem.number === "number"
+          ? String(problem.number).padStart(3, "0")
+          : "—";
+
+        const difficulty = problem.difficulty || "unknown";
+        const tests = problem.tests || 0;
+
+        row.innerHTML = `
+          <td>
+            <span class="status-indicator ${statusClass}"></span>
+          </td>
+          <td class="problem-number">${numberDisplay}</td>
+          <td class="problem-title">
+            <a href="/workspace.html?pid=${encodeURIComponent(problem.problem_id)}" class="problem-link">
+              ${escapeHtml(problem.title || problem.problem_id)}
+            </a>
+          </td>
+          <td>
+            <span class="difficulty-badge ${difficulty}">${difficulty}</span>
+          </td>
+          <td>${tests}</td>
+        `;
+
+        tbody.appendChild(row);
+      });
+    }
+
+    function filterProblems(difficulty) {
+      currentFilter = difficulty;
+      const filtered = difficulty === "all"
+        ? allProblems
+        : allProblems.filter(p => p.difficulty === difficulty);
+
+      renderProblems(filtered);
+
+      // Update active filter button
+      document.querySelectorAll(".filter-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.filter === difficulty);
+      });
+    }
+
+    async function loadProblems() {
+      const loading = document.getElementById("loading");
+      const table = document.getElementById("problems-table");
+      const emptyState = document.getElementById("empty-state");
+
+      loading.style.display = "block";
+      table.style.display = "none";
+      emptyState.style.display = "none";
+
+      try {
+        const res = await fetch(`${api}/problems`);
+        if (!res.ok) throw new Error(res.statusText);
+        const data = await res.json();
+
+        allProblems = Array.isArray(data.problems) ? data.problems : [];
+
+        loading.style.display = "none";
+
+        if (allProblems.length === 0) {
+          emptyState.style.display = "block";
+        } else {
+          table.style.display = "table";
+          updateStats(allProblems);
+          filterProblems(currentFilter);
+        }
+      } catch (err) {
+        console.error(err);
+        loading.textContent = "Failed to load problems.";
+      }
+    }
+
+    function escapeHtml(text) {
+      return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    // Filter buttons
+    document.querySelectorAll(".filter-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        filterProblems(btn.dataset.filter);
+      });
+    });
+
+    // Load problems on page load
+    loadProblems();
+  </script>
+</body>
+</html>

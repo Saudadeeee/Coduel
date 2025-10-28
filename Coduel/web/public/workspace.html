@@ -1,0 +1,1741 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>MVP Online Judge – Problem</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg-top: #11151c;
+      --bg-bottom: #212d40;
+      --panel-bg: rgba(17,21,28,0.6);
+      --panel-bg-soft: rgba(17,21,28,0.3);
+      --border: #364156;
+      --border-soft: rgba(54,65,86,0.4);
+      --accent: #7d4e57;
+      --accent-hover: #915763;
+      --text-main: #ffffff;
+      --text-dim: #9aa4ba;
+      --text-dimmer: rgba(154,164,186,0.6);
+      --code-bg: #1a1f29;
+      --code-fg: #e8e9f4;
+      --chip-pass-bg: #1f3a2a;
+      --chip-pass-fg: #85ffa8;
+      --chip-warn-bg: #3a2f1f;
+      --chip-warn-fg: #ffb37a;
+      --chip-new-bg: #2f3442;
+      --chip-new-fg: #d0d4e6;
+      --spectator-overlay: rgba(0,0,0,0.85);
+    }
+
+    * {
+      box-sizing:border-box;
+      margin:0;
+      padding:0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      margin:0;
+      font-family:system-ui, sans-serif;
+      height:100vh;
+      display:flex;
+      background:
+        radial-gradient(circle at 50% 30%, rgba(125,78,87,0.22) 0%, rgba(33,45,64,0) 60%),
+        linear-gradient(to bottom, var(--bg-top) 0%, var(--bg-bottom) 100%);
+      color:var(--text-main);
+    }
+
+    header {
+      position:fixed;
+      top:0; left:0; right:0;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:14px 20px;
+      background:rgba(17,21,28,0.8);
+      color:var(--text-main);
+      z-index:10;
+      box-shadow:0 24px 48px rgba(0,0,0,0.7), 0 2px 4px rgba(0,0,0,0.8);
+      border-bottom:1px solid var(--border);
+      backdrop-filter: blur(4px);
+    }
+
+    header h1 {
+      font-size:18px;
+      margin:0;
+      letter-spacing:-0.03em;
+      font-weight:600;
+      color:var(--text-main);
+    }
+
+    header a {
+      color:var(--text-main);
+      text-decoration:none;
+      font-weight:600;
+      padding:8px 14px;
+      border-radius:999px;
+      background:rgba(125,78,87,0.18);
+      border:1px solid rgba(125,78,87,0.4);
+      box-shadow:0 16px 32px rgba(0,0,0,0.7);
+      transition:all 0.15s ease;
+      font-size:13px;
+      line-height:1.2rem;
+    }
+    header a:hover {
+      background:rgba(125,78,87,0.3);
+      box-shadow:0 24px 48px rgba(0,0,0,0.8), 0 0 12px rgba(125,78,87,0.6);
+    }
+
+    /* ====== LAYOUT CHUNG: 2 CỘT NGANG ====== */
+    .wrap {
+      flex:1;
+      display:flex;
+      height:100%;
+      overflow:hidden;
+      padding-top:70px;
+      box-sizing:border-box;
+    }
+
+    .pane-left {
+      flex-basis:50%;
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+      background:var(--panel-bg);
+      border-right:2px solid var(--border);
+      color:var(--text-main);
+    }
+
+    .pane-right {
+      flex-basis:50%;
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+      background:var(--panel-bg);
+      color:var(--text-main);
+    }
+
+    /* Divider ngang giữa 2 cột */
+    .divider {
+      width:8px;
+      cursor:col-resize;
+      background:rgba(54,65,86,0.4);
+      position:relative;
+      z-index:20;
+      flex-shrink:0;
+    }
+    .divider::before {
+      content:"";
+      position:absolute;
+      left:-6px;
+      right:-6px;
+      top:0;
+      bottom:0;
+    }
+
+    /* ====== TRONG CỘT TRÁI: CHỈ ĐỀ BÀI ====== */
+    .statement-panel {
+      flex:1;
+      min-height:0;
+      display:flex;
+      flex-direction:column;
+      overflow:auto;
+      padding:20px;
+      background:var(--panel-bg);
+      gap:16px;
+    }
+
+    .statement-header {
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:16px;
+      flex-wrap:wrap;
+    }
+
+    .statement-header h2 {
+      margin:0;
+      font-size:22px;
+      font-weight:600;
+      color:var(--text-main);
+      letter-spacing:-0.03em;
+    }
+
+    .statement-meta {
+      margin-top:6px;
+      font-size:13px;
+      color:var(--text-dim);
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .statement-meta span {
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+    }
+
+    .statement-meta span + span::before {
+      content:"•";
+      margin-right:6px;
+      color:var(--text-dimmer);
+    }
+
+    .statement-meta code {
+      background:rgba(54,65,86,0.2);
+      padding:2px 6px;
+      border-radius:6px;
+      font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Courier New", monospace;
+      font-size:12px;
+      color:var(--text-main);
+      border:1px solid rgba(54,65,86,0.4);
+    }
+
+    .badges-row {
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .difficulty-badge {
+      align-self:flex-start;
+      padding:6px 14px;
+      border-radius:999px;
+      background:rgba(54,65,86,0.25);
+      border:1px solid var(--border);
+      font-size:13px;
+      font-weight:700;
+      letter-spacing:0.04em;
+      text-transform:uppercase;
+      color:var(--text-main);
+    }
+
+    .status-badge {
+      align-self:flex-start;
+      padding:6px 14px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      letter-spacing:0.04em;
+      text-transform:uppercase;
+      background:var(--chip-new-bg);
+      color:var(--chip-new-fg);
+      border:1px solid rgba(208,212,230,0.25);
+    }
+    .status-badge.completed {
+      background:var(--chip-pass-bg);
+      color:var(--chip-pass-fg);
+      border:1px solid rgba(133,255,168,0.4);
+    }
+    .status-badge.in-progress {
+      background:var(--chip-warn-bg);
+      color:var(--chip-warn-fg);
+      border:1px solid rgba(255,179,122,0.4);
+    }
+    .status-badge.new {
+      background:var(--chip-new-bg);
+      color:var(--chip-new-fg);
+      border:1px solid rgba(208,212,230,0.25);
+    }
+
+    .statement-body {
+      display:flex;
+      flex-direction:column;
+      gap:18px;
+      color:var(--text-main);
+      font-size:14px;
+    }
+
+    .statement-section {
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+
+    .statement-section h3 {
+      margin:0;
+      font-size:16px;
+      text-transform:uppercase;
+      letter-spacing:0.04em;
+      color:var(--text-dim);
+      font-weight:600;
+    }
+
+    .statement-section p {
+      margin:0;
+      line-height:1.6;
+      color:var(--text-main);
+      font-size:14px;
+    }
+
+    .sample-block {
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+
+    .sample-caption {
+      font-size:12px;
+      font-weight:600;
+      letter-spacing:0.08em;
+      text-transform:uppercase;
+      color:var(--text-dimmer);
+    }
+
+    .sample-box {
+      background:var(--code-bg);
+      color:var(--code-fg);
+      border-radius:10px;
+      padding:14px 16px;
+      font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Courier New", monospace;
+      font-size:13px;
+      overflow:auto;
+      box-shadow:inset 0 1px 2px rgba(0,0,0,0.6);
+      border:1px solid var(--border-soft);
+    }
+    .sample-box code {
+      white-space:pre;
+      color:inherit;
+    }
+
+    .statement-body pre {
+      background:var(--code-bg);
+      border-radius:8px;
+      padding:12px 14px;
+      font-size:13px;
+      overflow:auto;
+      font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Courier New", monospace;
+      border:1px solid var(--border-soft);
+      color:var(--code-fg);
+      box-shadow:inset 0 1px 2px rgba(0,0,0,0.6);
+    }
+
+    /* ====== CỘT PHẢI: CHIA DỌC THÀNH 2 PHẦN ====== */
+    .right-vertical {
+      flex:1;
+      min-height:0;
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+      background:var(--panel-bg);
+    }
+
+    .editor-panel {
+      flex-basis:50%;
+      min-height:0;
+      overflow:auto;
+      background:var(--panel-bg);
+      padding:16px;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+
+    .results-panel {
+      flex-basis:50%;
+      min-height:0;
+      overflow:auto;
+      background:var(--panel-bg);
+      padding:16px;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      border-top:2px solid var(--border);
+    }
+
+    /* Divider dọc giữa editor và kết quả */
+    .vertical-divider {
+      height:8px;
+      cursor:row-resize;
+      background:rgba(54,65,86,0.4);
+      position:relative;
+      z-index:20;
+      flex-shrink:0;
+    }
+    .vertical-divider::before {
+      content:"";
+      position:absolute;
+      top:-6px;
+      bottom:-6px;
+      left:0;
+      right:0;
+    }
+
+    /* ---- Controls trong editor ---- */
+    .code-controls {
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      align-items:center;
+      color:var(--text-main);
+      font-size:14px;
+    }
+
+    label {
+      font-size:14px;
+      font-weight:600;
+      color:var(--text-main);
+    }
+
+    .language-picker {
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+      color:var(--text-main);
+    }
+
+    .language-picker input { min-width:150px; }
+
+    select,
+    input {
+      padding:6px 10px;
+      border:1px solid var(--border);
+      background:var(--panel-bg-soft);
+      color:var(--text-main);
+      border-radius:6px;
+      font-size:14px;
+      box-shadow:0 16px 32px rgba(0,0,0,0.6);
+    }
+    select { min-width:160px; }
+
+    .language-picker select {
+      min-width:180px;
+    }
+
+    .small-btn {
+      background:var(--accent);
+      color:#fff;
+      border:1px solid var(--accent);
+      border-radius:8px;
+      padding:6px 12px;
+      font-size:12px;
+      font-weight:600;
+      cursor:pointer;
+      box-shadow:
+        0 20px 40px rgba(0,0,0,0.7),
+        0 2px 4px rgba(0,0,0,0.8),
+        0 0 12px rgba(125,78,87,0.6);
+      transition:all 0.15s ease;
+    }
+    .small-btn:hover {
+      background:var(--accent-hover);
+      border-color:var(--accent-hover);
+      transform:translateY(-1px);
+      box-shadow:
+        0 30px 60px rgba(0,0,0,0.8),
+        0 4px 8px rgba(0,0,0,0.9),
+        0 0 16px rgba(145,87,99,0.7);
+    }
+    .small-btn:active { transform:translateY(0); }
+
+    .help-text {
+      font-size:12px;
+      color:var(--text-dimmer);
+    }
+
+    textarea {
+      flex:1;
+      min-height:200px;
+      padding:12px;
+      resize:none;
+      font-family:ui-monospace, monospace;
+      font-size:14px;
+      border:1px solid var(--border);
+      border-radius:8px;
+      background:var(--code-bg);
+      color:var(--code-fg);
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.8);
+    }
+
+    textarea:focus {
+      outline:2px solid var(--accent);
+      background:#1f2531;
+    }
+
+    /* ---- Panel kết quả ---- */
+    .status-line {
+      font-weight:700;
+      font-size:15px;
+      color:var(--text-main);
+    }
+
+    .log-block {
+      background:var(--code-bg);
+      border-radius:8px;
+      padding:12px;
+      border:1px solid var(--border);
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.8);
+      min-height:100px;
+      overflow:auto;
+      white-space:pre-wrap;
+      font-size:13px;
+      font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Courier New", monospace;
+      color:var(--code-fg);
+    }
+
+    .run-summary {
+      background:var(--panel-bg-soft);
+      border-radius:8px;
+      padding:12px;
+      border:1px solid var(--border);
+      box-shadow:
+        inset 0 1px 2px rgba(0,0,0,0.6),
+        0 16px 32px rgba(0,0,0,0.6);
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      font-size:14px;
+      color:var(--text-main);
+    }
+
+    .run-summary .overall {
+      font-weight:700;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .run-summary .overall.pass { color:var(--chip-pass-fg); }
+    .run-summary .overall.fail { color:#ff7a7a; }
+
+    .run-tests {
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+
+    .run-tests li {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      background:rgba(54,65,86,0.25);
+      border-radius:6px;
+      padding:6px 10px;
+      font-weight:600;
+      color:var(--text-main);
+      border:1px solid var(--border-soft);
+      font-size:13px;
+    }
+
+    .run-tests li.pass {
+      color:var(--chip-pass-fg);
+      background:var(--chip-pass-bg);
+      border:1px solid rgba(133,255,168,0.4);
+    }
+    .run-tests li.fail {
+      color:#ff7a7a;
+      background:#3a1f1f;
+      border:1px solid rgba(255,122,122,0.4);
+    }
+
+    .run-tests li span {
+      font-size:12px;
+      font-weight:500;
+      color:var(--text-dimmer);
+    }
+
+    .run-metrics {
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      font-size:13px;
+      color:var(--text-main);
+    }
+
+    .run-metrics div {
+      background:rgba(54,65,86,0.25);
+      border-radius:6px;
+      padding:6px 10px;
+      border:1px solid var(--border-soft);
+    }
+
+    /* Nút Compile & Run bây giờ là nút nội bộ trong results-panel */
+    .run-btn {
+      align-self:flex-start;
+      padding:10px 18px;
+      background:var(--accent);
+      color:#fff;
+      border:1px solid var(--accent);
+      border-radius:999px;
+      font-size:14px;
+      font-weight:600;
+      cursor:pointer;
+      box-shadow:
+        0 24px 48px rgba(0,0,0,0.7),
+        0 2px 4px rgba(0,0,0,0.8),
+        0 0 16px rgba(125,78,87,0.6);
+      transition:all 0.15s ease;
+    }
+    .run-btn:hover {
+      background:var(--accent-hover);
+      border-color:var(--accent-hover);
+      box-shadow:
+        0 32px 64px rgba(0,0,0,0.8),
+        0 4px 8px rgba(0,0,0,0.9),
+        0 0 20px rgba(145,87,99,0.8);
+      transform:translateY(-1px);
+    }
+    .run-btn:active {
+      transform:translateY(0);
+    }
+
+    body.resizing,
+    body.resizing-vertical { user-select:none; }
+    body.resizing { cursor:col-resize; }
+    body.resizing-vertical { cursor:row-resize; }
+
+    /* ===== SPECTATOR MODE STYLES ===== */
+    .spectator-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 10px 16px;
+      background: rgba(125,78,87,0.9);
+      color: #fff;
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+      transition: all 0.2s ease;
+      display: none; /* Hidden by default, shown when spectator enabled */
+    }
+    .spectator-toggle:hover {
+      background: rgba(145,87,99,0.95);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.7);
+    }
+    .spectator-toggle.active {
+      background: #4a9eff;
+      border-color: #4a9eff;
+    }
+
+    .spectator-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--spectator-overlay);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.2s ease;
+    }
+    .spectator-modal.show {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .spectator-content {
+      background: var(--bg-top);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      width: 90%;
+      max-width: 1200px;
+      height: 80%;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.8);
+    }
+
+    .spectator-header {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .spectator-header h3 {
+      margin: 0;
+      color: var(--text-main);
+      font-size: 18px;
+    }
+
+    .spectator-close {
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      font-size: 24px;
+      cursor: pointer;
+      padding: 0;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+    }
+    .spectator-close:hover {
+      background: rgba(255,255,255,0.1);
+      color: var(--text-main);
+    }
+
+    .spectator-body {
+      flex: 1;
+      padding: 20px;
+      overflow: auto;
+    }
+
+    .spectator-code {
+      width: 100%;
+      height: 100%;
+      background: var(--code-bg);
+      color: var(--code-fg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      font-family: 'Fira Code', 'Consolas', monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      resize: none;
+      white-space: pre;
+      overflow: auto;
+    }
+
+    .spectator-status {
+      padding: 8px 16px;
+      background: rgba(74, 158, 255, 0.2);
+      border-left: 3px solid #4a9eff;
+      color: #4a9eff;
+      font-size: 13px;
+      margin-bottom: 12px;
+      border-radius: 4px;
+    }
+
+    @media (max-width: 900px) {
+      .wrap { flex-direction:column; }
+      .divider {
+        height:8px;
+        width:auto;
+        cursor:row-resize;
+      }
+      .divider::before {
+        left:0;
+        right:0;
+        top:-6px;
+        bottom:-6px;
+      }
+      .pane-left {
+        border-right:0;
+        border-bottom:2px solid var(--border);
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Spectator Toggle Button -->
+<button class="spectator-toggle" id="spectatorToggle">
+  👁️ View Opponent's Code
+</button>
+
+<!-- Spectator Modal -->
+<div class="spectator-modal" id="spectatorModal">
+  <div class="spectator-content">
+    <div class="spectator-header">
+      <h3>🔍 Opponent's Code (Real-time)</h3>
+      <button class="spectator-close" id="spectatorClose">&times;</button>
+    </div>
+    <div class="spectator-body">
+      <div class="spectator-status" id="spectatorStatus">
+        Waiting for opponent to write code...
+      </div>
+      <textarea class="spectator-code" id="opponentCode" readonly></textarea>
+    </div>
+  </div>
+</div>
+
+<header>
+  <h1>MVP Online Judge</h1>
+  <nav>
+    <a href="/dashboard">Dashboard</a>
+    <a href="/problem-add">+ Add problem</a>
+    <a href="/problem-edit">Edit problem</a>
+  </nav>
+</header>
+
+<div class="wrap" id="split">
+  <!-- CỘT TRÁI: ĐỀ BÀI -->
+  <div class="pane-left" id="left-pane">
+    <section class="statement-panel" id="statement-panel">
+      <div class="statement-header">
+        <div>
+          <h2 id="statement-title">Problem</h2>
+          <div class="statement-meta">
+            <span id="problem-meta"></span>
+          </div>
+        </div>
+        <div class="badges-row">
+          <span class="difficulty-badge" id="difficulty">Difficulty: unknown</span>
+          <span class="status-badge" id="status-badge">Status: new</span>
+        </div>
+      </div>
+
+      <div id="statement-body" class="statement-body">
+        Select a problem to view its statement.
+      </div>
+    </section>
+  </div>
+
+  <!-- DIVIDER NGANG -->
+  <div class="divider" id="divider"></div>
+
+  <!-- CỘT PHẢI: TRÊN = CODE, DƯỚI = KẾT QUẢ -->
+  <div class="pane-right" id="right-pane">
+    <div class="right-vertical" id="vertical">
+      <!-- EDITOR TRÊN -->
+      <section class="editor-panel" id="editor-panel">
+        <div class="code-controls">
+          <label for="pid">Problem:</label>
+          <select id="pid"></select>
+          <button type="button" class="small-btn" id="refresh-problems">Refresh</button>
+
+          <label for="lang-select">Language:</label>
+          <div class="language-picker">
+            <select id="lang-select"></select>
+            <input id="lang-input" list="language-options" placeholder="Search language..." />
+            <datalist id="language-options"></datalist>
+          </div>
+
+        </div>
+
+        <textarea id="code">// C++20 sample
+#include &lt;bits/stdc++.h&gt;
+using namespace std;
+int main(){
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    long long a,b; if(!(cin&gt;&gt;a&gt;&gt;b)) return 0;
+    cout &lt;&lt; (a+b) &lt;&lt; "\n";
+    return 0;
+}
+        </textarea>
+      </section>
+
+      <!-- DIVIDER DỌC -->
+      <div class="vertical-divider" id="vertical-divider"></div>
+
+      <!-- KẾT QUẢ DƯỚI -->
+      <section class="results-panel" id="results-panel">
+        <div class="status-line">Status: <span id="status">idle</span></div>
+
+        <div>
+          <strong>Compile log</strong>
+          <pre class="log-block" id="clog"></pre>
+        </div>
+
+        <div>
+          <strong>Run result</strong>
+          <div class="run-summary" id="run-summary">No results yet.</div>
+          <pre class="log-block" id="rlog" style="display:none;"></pre>
+        </div>
+
+        <button id="btn" class="run-btn">Compile &amp; Run</button>
+      </section>
+    </div>
+  </div>
+</div>
+
+<!-- Socket.IO Client -->
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script src="/socket-client.js"></script>
+
+<script>
+/* JS phần lớn y như trước, chỉ thay đổi vài selector resize dọc */
+
+const api = "http://localhost:8000";
+
+const btn = document.getElementById("btn");
+const statusEl = document.getElementById("status");
+const clog = document.getElementById("clog");
+const rlog = document.getElementById("rlog");
+const runSummary = document.getElementById("run-summary");
+
+const pidInput = document.getElementById("pid");
+const refreshBtn = document.getElementById("refresh-problems");
+
+const langSelect = document.getElementById("lang-select");
+const langInput = document.getElementById("lang-input");
+const langOptionsEl = document.getElementById("language-options");
+
+const statementBody = document.getElementById("statement-body");
+const statementTitle = document.getElementById("statement-title");
+const difficultyBadge = document.getElementById("difficulty");
+const statusBadge = document.getElementById("status-badge");
+const problemMeta = document.getElementById("problem-meta");
+
+const leftPane = document.getElementById("left-pane");
+const rightPane = document.getElementById("right-pane");
+const divider = document.getElementById("divider");
+const split = document.getElementById("split");
+
+const vertical = document.getElementById("vertical");
+const editorPanel = document.getElementById("editor-panel");
+const resultsPanel = document.getElementById("results-panel");
+const verticalDivider = document.getElementById("vertical-divider");
+
+const codeArea = document.getElementById("code");
+
+const STATUS_KEY = "oj-problem-status";
+const urlParams = new URLSearchParams(window.location.search);
+const initialProblemId = urlParams.get("pid") || "";
+const DEFAULT_LANGUAGE = "cpp";
+
+const LANGUAGE_ALIASES = {
+  "c++": "cpp",
+  "python": "py",
+  "java": "java",
+  "javascript": "js",
+  "node": "js"
+};
+
+const LANGUAGE_OPTIONS = [
+  { code: "cpp", label: "C++ (C++20)", sample: `// C++20 sample\n#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios::sync_with_stdio(false);\n    cin.tie(nullptr);\n    long long a,b;\n    if(!(cin>>a>>b)) return 0;\n    cout << (a+b) << "\\n";\n    return 0;\n}` },
+  { code: "c", label: "C (C17)", sample: `// C17 sample\n#include <stdio.h>\nint main(void){\n    long long a,b;\n    if(scanf("%lld %lld", &a, &b)!=2) return 0;\n    printf("%lld\\n", a+b);\n    return 0;\n}` },
+  { code: "py", label: "Python 3", sample: `# Python 3 sample\nimport sys\nline = sys.stdin.readline().strip()\nif line:\n    a, b = map(int, line.split())\n    print(a + b)` },
+  { code: "java", label: "Java 17", sample: `import java.io.*;\nimport java.util.*;\npublic class Main {\n    public static void main(String[] args) throws Exception {\n        FastScanner fs = new FastScanner(System.in);\n        long a = fs.nextLong();\n        long b = fs.nextLong();\n        System.out.println(a + b);\n    }\n    static class FastScanner {\n        private final InputStream in;\n        private final byte[] buffer = new byte[1 << 16];\n        private int ptr = 0, len = 0;\n        FastScanner(InputStream is) { in = is; }\n        private int read() throws IOException {\n            if (ptr >= len) {\n                len = in.read(buffer);\n                ptr = 0;\n                if (len <= 0) return -1;\n            }\n            return buffer[ptr++];\n        }\n        long nextLong() throws IOException {\n            int c; do { c = read(); } while (c <= ' ');\n            long sign = 1;\n            if (c == '-') { sign = -1; c = read(); }\n            long val = c - '0';\n            while ((c = read()) > ' ') val = val * 10 + c - '0';\n            return val * sign;\n        }\n    }\n}` },
+  { code: "js", label: "JavaScript (Node)", sample: `// JavaScript (Node) sample\nconst fs = require('fs');\nconst input = fs.readFileSync(0,'utf8').trim().split(/\\s+/);\nif (input.length >= 2) {\n  const a = BigInt(input[0]);\n  const b = BigInt(input[1]);\n  console.log((a + b).toString());\n}` }
+];
+
+let problemsCache = [];
+let currentProblemId = initialProblemId;
+let currentLanguage = DEFAULT_LANGUAGE;
+let userTouchedCode = false;
+const languageMap = new Map();
+
+const difficultyLabels = {
+  fast: "Fast",
+  easy: "Easy",
+  medium: "Medium",
+  hard: "Hard"
+};
+
+function loadStatuses() {
+  try {
+    return JSON.parse(localStorage.getItem(STATUS_KEY) || "{}");
+  } catch {
+    return {};
+  }
+}
+
+function getProblemStatus(problemId) {
+  if (!problemId) return "new";
+  const statuses = loadStatuses();
+  return statuses[problemId] || "new";
+}
+
+function setProblemStatus(problemId, status) {
+  if (!problemId) return;
+  const statuses = loadStatuses();
+  statuses[problemId] = status;
+  localStorage.setItem(STATUS_KEY, JSON.stringify(statuses));
+}
+
+function statusLabel(status) {
+  if (status === "completed") return "Completed";
+  if (status === "in-progress") return "In Progress";
+  return "Not Started";
+}
+
+function updateStatusBadge() {
+  if (!statusBadge) return;
+  if (!currentProblemId) {
+    statusBadge.textContent = "Status: –";
+    statusBadge.className = "status-badge new";
+    return;
+  }
+  const status = getProblemStatus(currentProblemId);
+  statusBadge.textContent = `Status: ${statusLabel(status)}`;
+  statusBadge.className = `status-badge ${status}`;
+}
+
+function updateStatusFromMeta(metaStatus) {
+  if (!currentProblemId) return;
+  const normalized = String(metaStatus || "").toLowerCase();
+  if (normalized === "done") {
+    setProblemStatus(currentProblemId, "completed");
+  } else if (["failed", "compile_error", "error", "run_timeout", "compile_timeout"].includes(normalized)) {
+    setProblemStatus(currentProblemId, "in-progress");
+  } else if (["queued", "compiled", "compiling"].includes(normalized)) {
+    setProblemStatus(currentProblemId, "in-progress");
+  }
+  updateStatusBadge();
+}
+
+function populateLanguageOptions() {
+  languageMap.clear();
+  langOptionsEl.innerHTML = "";
+  if (langSelect) {
+    langSelect.innerHTML = "";
+  }
+  LANGUAGE_OPTIONS.forEach(({ code, label, sample }) => {
+    languageMap.set(code, { code, label, sample });
+    const option = document.createElement("option");
+    option.value = code;
+    option.label = label;
+    langOptionsEl.appendChild(option);
+    if (langSelect) {
+      const selectOption = document.createElement("option");
+      selectOption.value = code;
+      selectOption.textContent = label;
+      langSelect.appendChild(selectOption);
+    }
+  });
+  if (langSelect) {
+    langSelect.value = currentLanguage;
+  }
+}
+
+function normalizeLanguage(value) {
+  const code = String(value || "").trim().toLowerCase();
+  if (languageMap.has(code)) return code;
+  if (LANGUAGE_ALIASES[code]) {
+    return LANGUAGE_ALIASES[code];
+  }
+  return DEFAULT_LANGUAGE;
+}
+
+function setLanguage(code, { forceSample = false } = {}) {
+  const previousLanguage = currentLanguage;
+  const previousOption = languageMap.get(previousLanguage);
+  const normalized = normalizeLanguage(code);
+  const option = languageMap.get(normalized);
+  currentLanguage = normalized;
+  if (langSelect && langSelect.value !== normalized) {
+    langSelect.value = normalized;
+  }
+  langInput.value = normalized;
+  const url = new URL(window.location.href);
+  if (normalized === DEFAULT_LANGUAGE) {
+    url.searchParams.delete("lang");
+  } else {
+    url.searchParams.set("lang", normalized);
+  }
+  history.replaceState(null, "", url);
+  if (!option) return;
+  const previousSample = previousOption ? (previousOption.sample || "").trim() : "";
+  const currentValue = codeArea.value.trim();
+  const shouldUpdateSample = forceSample || !userTouchedCode || (!!previousSample && currentValue === previousSample);
+  if (shouldUpdateSample) {
+    if (option.sample) {
+      codeArea.value = option.sample;
+      userTouchedCode = false;
+    }
+  }
+}
+
+async function loadStatement(problemId) {
+  if (!problemId) {
+    statementTitle.textContent = "Problem";
+    problemMeta.innerHTML = "";
+    statementBody.textContent = "Select a problem to view its statement.";
+    difficultyBadge.textContent = "Difficulty: unknown";
+    statusEl.textContent = "idle";
+    clog.textContent = "";
+    renderRunResult(null);
+    currentProblemId = "";
+    updateStatusBadge();
+    return;
+  }
+
+  currentProblemId = problemId;
+  updateStatusBadge();
+  statusEl.textContent = "idle";
+  clog.textContent = "";
+  renderRunResult(null);
+  problemMeta.innerHTML = `<span>ID: <code>${escapeHtml(problemId)}</code></span>`;
+  statementTitle.textContent = `Problem: ${problemId}`;
+  statementBody.textContent = "Loading statement...";
+  difficultyBadge.textContent = "Difficulty: …";
+
+  try {
+    const res = await fetch(`${api}/problem/${encodeURIComponent(problemId)}`);
+    if (!res.ok) throw new Error(res.statusText);
+    const data = await res.json();
+
+    const diffLabel = difficultyLabels[data.difficulty] || (data.difficulty || "unknown");
+    difficultyBadge.textContent = `Difficulty: ${diffLabel}`;
+
+    const metaBits = [`<span>ID: <code>${escapeHtml(problemId)}</code></span>`];
+    if (typeof data.number === "number") {
+      metaBits.push(`<span>Problem #${data.number}</span>`);
+    }
+    const timeDisplay = formatTimeLimit(data.time_limit_ms);
+    if (timeDisplay) {
+      metaBits.push(`<span>Time limit: ${timeDisplay}</span>`);
+    }
+    const memoryDisplay = formatMemory(data.memory_limit_kb);
+    if (memoryDisplay) {
+      metaBits.push(`<span>Memory: ${memoryDisplay}</span>`);
+    }
+    if (data.tests_summary && data.tests_summary.total) {
+      const publicCount = data.tests_summary.public ?? 0;
+      const hiddenCount = data.tests_summary.hidden ?? 0;
+      let testsLabel = `${data.tests_summary.total} total`;
+      if (publicCount && hiddenCount) {
+        testsLabel += ` (${publicCount} public)`;
+      } else if (publicCount) {
+        testsLabel += ` (${publicCount} public)`;
+      }
+      metaBits.push(`<span>Tests: ${testsLabel}</span>`);
+    }
+    if (Array.isArray(data.tags) && data.tags.length) {
+      metaBits.push(`<span>Tags: ${data.tags.map(escapeHtml).join(", ")}</span>`);
+    }
+    problemMeta.innerHTML = metaBits.join("");
+
+    const info = renderStatementContent(data.statement || "");
+    let displayTitle = data.title || info.title || null;
+    if (displayTitle) {
+      if (typeof data.number === "number" && !/^problem\s*\d+/i.test(displayTitle)) {
+        statementTitle.textContent = `Problem ${data.number}: ${displayTitle}`;
+      } else {
+        statementTitle.textContent = displayTitle;
+      }
+    } else {
+      statementTitle.textContent = `Problem: ${problemId}`;
+    }
+
+    if (!info.hasSample && Array.isArray(data.samples) && data.samples.length) {
+      appendSampleSections(data.samples);
+    }
+    updateStatusBadge();
+  } catch (err) {
+    statementBody.textContent = "Unable to load statement.";
+    difficultyBadge.textContent = "Difficulty: unknown";
+    problemMeta.innerHTML = `<span>ID: <code>${escapeHtml(problemId)}</code></span>`;
+    console.error(err);
+    updateStatusBadge();
+  }
+}
+
+/* RESIZE NGANG: cột trái / cột phải */
+let isDragging = false;
+divider.addEventListener("mousedown", () => {
+  isDragging = true;
+  document.body.classList.add("resizing");
+});
+window.addEventListener("mousemove", (e) => {
+  if (!isDragging) return;
+  const rect = split.getBoundingClientRect();
+  let percent = ((e.clientX - rect.left) / rect.width) * 100;
+  percent = Math.min(75, Math.max(25, percent));
+  leftPane.style.flexBasis = `${percent}%`;
+  rightPane.style.flexBasis = `${100 - percent}%`;
+});
+window.addEventListener("mouseup", () => {
+  if (isDragging) {
+    isDragging = false;
+    document.body.classList.remove("resizing");
+  }
+});
+
+/* RESIZE DỌC: editor trên / results dưới (chỉ trong cột phải) */
+let isVerticalDragging = false;
+verticalDivider.addEventListener("mousedown", () => {
+  isVerticalDragging = true;
+  document.body.classList.add("resizing-vertical");
+});
+window.addEventListener("mousemove", (e) => {
+  if (!isVerticalDragging) return;
+  const rect = vertical.getBoundingClientRect();
+  let percent = ((e.clientY - rect.top) / rect.height) * 100;
+  percent = Math.min(75, Math.max(25, percent));
+  editorPanel.style.flexBasis = `${percent}%`;
+  resultsPanel.style.flexBasis = `${100 - percent}%`;
+});
+window.addEventListener("mouseup", () => {
+  if (isVerticalDragging) {
+    isVerticalDragging = false;
+    document.body.classList.remove("resizing-vertical");
+  }
+});
+
+/* select problem */
+pidInput.addEventListener("change", async () => {
+  const value = pidInput.value;
+  currentProblemId = value;
+  clog.textContent = "";
+  renderRunResult(null);
+  const url = new URL(window.location.href);
+  if (value) {
+    url.searchParams.set("pid", value);
+  } else {
+    url.searchParams.delete("pid");
+  }
+  history.replaceState(null, "", url);
+  if (value) {
+    await loadStatement(value);
+  } else {
+    await loadStatement("");
+  }
+});
+refreshBtn.addEventListener("click", () => loadProblemOptions(true));
+
+/* language handling */
+populateLanguageOptions();
+setLanguage(urlParams.get("lang") || DEFAULT_LANGUAGE, { forceSample: true });
+if (langSelect) {
+  langSelect.addEventListener("change", () => setLanguage(langSelect.value));
+}
+langInput.addEventListener("change", () => setLanguage(langInput.value));
+langInput.addEventListener("blur", () => setLanguage(langInput.value));
+langInput.addEventListener("input", () => {
+  const normalized = normalizeLanguage(langInput.value);
+  if (languageMap.has(normalized)) {
+    currentLanguage = normalized;
+  }
+});
+
+/* detect typing in code area */
+codeArea.addEventListener("input", () => {
+  userTouchedCode = true;
+  if (currentProblemId) {
+    setProblemStatus(currentProblemId, "in-progress");
+    updateStatusBadge();
+  }
+});
+
+/* load problem list ban đầu */
+async function loadProblemOptions(autoSelect = false) {
+  try {
+    const res = await fetch(`${api}/problems`);
+    if (!res.ok) throw new Error(res.statusText);
+    const data = await res.json();
+    problemsCache = Array.isArray(data.problems) ? data.problems : [];
+  } catch (err) {
+    console.error(err);
+    problemsCache = [];
+  }
+
+  pidInput.innerHTML = "";
+
+  if (!problemsCache.length) {
+    const option = document.createElement("option");
+    option.value = "";
+    option.textContent = "No problems available";
+    pidInput.appendChild(option);
+    pidInput.disabled = true;
+    currentProblemId = "";
+    loadStatement("");
+    updateStatusBadge();
+    return;
+  }
+
+  pidInput.disabled = false;
+
+  problemsCache.forEach((item) => {
+    const option = document.createElement("option");
+    option.value = item.problem_id;
+    const numberLabel = typeof item.number === "number"
+      ? `${String(item.number).padStart(3, "0")} · `
+      : "";
+    const diffLabel = difficultyLabels[item.difficulty] || (item.difficulty || "unknown");
+    option.textContent = `${numberLabel}${item.title || item.problem_id} (${diffLabel})`;
+    pidInput.appendChild(option);
+  });
+
+  const desired = currentProblemId && problemsCache.some(p => p.problem_id === currentProblemId)
+    ? currentProblemId
+    : problemsCache[0].problem_id;
+
+  pidInput.value = desired;
+  currentProblemId = desired;
+  updateStatusBadge();
+
+  if (autoSelect && desired) {
+    await loadStatement(desired);
+  } else if (!desired) {
+    loadStatement("");
+  }
+}
+
+/* nút Compile & Run */
+btn.onclick = async () => {
+  statusEl.textContent = "submitting...";
+  clog.textContent = ""; rlog.textContent = "";
+  renderRunResult(null);
+
+  const langCode = normalizeLanguage(langInput.value);
+  setLanguage(langCode);
+
+  const body = {
+    language: langCode,
+    code: codeArea.value,
+    problem_id: document.getElementById("pid").value,
+    opt: "O2"
+  };
+
+  if (!body.problem_id) {
+    statusEl.textContent = "Please choose a problem before submitting.";
+    return;
+  }
+  if (!languageMap.has(body.language)) {
+    statusEl.textContent = "Unsupported language selection.";
+    return;
+  }
+
+  if (currentProblemId) {
+    setProblemStatus(currentProblemId, "in-progress");
+    updateStatusBadge();
+  }
+
+  try {
+    const res = await fetch(api + "/problem/submit", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) {
+      const errText = await res.text();
+      statusEl.textContent = `submit failed (${res.status})`;
+      console.error("Submit failed:", errText);
+      return;
+    }
+    const js = await res.json();
+    const id = js.submission_id;
+    console.log('Submission ID:', id);
+    statusEl.textContent = "queued ("+id+")";
+
+    let tries=0;
+    while (tries<120) {
+      await new Promise(r=>setTimeout(r,1000));
+      console.log(`Polling attempt ${tries+1}/120 for submission ${id}`);
+      const sres = await fetch(api + "/problem/submission/" + id);
+      if (!sres.ok) {
+        console.error(`Polling failed: ${sres.status} ${sres.statusText}`);
+        break;
+      }
+      const data = await sres.json();
+      console.log('Status update:', data.meta.status, data);
+      statusEl.textContent = data.meta.status;
+      updateStatusFromMeta(data.meta.status);
+      if (data.compile_log) clog.textContent = data.compile_log;
+      renderRunResult(data.run_result);
+      if ([
+        "done","failed","compile_error","error",
+        "run_timeout","compile_timeout","problem_not_found"
+      ].includes(data.meta.status)) {
+        console.log('Final status reached:', data.meta.status);
+        break;
+      }
+      tries++;
+    }
+    if (tries >= 120) {
+      console.warn('Polling timeout after 120 attempts');
+      statusEl.textContent = "timeout - check manually";
+    }
+  } catch (err) {
+    statusEl.textContent = "submit failed";
+    console.error('Submit error:', err);
+  }
+};
+
+/* markdown -> HTML-ish */
+const marked = {
+  parse(text) {
+    const escape = (t) => t
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+
+    const segments = text.split(/```/);
+    let html = "";
+    let inCode = false;
+
+    for (const segment of segments) {
+      if (inCode) {
+        html += `<pre><code>${escape(segment.trim())}</code></pre>`;
+      } else {
+        const blocks = segment.split(/\n\n+/);
+        for (const block of blocks) {
+          const trimmed = block.trim();
+          if (!trimmed) continue;
+          if (/^#/.test(trimmed)) {
+            const level = trimmed.match(/^#+/)[0].length;
+            const content = escape(trimmed.replace(/^#+\s*/, ""));
+            html += `<h${level}>${content}</h${level}>`;
+          } else {
+            const content = escape(trimmed).replace(/\n/g, "<br/>");
+            html += `<p>${content}</p>`;
+          }
+        }
+      }
+      inCode = !inCode;
+    }
+    return html;
+  }
+};
+
+loadProblemOptions(true);
+
+function renderRunResult(run) {
+  if (!run) {
+    runSummary.textContent = "No results yet.";
+    rlog.textContent = "";
+    updateStatusBadge();
+    return;
+  }
+  const overallClass = run.ok ? "pass" : "fail";
+  const overallText = run.ok ? "All tests passed." : "Some tests failed.";
+  const tests = Array.isArray(run.tests) ? run.tests : [];
+  const testsHtml = tests.map((test, idx) => {
+    const passed = !!test.passed;
+    const cls = passed ? "pass" : "fail";
+    const verdict = passed ? "pass" : (test.verdict || "fail");
+    const elapsed = formatMetric(test.elapsed_seconds, test.elapsed);
+    const memory = formatMemory(test.max_rss_kb);
+    return `<li class="${cls}">Test case ${test.test || idx + 1}: ${verdict}<span>${elapsed}${elapsed && memory ? " · " : ""}${memory}</span></li>`;
+  }).join("");
+
+  const perf = run.performance || {};
+  const metrics = [];
+  const maxElapsed = formatDuration(perf.max_elapsed_seconds);
+  if (maxElapsed) metrics.push(`Max time: ${maxElapsed}`);
+  const avgElapsed = formatDuration(perf.avg_elapsed_seconds);
+  if (avgElapsed) metrics.push(`Avg time: ${avgElapsed}`);
+  const maxMem = formatMemory(perf.max_memory_kb);
+  if (maxMem) metrics.push(`Max RAM: ${maxMem}`);
+
+  runSummary.innerHTML = `
+    <div class="overall ${overallClass}">${overallText}</div>
+    ${testsHtml ? `<ul class="run-tests">${testsHtml}</ul>` : "<em>No test summary.</em>"}
+    ${metrics.length ? `<div class="run-metrics">${metrics.map(m => `<div>${m}</div>`).join("")}</div>` : ""}
+  `;
+  rlog.textContent = JSON.stringify(run, null, 2);
+  if (currentProblemId) {
+    const statusValue = run.ok ? "completed" : "in-progress";
+    setProblemStatus(currentProblemId, statusValue);
+    updateStatusBadge();
+  }
+}
+
+function renderStatementContent(markdown) {
+  statementBody.innerHTML = "";
+  if (!markdown) {
+    statementBody.textContent = "No statement available for this problem.";
+    return { title: null, hasSample: false };
+  }
+  const temp = document.createElement("div");
+  temp.innerHTML = marked.parse(markdown);
+
+  let docTitle = null;
+  const sections = [];
+  let current = null;
+  let hasSampleSection = false;
+
+  const ensureSection = () => {
+    if (!current) {
+      current = { heading: "Problem Description", nodes: [] };
+      sections.push(current);
+    }
+  };
+
+  Array.from(temp.children).forEach((node) => {
+    if (!(node instanceof HTMLElement)) return;
+    const tag = node.tagName.toUpperCase();
+    if (tag === "H1") {
+      docTitle = node.textContent.trim();
+      return;
+    }
+    if (/^H[2-6]$/.test(tag)) {
+      const heading = node.textContent.trim();
+      current = { heading, nodes: [] };
+      sections.push(current);
+      return;
+    }
+    const textContent = node.textContent.trim();
+    if (tag === "P" && !textContent) return;
+    if (tag === "P" && /use problem_id/i.test(textContent)) return;
+    ensureSection();
+    current.nodes.push(node);
+  });
+
+  sections.forEach((section) => {
+    if (!section.nodes.length) return;
+    const block = document.createElement("div");
+    block.className = "statement-section";
+    const heading = section.heading;
+    const isDefault = heading === "Problem Description";
+    const headingLower = (heading || "").toLowerCase();
+    const isSampleInput = headingLower.includes("sample input");
+    const isSampleOutput = headingLower.includes("sample output");
+    const isSample = isSampleInput || isSampleOutput;
+    if (!isDefault && heading) {
+      const h3 = document.createElement("h3");
+      h3.textContent = heading;
+      block.appendChild(h3);
+    }
+    section.nodes.forEach((node) => {
+      if (isSample && node.tagName.toUpperCase() === "PRE") {
+        hasSampleSection = true;
+        const box = document.createElement("div");
+        box.className = "sample-box";
+        const code = document.createElement("code");
+        code.textContent = node.textContent.trimEnd();
+        box.appendChild(code);
+        block.appendChild(box);
+      } else {
+        block.appendChild(node);
+      }
+    });
+    statementBody.appendChild(block);
+  });
+
+  if (!statementBody.childElementCount) {
+    statementBody.textContent = "No statement available for this problem.";
+  }
+
+  return { title: docTitle, hasSample: hasSampleSection };
+}
+
+function appendSampleSections(samples) {
+  samples.forEach((sample, index) => {
+    const section = document.createElement("div");
+    section.className = "statement-section";
+
+    const heading = document.createElement("h3");
+    const label = sample.label || (samples.length > 1 ? `Sample ${index + 1}` : "Sample");
+    heading.textContent = label;
+    section.appendChild(heading);
+
+    if (typeof sample.input === "string") {
+      section.appendChild(createSampleBlock("Input", sample.input));
+    }
+    if (typeof sample.output === "string") {
+      section.appendChild(createSampleBlock("Output", sample.output));
+    }
+
+    statementBody.appendChild(section);
+  });
+}
+
+function createSampleBlock(title, content) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "sample-block";
+  const caption = document.createElement("span");
+  caption.className = "sample-caption";
+  caption.textContent = title;
+  wrapper.appendChild(caption);
+
+  const box = document.createElement("div");
+  box.className = "sample-box";
+  const code = document.createElement("code");
+  code.textContent = (content || "").trimEnd();
+  box.appendChild(code);
+  wrapper.appendChild(box);
+  return wrapper;
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function formatTimeLimit(ms) {
+  if (ms === null || ms === undefined) return "";
+  const num = Number(ms);
+  if (!Number.isFinite(num) || num <= 0) return "";
+  if (num >= 1000) {
+    const seconds = num / 1000;
+    const formatted = seconds >= 10 ? seconds.toFixed(1) : seconds.toFixed(2);
+    return `${formatted.replace(/\.0+$/, "").replace(/\.([1-9])0$/, ".$1")} s`;
+  }
+  return `${Math.round(num)} ms`;
+}
+
+function formatDuration(seconds) {
+  if (seconds === null || seconds === undefined) return "";
+  const num = Number(seconds);
+  if (!Number.isFinite(num)) return "";
+  if (num >= 1) {
+    return `${num.toFixed(2).replace(/\.0+$/, "").replace(/\.([1-9])0$/, ".$1")} s`;
+  }
+  const ms = num * 1000;
+  if (ms >= 1) {
+    return `${ms.toFixed(ms >= 10 ? 1 : 3).replace(/\.0+$/, "").replace(/\.([1-9])0$/, ".$1")} ms`;
+  }
+  return `${(ms).toFixed(3)} ms`;
+}
+
+function formatMetric(seconds, fallback) {
+  const label = formatDuration(seconds);
+  if (label) return label;
+  if (fallback) return fallback;
+  return "";
+}
+
+function formatMemory(kb) {
+  if (kb === null || kb === undefined) return "";
+  const num = Number(kb);
+  if (!Number.isFinite(num) || num <= 0) return "";
+  if (num >= 1024 * 5) {
+    const mb = num / 1024;
+    return `${mb.toFixed(mb >= 10 ? 1 : 2).replace(/\.0+$/, "").replace(/\.([1-9])0$/, ".$1")} MB`;
+  }
+  return `${num} KB`;
+}
+
+// ===== SOCKET.IO REAL-TIME CODE SPECTATING =====
+const socketClient = SocketClient.getInstance();
+const codeTextarea = document.getElementById('code');
+const spectatorToggle = document.getElementById('spectatorToggle');
+const spectatorModal = document.getElementById('spectatorModal');
+const spectatorClose = document.getElementById('spectatorClose');
+const opponentCodeTextarea = document.getElementById('opponentCode');
+const spectatorStatus = document.getElementById('spectatorStatus');
+
+let currentRoomCode = null;
+let spectatorEnabled = false;
+let codeChangeTimeout = null;
+
+// Get room code from URL query parameter
+function getRoomCodeFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('room');
+}
+
+// Initialize Socket.IO connection
+async function initializeSocket() {
+  currentRoomCode = getRoomCodeFromURL();
+  
+  if (!currentRoomCode) {
+    console.log('No room code found in URL - running in solo mode');
+    return;
+  }
+
+  try {
+    await socketClient.connect();
+    
+    // Join room as player
+    await socketClient.joinRoom(currentRoomCode, 'player', 'YourUsername'); // TODO: Get username from session
+    
+    // Listen for room settings to check if spectator is enabled
+    socketClient.on('settings-updated', (data) => {
+      spectatorEnabled = data.settings.spectator;
+      
+      if (spectatorEnabled) {
+        spectatorToggle.style.display = 'block';
+      } else {
+        spectatorToggle.style.display = 'none';
+        spectatorModal.classList.remove('show');
+      }
+    });
+    
+    // Listen for opponent's code updates
+    socketClient.on('opponent-code-update', (data) => {
+      if (spectatorEnabled && data.code !== undefined) {
+        opponentCodeTextarea.value = data.code;
+        
+        if (data.code.trim().length > 0) {
+          spectatorStatus.textContent = `✅ Opponent is coding... (${data.code.length} characters)`;
+        } else {
+          spectatorStatus.textContent = 'Waiting for opponent to write code...';
+        }
+      }
+    });
+    
+    // Listen for opponent submit
+    socketClient.on('opponent-submitted', (data) => {
+      if (spectatorEnabled) {
+        spectatorStatus.textContent = '🎯 Opponent just submitted their code!';
+        spectatorStatus.style.background = 'rgba(255, 179, 122, 0.2)';
+        spectatorStatus.style.borderColor = '#ffb37a';
+        spectatorStatus.style.color = '#ffb37a';
+      }
+    });
+    
+    console.log('Socket.IO initialized for room:', currentRoomCode);
+  } catch (error) {
+    console.error('Failed to initialize socket:', error);
+  }
+}
+
+// Debounced code change handler
+function onCodeChange() {
+  if (!currentRoomCode || !spectatorEnabled) return;
+  
+  // Clear previous timeout
+  if (codeChangeTimeout) {
+    clearTimeout(codeChangeTimeout);
+  }
+  
+  // Debounce: send after 500ms of no typing
+  codeChangeTimeout = setTimeout(() => {
+    const code = codeTextarea.value;
+    socketClient.sendCodeChange(currentRoomCode, code);
+  }, 500);
+}
+
+// Toggle spectator modal
+spectatorToggle.addEventListener('click', () => {
+  spectatorModal.classList.toggle('show');
+  spectatorToggle.classList.toggle('active');
+  
+  if (spectatorModal.classList.contains('show')) {
+    spectatorToggle.textContent = '👁️ Hide Opponent';
+  } else {
+    spectatorToggle.textContent = '👁️ View Opponent\'s Code';
+  }
+});
+
+spectatorClose.addEventListener('click', () => {
+  spectatorModal.classList.remove('show');
+  spectatorToggle.classList.remove('active');
+  spectatorToggle.textContent = '👁️ View Opponent\'s Code';
+});
+
+// Close modal when clicking outside
+spectatorModal.addEventListener('click', (e) => {
+  if (e.target === spectatorModal) {
+    spectatorModal.classList.remove('show');
+    spectatorToggle.classList.remove('active');
+    spectatorToggle.textContent = '👁️ View Opponent\'s Code';
+  }
+});
+
+// Listen for code changes
+codeTextarea.addEventListener('input', onCodeChange);
+
+// Modify submit button to notify opponent
+const originalBtnClick = btn.onclick;
+btn.onclick = function() {
+  // Send submit event to opponent
+  if (currentRoomCode && spectatorEnabled) {
+    socketClient.submitCode(currentRoomCode);
+  }
+  
+  // Call original submit handler if exists
+  if (originalBtnClick) {
+    originalBtnClick.call(this);
+  }
+};
+
+// Initialize on page load
+initializeSocket();
+
+</script>
+</body>
+</html>

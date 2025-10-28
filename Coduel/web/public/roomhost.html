@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Host Room</title>
+  <style>
+    :root {
+      --c-bg-top: #11151c;
+      --c-bg-bottom: #212d40;
+      --c-panel: rgba(17,21,28,0.6); /* panel tối trong suốt nhẹ */
+      --c-border: #364156;
+      --c-accent: #7d4e57;
+      --c-accent-hover: #915763;
+      --c-text-main: #ffffff;
+      --c-text-dim: #9aa4ba;
+      --radius-lg: 1rem;
+      --radius-pill: 999px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(
+          circle at 50% 30%,
+          rgba(125,78,87,0.22) 0%,
+          rgba(33,45,64,0) 60%
+        ),
+        linear-gradient(
+          to bottom,
+          var(--c-bg-top) 0%,
+          var(--c-bg-bottom) 100%
+        );
+      color: var(--c-text-main);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter", Roboto, "Helvetica Neue", sans-serif;
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem 3rem;
+      gap: 2rem;
+    }
+
+    /* ROOM CODE BADGE */
+    .roomcode-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      user-select: none;
+      text-align: center;
+    }
+
+    .roomcode-pill {
+      background-color: rgba(17,21,28,0.6);
+      border: 2px solid var(--c-border);
+      border-radius: var(--radius-pill);
+      padding: 0.8rem 1.2rem;
+      font-family: "JetBrains Mono", "Fira Code", Consolas, monospace;
+      font-size: 0.9rem;
+      font-weight: 600;
+      line-height: 1.2rem;
+      color: var(--c-text-main);
+      cursor: pointer;
+      min-width: 220px;
+      text-align: center;
+      box-shadow:
+        0 20px 40px rgba(0,0,0,0.6),
+        0 2px 4px rgba(0,0,0,0.8),
+        0 0 12px rgba(125,78,87,0.4);
+      transition: all 0.15s ease;
+    }
+
+    .roomcode-pill:hover {
+      border-color: var(--c-accent);
+      box-shadow:
+        0 0 8px rgba(125,78,87,0.7),
+        0 30px 60px rgba(0,0,0,0.75);
+    }
+
+    .roomcode-hint {
+      font-size: 0.7rem;
+      line-height: 1rem;
+      color: var(--c-text-dim);
+      letter-spacing: 0.06em;
+    }
+
+    /* MAIN LOBBY LAYOUT */
+    .lobby-layout {
+      width: 100%;
+      max-width: 1100px;
+      display: grid;
+      grid-template-columns: minmax(260px, 360px) 1fr;
+      gap: 2rem;
+    }
+
+    /* responsive: dưới ~780px thì xếp dọc */
+    @media (max-width: 780px) {
+      .lobby-layout {
+        grid-template-columns: 1fr;
+        max-width: 500px;
+      }
+    }
+
+    /* LEFT COLUMN: controls */
+    .left-col {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .start-btn {
+      background-color: var(--c-accent);
+      border: 2px solid var(--c-accent);
+      color: var(--c-text-main);
+      font-size: 1.05rem;
+      font-weight: 600;
+      line-height: 1.2rem;
+      padding: 1rem 1.2rem;
+      text-align: center;
+      border-radius: var(--radius-pill);
+      width: 100%;
+      cursor: pointer;
+      box-shadow:
+        0 24px 48px rgba(0,0,0,0.7),
+        0 2px 4px rgba(0,0,0,0.8),
+        0 0 16px rgba(125,78,87,0.6);
+      transition: all 0.15s ease;
+    }
+
+    .start-btn:hover,
+    .start-btn:focus {
+      background-color: var(--c-accent-hover);
+      border-color: var(--c-accent-hover);
+      transform: translateY(-2px) scale(1.02);
+      box-shadow:
+        0 32px 64px rgba(0,0,0,0.8),
+        0 4px 8px rgba(0,0,0,0.9),
+        0 0 20px rgba(145,87,99,0.8);
+      outline: none;
+    }
+
+    /* SETTINGS PANEL */
+    .settings-panel {
+      background-color: var(--c-panel);
+      border: 1px solid var(--c-border);
+      border-radius: var(--radius-lg);
+      padding: 1rem 1rem 1.25rem;
+      box-shadow:
+        0 24px 48px rgba(0,0,0,0.7),
+        0 2px 4px rgba(0,0,0,0.8);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .panel-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--c-text-main);
+      letter-spacing: -0.03em;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+    }
+
+    .panel-sub {
+      font-size: 0.7rem;
+      color: var(--c-text-dim);
+      font-weight: 400;
+      line-height: 1rem;
+      letter-spacing: 0.03em;
+    }
+
+    .setting-field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .setting-label {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--c-text-main);
+      letter-spacing: -0.03em;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
+    .setting-label span.hint {
+      font-size: 0.7rem;
+      font-weight: 400;
+      line-height: 1rem;
+      color: var(--c-text-dim);
+      letter-spacing: 0.03em;
+    }
+
+    .setting-select {
+      width: 100%;
+      background-color: rgba(17,21,28,0.6);
+      color: var(--c-text-main);
+      border: 1px solid var(--c-border);
+      border-radius: var(--radius-pill);
+      font-size: 0.8rem;
+      line-height: 1.2rem;
+      font-family: inherit;
+      font-weight: 500;
+      padding: 0.6rem 0.8rem;
+      outline: none;
+      cursor: pointer;
+      box-shadow:
+        0 16px 32px rgba(0,0,0,0.6),
+        0 2px 4px rgba(0,0,0,0.8);
+      transition: all 0.15s ease;
+      appearance: none; /* bỏ arrow mặc định xấu */
+    }
+
+    .setting-select:focus {
+      border-color: var(--c-accent);
+      box-shadow:
+        0 0 10px rgba(125,78,87,0.6),
+        0 24px 48px rgba(0,0,0,0.75);
+    }
+
+    /* ROOM SUMMARY ("Room Rules Preview") */
+    .summary-panel {
+      background-color: rgba(17,21,28,0.3);
+      border: 1px solid var(--c-border);
+      border-radius: var(--radius-lg);
+      padding: 0.8rem 1rem 1rem;
+      box-shadow:
+        0 16px 32px rgba(0,0,0,0.6),
+        0 2px 4px rgba(0,0,0,0.8);
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .summary-title {
+      font-size: 0.7rem;
+      line-height: 1rem;
+      font-weight: 600;
+      color: var(--c-text-main);
+      letter-spacing: -0.03em;
+    }
+
+    .summary-line {
+      font-size: 0.7rem;
+      line-height: 1rem;
+      color: var(--c-text-dim);
+      font-family: "JetBrains Mono","Fira Code",Consolas,monospace;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* RIGHT COLUMN: players list */
+    .right-col {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      min-width: 0; /* fix overflow in grid child */
+    }
+
+    .players-panel {
+      background-color: var(--c-panel);
+      border: 1px solid var(--c-border);
+      border-radius: var(--radius-lg);
+      padding: 1rem 1rem 1.25rem;
+      box-shadow:
+        0 24px 48px rgba(0,0,0,0.7),
+        0 2px 4px rgba(0,0,0,0.8);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      min-width: 0;
+    }
+
+    .players-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .players-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--c-text-main);
+      letter-spacing: -0.03em;
+    }
+
+    .players-sub {
+      font-size: 0.7rem;
+      line-height: 1rem;
+      color: var(--c-text-dim);
+      letter-spacing: 0.03em;
+    }
+
+    /* table style */
+    .players-table-wrapper {
+      overflow-x: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--c-border) transparent;
+    }
+
+    .players-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 320px;
+      font-size: 0.8rem;
+      line-height: 1.2rem;
+      color: var(--c-text-main);
+      text-align: left;
+      font-family: "JetBrains Mono","Fira Code",Consolas,monospace;
+    }
+
+    .players-table thead th {
+      font-weight: 600;
+      color: var(--c-text-main);
+      background-color: rgba(54,65,86,0.2);
+      border-bottom: 1px solid var(--c-border);
+      padding: 0.5rem 0.75rem;
+      white-space: nowrap;
+    }
+
+    .players-table tbody td {
+      border-bottom: 1px solid rgba(54,65,86,0.3);
+      padding: 0.5rem 0.75rem;
+      white-space: nowrap;
+    }
+
+    .tag-ready {
+      color: #85ffa8;
+    }
+    .tag-wait {
+      color: #ffb37a;
+    }
+    .tag-host {
+      color: var(--c-accent);
+    }
+
+    .players-footer {
+      font-size: 0.7rem;
+      line-height: 1rem;
+      color: var(--c-text-dim);
+      letter-spacing: 0.03em;
+    }
+
+    /* FOOTNOTE / INVITE TIP */
+    .invite-tip {
+      font-size: 0.7rem;
+      line-height: 1rem;
+      color: var(--c-text-dim);
+      text-align: center;
+      margin-top: 1rem;
+      letter-spacing: 0.05em;
+      user-select: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Loading indicator -->
+  <div id="loadingScreen" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: white; font-size: 18px;">
+    <div style="margin-bottom: 10px;">⏳ Loading...</div>
+    <div style="font-size: 14px; color: #9aa4ba;">If this persists, check console (F12)</div>
+  </div>
+
+  <!-- NICKNAME MODAL -->
+  <div id="nicknameModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; display: none; align-items: center; justify-content: center;">
+    <div style="background: var(--c-bg-top); border: 2px solid var(--c-border); border-radius: 16px; padding: 40px; max-width: 400px; width: 90%; text-align: center;">
+      <h2 style="margin-bottom: 10px; color: var(--c-text-main);">Enter Your Nickname</h2>
+      <p style="color: var(--c-text-dim); font-size: 14px; margin-bottom: 30px;">This will be shown to other players</p>
+      <input type="text" id="nicknameInput" placeholder="Your nickname" maxlength="20" 
+        style="width: 100%; padding: 15px; font-size: 16px; border: 2px solid var(--c-border); border-radius: 999px; background: rgba(17,21,28,0.6); color: white; text-align: center; margin-bottom: 20px; outline: none;" />
+      <button id="nicknameConfirmBtn" class="start-btn" style="width: 100%; padding: 15px;">
+        CONTINUE
+      </button>
+      <p id="nicknameError" style="color: #ff6b6b; font-size: 13px; margin-top: 10px; display: none;">Please enter a nickname (2-20 characters)</p>
+    </div>
+  </div>
+
+  <!-- ROOM CODE -->
+  <section class="roomcode-wrapper" style="display:none;" id="roomcodeWrapper">
+    <div class="roomcode-pill" id="roomCodeDisplay" title="Click to copy">
+      ROOM CODE: <span id="roomCodeText">------</span>
+    </div>
+    <div class="roomcode-hint">click to copy &amp; send to friends</div>
+    <div class="roomcode-hint" id="copyStatus" style="visibility:hidden;">copied!</div>
+  </section>
+
+  <!-- JOIN ROOM INPUT (Hidden by default, shown for joining) -->
+  <section class="join-room-section" id="joinRoomSection" style="display:none;">
+    <div class="settings-panel" style="max-width: 400px; margin: 0 auto;">
+      <div class="panel-title">
+        <span>Join Room</span>
+        <span class="panel-sub">enter room code to join</span>
+      </div>
+      <div class="setting-field">
+        <label class="setting-label">
+          <span>Room Code</span>
+          <span class="hint">(6-digit code)</span>
+        </label>
+        <input type="text" class="setting-select" id="joinRoomCodeInput" placeholder="123456" maxlength="6" style="text-align:center; font-family: monospace; font-size: 1.2rem;" />
+      </div>
+      <button class="start-btn" id="joinRoomBtn" style="width: 100%;">
+        JOIN ROOM
+      </button>
+    </div>
+  </section>
+
+  <!-- MAIN LOBBY -->
+  <section class="lobby-layout" id="lobbyLayout" style="display:none;">
+
+    <!-- LEFT COLUMN -->
+    <div class="left-col">
+
+      <button class="start-btn" id="startBtn" style="display:none;">
+        START MATCH
+      </button>
+
+      <button class="start-btn" id="readyBtn" style="display:none; background: #4a9eff; border-color: #4a9eff;">
+        READY
+      </button>
+
+      <div class="settings-panel">
+        <div class="panel-title">
+          <span>Room Settings</span>
+          <span class="panel-sub">configure the match</span>
+        </div>
+
+        <div class="setting-field">
+          <label class="setting-label">
+            <span>Difficulty</span>
+            <span class="hint">(problem level)</span>
+          </label>
+          <select class="setting-select" id="difficultySelect">
+            <option value="fast">fast</option>
+            <option value="easy">easy</option>
+            <option value="medium">medium</option>
+            <option value="hard">hard</option>
+          </select>
+        </div>
+
+        <div class="setting-field">
+          <label class="setting-label">
+            <span>Language</span>
+            <span class="hint">(code language)</span>
+          </label>
+          <select class="setting-select" id="languageSelect">
+            <option value="c">C</option>
+            <option value="cpp">C++</option>
+            <option value="python">Python</option>
+            <option value="java">Java</option>
+          </select>
+        </div>
+
+        <div class="setting-field">
+          <label class="setting-label">
+            <span>Time Limit</span>
+            <span class="hint">(per round)</span>
+          </label>
+          <select class="setting-select" id="timeLimitSelect">
+            <option value="none" selected>None</option>
+            <option value="5m">5m</option>
+            <option value="10m">10m</option>
+            <option value="20m">20m</option>
+          </select>
+        </div>
+
+        <div class="setting-field">
+          <label class="setting-label">
+            <span>Rounds</span>
+            <span class="hint">(best of)</span>
+          </label>
+          <select class="setting-select" id="roundSelect">
+            <option value="1">1</option>
+            <option value="3" selected>3</option>
+            <option value="5">5</option>
+            <option value="10">10</option>
+          </select>
+        </div>
+
+        <div class="setting-field">
+          <label class="setting-label">
+            <span>Code Spectator</span>
+            <span class="hint">(real-time code viewing)</span>
+          </label>
+          <select class="setting-select" id="spectatorSelect">
+            <option value="true">Enabled (Anti-cheat)</option>
+            <option value="false" selected>Disabled</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="summary-panel">
+        <div class="summary-title">Room Rules Preview</div>
+        <div class="summary-line" id="summaryDifficulty">Difficulty : fast</div>
+        <div class="summary-line" id="summaryLanguage">Language  : C</div>
+        <div class="summary-line" id="summaryTime">TimeLimit : None</div>
+        <div class="summary-line" id="summaryRounds">Rounds    : 3</div>
+        <div class="summary-line" id="summarySpec">Spectator : Enabled</div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="right-col">
+      <div class="players-panel">
+        <div class="players-head">
+          <div class="players-title">Players</div>
+          <div class="players-sub" id="playerCount">2 / 8</div>
+        </div>
+
+        <div class="players-table-wrapper">
+          <table class="players-table">
+            <thead>
+              <tr>
+                <th>Player</th>
+                <th>Status</th>
+                <th>Role</th>
+              </tr>
+            </thead>
+            <tbody id="playersTbody">
+              <!-- Players will be populated dynamically via JavaScript -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="players-footer" id="waitingText">
+          waiting for players to ready up...
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <div class="invite-tip">
+    Share the room code so others can join. You control when the match starts.
+  </div>
+
+  <!-- Socket.IO Client -->
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="/socket-client.js"></script>
+
+  <script>
+    // Wait for all scripts to load
+    window.addEventListener('DOMContentLoaded', initializePage);
+
+    function initializePage() {
+      console.log('=== Page Initialization Started ===');
+      
+      // Check if dependencies loaded
+      if (typeof io === 'undefined') {
+        console.error('Socket.IO not loaded!');
+        document.getElementById('loadingScreen').innerHTML = 
+          '<div style="color: #ff6b6b;">❌ Socket.IO failed to load</div>' +
+          '<div style="margin-top: 20px;"><a href="/mainmenu.html" style="color: #4a9eff;">← Back to Main Menu</a></div>';
+        return;
+      }
+      
+      if (typeof SocketClient === 'undefined') {
+        console.error('SocketClient not loaded!');
+        document.getElementById('loadingScreen').innerHTML = 
+          '<div style="color: #ff6b6b;">❌ SocketClient failed to load</div>' +
+          '<div style="margin-top: 20px;"><a href="/mainmenu.html" style="color: #4a9eff;">← Back to Main Menu</a></div>';
+        return;
+      }
+
+      console.log('✓ Socket.IO loaded');
+      console.log('✓ SocketClient loaded');
+
+    // COPY ROOM CODE WHEN CLICK
+    const roomCodeDisplay = document.getElementById('roomCodeDisplay');
+    const roomCodeText = document.getElementById('roomCodeText');
+    const copyStatus = document.getElementById('copyStatus');
+
+    roomCodeDisplay.addEventListener('click', async () => {
+      const code = roomCodeText.textContent.trim();
+      try {
+        await navigator.clipboard.writeText(code);
+        copyStatus.style.visibility = 'visible';
+        copyStatus.textContent = 'copied!';
+        setTimeout(() => {
+          copyStatus.style.visibility = 'hidden';
+        }, 1500);
+      } catch (err) {
+        copyStatus.style.visibility = 'visible';
+        copyStatus.textContent = 'failed to copy';
+        setTimeout(() => {
+          copyStatus.style.visibility = 'hidden';
+        }, 1500);
+      }
+    });
+
+    // SYNC SUMMARY PANEL WHEN SETTINGS CHANGE
+    const difficultySelect = document.getElementById('difficultySelect');
+    const languageSelect   = document.getElementById('languageSelect');
+    const timeLimitSelect  = document.getElementById('timeLimitSelect');
+    const roundSelect      = document.getElementById('roundSelect');
+    const spectatorSelect  = document.getElementById('spectatorSelect');
+
+    const summaryDifficulty = document.getElementById('summaryDifficulty');
+    const summaryLanguage   = document.getElementById('summaryLanguage');
+    const summaryTime       = document.getElementById('summaryTime');
+    const summaryRounds     = document.getElementById('summaryRounds');
+    const summarySpec       = document.getElementById('summarySpec');
+
+    function refreshSummary() {
+      summaryDifficulty.textContent = "Difficulty : " + difficultySelect.value;
+      summaryLanguage.textContent   = "Language  : " + languageSelect.options[languageSelect.selectedIndex].text;
+      summaryTime.textContent       = "TimeLimit : " + timeLimitSelect.options[timeLimitSelect.selectedIndex].text;
+      summaryRounds.textContent     = "Rounds    : " + roundSelect.value;
+      summarySpec.textContent       = "Spectator : " + spectatorSelect.value.charAt(0).toUpperCase() + spectatorSelect.value.slice(1);
+    }
+
+    [difficultySelect, languageSelect, timeLimitSelect, roundSelect, spectatorSelect]
+      .forEach(sel => sel.addEventListener('change', refreshSummary));
+
+    // DON'T call refreshSummary() here - will be called after UI shows
+
+    // ===== SOCKET.IO INTEGRATION =====
+    const socketClient = SocketClient.getInstance();
+    let currentRoomCode = null;
+    let userRole = null; // 'host' or 'player'
+    let isReady = false;
+    let username = null; // User's nickname
+
+    const lobbyLayout = document.getElementById('lobbyLayout');
+    const joinRoomSection = document.getElementById('joinRoomSection');
+    const joinRoomCodeInput = document.getElementById('joinRoomCodeInput');
+    const joinRoomBtn = document.getElementById('joinRoomBtn');
+    const startBtn = document.getElementById('startBtn');
+    const readyBtn = document.getElementById('readyBtn');
+    const nicknameModal = document.getElementById('nicknameModal');
+    const nicknameInput = document.getElementById('nicknameInput');
+    const nicknameConfirmBtn = document.getElementById('nicknameConfirmBtn');
+    const nicknameError = document.getElementById('nicknameError');
+
+    // Generate random 6-digit room code
+    function generateRoomCode() {
+      return Math.floor(100000 + Math.random() * 900000).toString();
+    }
+
+    // Check if page opened as host or join mode
+    function getPageMode() {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get('mode'); // 'host' or 'join'
+    }
+
+    // Get room code from URL (when joining)
+    function getRoomCodeFromURL() {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get('code');
+    }
+
+    // Show nickname modal
+    function showNicknameModal(callback) {
+      document.getElementById('loadingScreen').style.display = 'none';
+      nicknameModal.style.display = 'flex';
+      nicknameInput.focus();
+      
+      // Handle enter key
+      nicknameInput.onkeypress = (e) => {
+        if (e.key === 'Enter') {
+          nicknameConfirmBtn.click();
+        }
+      };
+      
+      // Handle confirm button
+      nicknameConfirmBtn.onclick = () => {
+        const nick = nicknameInput.value.trim();
+        if (nick.length < 2 || nick.length > 20) {
+          nicknameError.style.display = 'block';
+          return;
+        }
+        username = nick;
+        nicknameModal.style.display = 'none';
+        callback();
+      };
+    }
+
+    // Initialize as HOST
+    async function initializeAsHost() {
+      // Show nickname modal first
+      showNicknameModal(async () => {
+        userRole = 'host';
+        currentRoomCode = generateRoomCode();
+        roomCodeText.textContent = currentRoomCode;
+
+        // Show UI
+        document.getElementById('roomcodeWrapper').style.display = 'flex';
+        lobbyLayout.style.display = 'grid';
+        joinRoomSection.style.display = 'none';
+
+        // Show START button for host
+        startBtn.style.display = 'block';
+        readyBtn.style.display = 'none';
+
+        // Enable all settings for host
+        difficultySelect.disabled = false;
+        languageSelect.disabled = false;
+        timeLimitSelect.disabled = false;
+        roundSelect.disabled = false;
+        spectatorSelect.disabled = false;
+
+        console.log('Room created as HOST:', currentRoomCode, 'Username:', username);
+
+        // Initialize summary
+        refreshSummary();
+
+        // Connect to socket
+        try {
+          await socketClient.connect();
+          await socketClient.joinRoom(currentRoomCode, username, 'host');
+          syncSettings();
+          console.log('Socket connected for room:', currentRoomCode);
+        } catch (error) {
+          console.error('Failed to connect socket:', error);
+        }
+      });
+    }
+
+    // Initialize as PLAYER (show join input)
+    function initializeAsJoinMode() {
+      userRole = null; // Not determined yet
+      
+      // Hide loading, show UI
+      document.getElementById('loadingScreen').style.display = 'none';
+      document.getElementById('roomcodeWrapper').style.display = 'flex';
+      
+      // Check if room code already provided in URL
+      const prefilledCode = getRoomCodeFromURL();
+      if (prefilledCode) {
+        joinRoomCodeInput.value = prefilledCode;
+      }
+      
+      // Show join section, hide lobby
+      joinRoomSection.style.display = 'block';
+      lobbyLayout.style.display = 'none';
+      
+      console.log('Join mode - waiting for room code');
+    }
+
+    // Join room as PLAYER
+    async function joinRoomAsPlayer(roomCode) {
+      // Show nickname modal first
+      showNicknameModal(async () => {
+        userRole = 'player';
+        currentRoomCode = roomCode;
+        roomCodeText.textContent = currentRoomCode;
+
+        // Show UI
+        document.getElementById('roomcodeWrapper').style.display = 'flex';
+        lobbyLayout.style.display = 'grid';
+        joinRoomSection.style.display = 'none';
+
+        // Show READY button for player
+        startBtn.style.display = 'none';
+        readyBtn.style.display = 'block';
+        
+        // Initialize ready status as false for new player
+        isReady = false;
+        readyBtn.textContent = 'READY';
+        readyBtn.style.background = '#4a9eff';
+        readyBtn.style.borderColor = '#4a9eff';
+
+        // Disable all settings for player (read-only)
+        difficultySelect.disabled = true;
+        languageSelect.disabled = true;
+        timeLimitSelect.disabled = true;
+        roundSelect.disabled = true;
+        spectatorSelect.disabled = true;
+
+        console.log('Joined room as PLAYER:', currentRoomCode, 'Username:', username);
+
+        // Initialize summary
+        refreshSummary();
+
+        // Connect to socket
+        try {
+          await socketClient.connect();
+          await socketClient.joinRoom(currentRoomCode, username, 'player');
+          console.log('Socket connected for room:', currentRoomCode);
+        } catch (error) {
+          console.error('Failed to connect socket:', error);
+          alert('Failed to join room. Please check the room code.');
+        }
+      });
+    }
+
+    // Sync settings to server when changed (HOST only)
+    function syncSettings() {
+      if (!currentRoomCode || userRole !== 'host') return;
+
+      const settings = {
+        difficulty: difficultySelect.value,
+        language: languageSelect.value,
+        timeLimit: timeLimitSelect.value,
+        rounds: parseInt(roundSelect.value),
+        spectator: spectatorSelect.value === 'true'
+      };
+
+      console.log('Syncing settings to server:', settings);
+      socketClient.updateSettings(settings);
+    }
+
+    // Listen for setting changes (HOST only)
+    [difficultySelect, languageSelect, timeLimitSelect, roundSelect, spectatorSelect]
+      .forEach(sel => sel.addEventListener('change', () => {
+        refreshSummary();
+        syncSettings();
+      }));
+
+    // Listen for settings updates from server (PLAYER receives)
+    socketClient.on('settings-updated', (data) => {
+      console.log('Settings updated from server:', data);
+      
+      if (userRole === 'player') {
+        // Update UI with new settings
+        difficultySelect.value = data.settings.difficulty;
+        languageSelect.value = data.settings.language;
+        timeLimitSelect.value = data.settings.timeLimit;
+        roundSelect.value = data.settings.rounds;
+        spectatorSelect.value = data.settings.spectator ? 'true' : 'false';
+        refreshSummary();
+      }
+    });
+
+    // Listen for room-joined confirmation
+    socketClient.on('room-joined', (data) => {
+      console.log('Room joined confirmed:', data);
+      if (data.roomState && data.roomState.players) {
+        updatePlayerList(data.roomState.players);
+      }
+    });
+
+    // Listen for players joining
+    socketClient.on('player-joined', (data) => {
+      console.log('Player joined:', data);
+      updatePlayerList(data.players);
+    });
+
+    socketClient.on('player-left', (data) => {
+      console.log('Player left:', data);
+      updatePlayerList(data.players);
+    });
+
+    // Listen for player ready status updates
+    socketClient.on('player-ready-update', (data) => {
+      console.log('Player ready status updated:', data);
+      updatePlayerList(data.players);
+    });
+
+    // Listen for room state updates
+    socketClient.on('room-state', (data) => {
+      console.log('Room state received:', data);
+      if (data.players) {
+        updatePlayerList(data.players);
+      }
+      if (data.settings && userRole === 'player') {
+        // Update settings if player
+        difficultySelect.value = data.settings.difficulty;
+        languageSelect.value = data.settings.language;
+        timeLimitSelect.value = data.settings.timeLimit;
+        roundSelect.value = data.settings.rounds;
+        spectatorSelect.value = data.settings.spectator ? 'true' : 'false';
+        refreshSummary();
+      }
+    });
+
+    // Listen for match start (when host clicks START)
+    socketClient.on('match-started', (data) => {
+      console.log('Match started!', data);
+      // Redirect all players to workspace
+      if (currentRoomCode) {
+        window.location.href = `/workspace.html?room=${currentRoomCode}`;
+      }
+    });
+
+    // Function to update player list dynamically
+    function updatePlayerList(players) {
+      const tbody = document.getElementById('playersTbody');
+      const playerCount = document.getElementById('playerCount');
+      
+      if (!tbody || !players) return;
+
+      // Update player count (current / max)
+      const maxPlayers = 8; // Can be made configurable
+      if (playerCount) {
+        playerCount.textContent = `${players.length} / ${maxPlayers}`;
+      }
+
+      // Clear and rebuild table
+      tbody.innerHTML = '';
+
+      players.forEach(player => {
+        const row = document.createElement('tr');
+        
+        // Player name column - show "you" for current user
+        const nameCell = document.createElement('td');
+        const isCurrentUser = player.username === username;
+        nameCell.textContent = isCurrentUser ? 'you' : (player.username || 'Player');
+        row.appendChild(nameCell);
+
+        // Status column
+        const statusCell = document.createElement('td');
+        if (player.role === 'host') {
+          statusCell.innerHTML = '<span class="tag-ready">READY</span>';
+        } else if (player.ready) {
+          statusCell.innerHTML = '<span class="tag-ready">READY</span>';
+        } else {
+          statusCell.innerHTML = '<span class="tag-wait">NOT READY</span>';
+        }
+        row.appendChild(statusCell);
+
+        // Role column
+        const roleCell = document.createElement('td');
+        if (player.role === 'host') {
+          roleCell.innerHTML = '<span class="tag-host">HOST</span>';
+        } else {
+          roleCell.innerHTML = '&nbsp;';
+        }
+        row.appendChild(roleCell);
+
+        tbody.appendChild(row);
+      });
+
+      // Update waiting text
+      const waitingText = document.getElementById('waitingText');
+      if (waitingText) {
+        if (userRole === 'host') {
+          const notReadyPlayers = players.filter(p => p.role !== 'host' && !p.ready);
+          if (notReadyPlayers.length > 0) {
+            waitingText.textContent = `waiting for ${notReadyPlayers.length} player(s) to ready up...`;
+          } else if (players.length > 1) {
+            waitingText.textContent = 'all players ready! you can start the match.';
+          } else {
+            waitingText.textContent = 'waiting for players to join...';
+          }
+        } else {
+          // Player view
+          waitingText.textContent = 'waiting for host to start...';
+        }
+      }
+    }
+
+    // JOIN ROOM button handler
+    joinRoomBtn.addEventListener('click', async () => {
+      const roomCode = joinRoomCodeInput.value.trim();
+      
+      if (!roomCode || roomCode.length !== 6) {
+        alert('Please enter a valid 6-digit room code');
+        return;
+      }
+
+      try {
+        await joinRoomAsPlayer(roomCode);
+      } catch (error) {
+        console.error('Failed to join room:', error);
+        alert('Failed to join room. Please check the room code.');
+      }
+    });
+
+    // READY button handler (PLAYER only)
+    readyBtn.addEventListener('click', () => {
+      isReady = !isReady;
+      
+      if (isReady) {
+        readyBtn.textContent = 'NOT READY';
+        readyBtn.style.background = '#ff6b6b';
+        readyBtn.style.borderColor = '#ff6b6b';
+      } else {
+        readyBtn.textContent = 'READY';
+        readyBtn.style.background = '#4a9eff';
+        readyBtn.style.borderColor = '#4a9eff';
+      }
+
+      // Send ready status to server
+      if (currentRoomCode && username) {
+        socketClient.sendReadyStatus(isReady);
+        console.log('Ready status sent:', isReady);
+      }
+    });
+
+    // START button handler (HOST only)
+    startBtn.addEventListener('click', () => {
+      if (currentRoomCode && userRole === 'host') {
+        console.log('Host starting match for room:', currentRoomCode);
+        socketClient.startMatch();
+        // Redirect to workspace
+        window.location.href = `/workspace.html?room=${currentRoomCode}`;
+      }
+    });
+
+    // Initialize on page load
+    const pageMode = getPageMode();
+    
+    try {
+      if (pageMode === 'join') {
+        initializeAsJoinMode();
+      } else {
+        // Default to host mode
+        initializeAsHost();
+      }
+    } catch (error) {
+      console.error('Initialization error:', error);
+      document.getElementById('loadingScreen').innerHTML = 
+        '<div style="color: #ff6b6b;">❌ Error loading page</div>' +
+        '<div style="font-size: 14px; margin-top: 10px;">Check console (F12) for details</div>' +
+        '<div style="margin-top: 20px;"><a href="/mainmenu.html" style="color: #4a9eff;">← Back to Main Menu</a></div>';
+    }
+
+    } // End of initializePage function
+
+    console.log('=== Page Script Loaded ===');
+  </script>
+</body>
+</html>
