@@ -433,6 +433,10 @@
         READY
       </button>
 
+      <button class="start-btn" id="outRoomBtn" style="background: #ff6b6b; border-color: #ff6b6b;">
+        OUT ROOM
+      </button>
+
       <div class="settings-panel">
         <div class="panel-title">
           <span>Room Settings</span>
@@ -882,9 +886,9 @@
     // Listen for match start (when host clicks START)
     socketClient.on('match-started', (data) => {
       console.log('Match started!', data);
-      // Redirect all players to workspace
+      // Redirect all players to workspace with username and role
       if (currentRoomCode) {
-        window.location.href = `/workspace.html?room=${currentRoomCode}`;
+        window.location.href = `/workspace.html?room=${currentRoomCode}&username=${encodeURIComponent(username)}&role=${userRole}`;
       }
     });
 
@@ -1027,8 +1031,21 @@
       if (currentRoomCode && userRole === 'host') {
         console.log('Host starting match for room:', currentRoomCode);
         socketClient.startMatch();
-        // Redirect to workspace
-        window.location.href = `/workspace.html?room=${currentRoomCode}`;
+        // Redirect to workspace with username and role
+        window.location.href = `/workspace.html?room=${currentRoomCode}&username=${encodeURIComponent(username)}&role=${userRole}`;
+      }
+    });
+
+    // OUT ROOM button handler (ALL users)
+    const outRoomBtn = document.getElementById('outRoomBtn');
+    outRoomBtn.addEventListener('click', () => {
+      const confirmLeave = confirm('Are you sure you want to leave this room?');
+      if (confirmLeave) {
+        // Disconnect socket and return to main menu
+        if (socketClient) {
+          socketClient.disconnect();
+        }
+        window.location.href = '/mainmenu.html';
       }
     });
 

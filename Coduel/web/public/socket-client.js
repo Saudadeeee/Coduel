@@ -1,7 +1,3 @@
-// Socket.IO Client for Real-time Code Spectating
-// This file provides utilities for connecting to the Socket.IO server
-// and managing real-time code synchronization
-
 class SocketClient {
   constructor() {
     this.socket = null;
@@ -155,15 +151,15 @@ class SocketClient {
     });
   }
 
-  submitCode(code) {
-    if (!this.socket || !this.roomCode) {
+  submitCode(roomCode, submissionId) {
+    if (!this.socket || !roomCode) {
       console.error("Not in a room");
       return;
     }
 
     this.socket.emit("submit-code", {
-      roomCode: this.roomCode,
-      code
+      roomCode,
+      submissionId
     });
   }
 
@@ -225,8 +221,6 @@ class SocketClient {
   }
 }
 
-// Initialize singleton
 SocketClient.instance = null;
 
-// Also expose as global for convenience
 window.SocketClient = SocketClient;

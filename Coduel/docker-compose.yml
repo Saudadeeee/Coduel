@@ -19,6 +19,8 @@ services:
   worker:
     build: ./worker
     container_name: oj_worker
+    env_file:
+      - .env.judge
     environment:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
@@ -26,6 +28,8 @@ services:
       - HOST_JOB_TMP_ROOT=${PWD}/worker_tmp
       - PROBLEMS_ROOT=/problems
       - HOST_PROBLEMS_ROOT=${PWD}/problems
+      - RUNS_PER_TEST=${RUNS_PER_TEST:-3}
+      - PERFORMANCE_TOLERANCE=${PERFORMANCE_TOLERANCE:-0.10}
     volumes:
       - ./problems:/problems:ro
       - /var/run/docker.sock:/var/run/docker.sock

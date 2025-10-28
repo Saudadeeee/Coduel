@@ -18,7 +18,10 @@ def _env_limit(name, default):
     if val is None:
         return default() if callable(default) else default
     val = val.strip()
-    return val or None
+    # Remove inline comments (after #)
+    if '#' in val:
+        val = val.split('#')[0].strip()
+    return val if val else (default() if callable(default) else default)
 
 def _default_cpu_limit():
     count = os.cpu_count() or 1
@@ -48,6 +51,8 @@ DOCKER_RUN_TIMEOUT = int(os.getenv("DOCKER_RUN_TIMEOUT", "60"))
 COMPILE_TIMEOUT = int(os.getenv("COMPILE_TIMEOUT", str(DOCKER_RUN_TIMEOUT)))
 RUN_TIMEOUT = int(os.getenv("RUN_TIMEOUT", str(DOCKER_RUN_TIMEOUT)))
 DOCKER_RUN_EXTRA_ARGS = shlex.split(os.getenv("DOCKER_RUN_EXTRA_ARGS", ""))
+RUNS_PER_TEST = int(os.getenv("RUNS_PER_TEST", "3"))  # Số lần chạy mỗi test để lấy median
+PERFORMANCE_TOLERANCE = float(os.getenv("PERFORMANCE_TOLERANCE", "0.10"))  # 10% tolerance
 JOB_TMP_ROOT = os.getenv("JOB_TMP_ROOT", "/worker_tmp")
 HOST_JOB_TMP_ROOT = os.getenv("HOST_JOB_TMP_ROOT", JOB_TMP_ROOT)
 PROBLEMS_ROOT = os.getenv("PROBLEMS_ROOT", "/problems")
@@ -85,6 +90,46 @@ def _parse_elapsed_seconds(val):
         except ValueError:
             return None
     return None
+
+def _calculate_median(values):
+    """Calculate median from a list of numbers"""
+    if not values:
+        return None
+    sorted_values = sorted(values)
+    n = len(sorted_values)
+    if n % 2 == 0:
+        return (sorted_values[n//2 - 1] + sorted_values[n//2]) / 2
+    else:
+        return sorted_values[n//2]
+
+def _calculate_accuracy(passed_count, total_tests):
+    """Calculate accuracy percentage"""
+    if total_tests == 0:
+        return 0.0
+    return (passed_count / total_tests) * 100.0
+
+def _compare_performance_with_tolerance(value_a, value_b, tolerance=PERFORMANCE_TOLERANCE):
+    """
+    Compare two performance values with tolerance
+    Returns: 'A_BETTER', 'B_BETTER', or 'TIE'
+    """
+    if value_a is None and value_b is None:
+        return 'TIE'
+    if value_a is None:
+        return 'B_BETTER'
+    if value_b is None:
+        return 'A_BETTER'
+    
+    diff = abs(value_a - value_b)
+    avg = (value_a + value_b) / 2
+    
+    if avg == 0:
+        return 'TIE'
+    
+    if diff / avg < tolerance:
+        return 'TIE'
+    
+    return 'A_BETTER' if value_a < value_b else 'B_BETTER'
 
 def docker_run(cmd, mounts=None, readonly_root=True, timeout=None):
     base = ["docker", "run", "--rm", "--network", "none"]
@@ -266,18 +311,42 @@ def run_submission(job):
             })
 
         elapsed_values = [m["elapsed_seconds"] for m in metrics if m.get("elapsed_seconds") is not None]
+        memory_values = [m["max_rss_kb"] for m in metrics if m.get("max_rss_kb") is not None]
+        
         max_elapsed = max(elapsed_values) if elapsed_values else None
         avg_elapsed = sum(elapsed_values) / len(elapsed_values) if elapsed_values else None
-        max_mem = max((m["max_rss_kb"] for m in metrics if m.get("max_rss_kb") is not None), default=None)
+        median_elapsed = _calculate_median(elapsed_values)
+        
+        max_mem = max(memory_values) if memory_values else None
+        avg_mem = sum(memory_values) / len(memory_values) if memory_values else None
+        median_mem = _calculate_median(memory_values)
+        
+        accuracy = _calculate_accuracy(passed_count, len(verdicts))
 
         performance = {
             "total_tests": len(verdicts),
             "passed": passed_count,
             "failed": len(verdicts) - passed_count,
+            "accuracy": accuracy,  # NEW: Accuracy percentage (0-100)
+            
+            # Time metrics
             "max_elapsed_seconds": max_elapsed,
             "avg_elapsed_seconds": avg_elapsed,
+            "median_elapsed_seconds": median_elapsed,  # NEW: More stable than average
+            
+            # Memory metrics
             "max_memory_kb": max_mem,
-            "overall": "passed" if ok else "failed"
+            "avg_memory_kb": avg_mem,  # NEW
+            "median_memory_kb": median_mem,  # NEW
+            
+            "overall": "passed" if ok else "failed",
+            
+            # Metadata for ranking
+            "ranking_priority": {
+                "1_accuracy": accuracy,
+                "2_time": median_elapsed or avg_elapsed or max_elapsed,
+                "3_memory": median_mem or avg_mem or max_mem
+            }
         }
 
         run_result = {
@@ -323,6 +392,97 @@ def main():
             job = json.loads(payload2)
             print(f"[RUN] Processing submission {job['submission_id']}", flush=True)
             run_submission(job)
+
+def compare_submissions(sub_id_a, sub_id_b):
+    """
+    Compare two submissions using ranking priority:
+    1. Accuracy (higher is better)
+    2. Time (lower is better, with tolerance)
+    3. Memory (lower is better, with tolerance)
+    
+    Returns: dict with comparison results
+    """
+    result_a_raw = r.get(f"run_result:{sub_id_a}")
+    result_b_raw = r.get(f"run_result:{sub_id_b}")
+    
+    if not result_a_raw or not result_b_raw:
+        return {"error": "One or both submissions not found"}
+    
+    try:
+        result_a = json.loads(result_a_raw)
+        result_b = json.loads(result_b_raw)
+    except json.JSONDecodeError:
+        return {"error": "Failed to parse results"}
+    
+    perf_a = result_a.get("performance", {})
+    perf_b = result_b.get("performance", {})
+    
+    accuracy_a = perf_a.get("accuracy", 0)
+    accuracy_b = perf_b.get("accuracy", 0)
+    
+    # Priority 1: Accuracy
+    if accuracy_a != accuracy_b:
+        winner = "A" if accuracy_a > accuracy_b else "B"
+        return {
+            "winner": winner,
+            "reason": "accuracy",
+            "details": {
+                "accuracy_a": accuracy_a,
+                "accuracy_b": accuracy_b,
+                "diff": abs(accuracy_a - accuracy_b)
+            }
+        }
+    
+    # If accuracy is equal, compare time
+    time_a = perf_a.get("median_elapsed_seconds") or perf_a.get("avg_elapsed_seconds")
+    time_b = perf_b.get("median_elapsed_seconds") or perf_b.get("avg_elapsed_seconds")
+    
+    time_comparison = _compare_performance_with_tolerance(time_a, time_b)
+    
+    # Priority 2: Time (with tolerance)
+    if time_comparison != 'TIE':
+        winner = "A" if time_comparison == "A_BETTER" else "B"
+        return {
+            "winner": winner,
+            "reason": "time",
+            "details": {
+                "time_a_ms": time_a * 1000 if time_a else None,
+                "time_b_ms": time_b * 1000 if time_b else None,
+                "diff_ms": abs(time_a - time_b) * 1000 if time_a and time_b else None,
+                "tolerance": f"{PERFORMANCE_TOLERANCE * 100}%"
+            }
+        }
+    
+    # If time is within tolerance, compare memory
+    mem_a = perf_a.get("median_memory_kb") or perf_a.get("avg_memory_kb")
+    mem_b = perf_b.get("median_memory_kb") or perf_b.get("avg_memory_kb")
+    
+    mem_comparison = _compare_performance_with_tolerance(mem_a, mem_b)
+    
+    # Priority 3: Memory (with tolerance)
+    if mem_comparison != 'TIE':
+        winner = "A" if mem_comparison == "A_BETTER" else "B"
+        return {
+            "winner": winner,
+            "reason": "memory",
+            "details": {
+                "memory_a_mb": mem_a / 1024 if mem_a else None,
+                "memory_b_mb": mem_b / 1024 if mem_b else None,
+                "diff_mb": abs(mem_a - mem_b) / 1024 if mem_a and mem_b else None,
+                "tolerance": f"{PERFORMANCE_TOLERANCE * 100}%"
+            }
+        }
+    
+    # Complete tie
+    return {
+        "winner": "TIE",
+        "reason": "all_metrics_equal_within_tolerance",
+        "details": {
+            "accuracy": accuracy_a,
+            "time_ms": time_a * 1000 if time_a else None,
+            "memory_mb": mem_a / 1024 if mem_a else None
+        }
+    }
 
 if __name__ == "__main__":
     main()
