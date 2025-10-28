@@ -904,6 +904,30 @@
       // Clear and rebuild table
       tbody.innerHTML = '';
 
+      // Check if all players are ready
+      let allPlayersReady = true;
+      players.forEach(player => {
+        // Host is always considered ready, but other players need to be ready
+        if (player.role !== 'host' && !player.ready) {
+          allPlayersReady = false;
+        }
+      });
+
+      // Update START button state for host
+      if (userRole === 'host' && startBtn) {
+        if (allPlayersReady && players.length > 0) {
+          startBtn.disabled = false;
+          startBtn.style.opacity = '1';
+          startBtn.style.cursor = 'pointer';
+          startBtn.title = 'All players are ready!';
+        } else {
+          startBtn.disabled = true;
+          startBtn.style.opacity = '0.5';
+          startBtn.style.cursor = 'not-allowed';
+          startBtn.title = 'Waiting for all players to be ready...';
+        }
+      }
+
       players.forEach(player => {
         const row = document.createElement('tr');
         
@@ -995,6 +1019,11 @@
 
     // START button handler (HOST only)
     startBtn.addEventListener('click', () => {
+      if (startBtn.disabled) {
+        alert('Cannot start match: Not all players are ready yet!');
+        return;
+      }
+      
       if (currentRoomCode && userRole === 'host') {
         console.log('Host starting match for room:', currentRoomCode);
         socketClient.startMatch();

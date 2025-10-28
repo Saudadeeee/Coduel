@@ -19,7 +19,6 @@ const io = new Server(httpServer, {
 
 const publicDir = path.join(__dirname, "public");
 
-// Redis client for room state management
 const redisClient = createClient({
   url: process.env.REDIS_URL || "redis://redis:6379"
 });
@@ -41,18 +40,15 @@ app.get("/problem-add", (_req, res) => res.sendFile(path.join(publicDir, "proble
 app.get("/problem-edit", (_req, res) => res.sendFile(path.join(publicDir, "problem-edit.html")));
 app.get("/problem", (_req, res) => res.sendFile(path.join(publicDir, "workspace.html")));
 
-// Socket.IO for real-time code spectating
-const rooms = new Map(); // In-memory room state (can be moved to Redis for scaling)
+const rooms = new Map();
 
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
-  // Join room
   socket.on("join-room", async ({ roomCode, username, role }) => {
     try {
       socket.join(roomCode);
       
-      // Get or create room state
       let roomState = rooms.get(roomCode);
       if (!roomState) {
         roomState = {
