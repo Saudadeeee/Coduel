@@ -392,7 +392,6 @@
   </main>
 
   <script>
-    // Block dashboard access when in online mode (has room code)
     const urlParams = new URLSearchParams(window.location.search);
     const roomCode = urlParams.get('room');
     if (roomCode) {

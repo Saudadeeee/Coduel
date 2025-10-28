@@ -55,8 +55,8 @@
 
     .ascii-logo {
       font-family: "JetBrains Mono", "Fira Code", Consolas, monospace;
-      font-size: 0.6rem;
-      line-height: 0.8rem;
+      font-size: 1rem;
+      line-height: 1rem;
       font-weight: 600;
       color: var(--c-text-main);
       text-shadow:
@@ -155,11 +155,11 @@
     }
 
     .footer-info {
-      font-size: 0.7rem;
-      line-height: 1rem;
+      font-size: 1rem;
+      line-height: 5rem;
       color: var(--c-text-dim);
       user-select: none;
-      margin-top: 1rem;
+      margin-top: 20rem;
       letter-spacing: 0.05em;
     }
 
@@ -185,11 +185,10 @@
 
 
  ______     ______     _____     __  __     ______     __       
-/\  ___\   /\  __ \   /\  __-.  /\ \/\ \   /\  __ \   /\ \      
-\ \ \____  \ \ \/\ \  \ \ \/\ \ \ \ \_\ \  \ \  __ \  \ \ \____ 
- \ \_____\  \ \_____\  \ \____-  \ \_____\  \ \_\ \_\  \ \_____\
-  \/_____/   \/_____/   \/____/   \/_____/   \/_/\/_/   \/_____/
-
+/\  ___\   /\  __ \   /\  __-.  /\ \/\ \   /\  ___\   /\ \      
+\ \ \____  \ \ \/\ \  \ \ \/\ \ \ \ \_\ \  \ \  __\   \ \ \____ 
+ \ \_____\  \ \_____\  \ \____-  \ \_____\  \ \_____\  \ \_____\
+  \/_____/   \/_____/   \/____/   \/_____/   \/_____/   \/_____/
 
     </pre>
 
@@ -213,7 +212,7 @@
     </section>
 
     <footer class="footer-info">
-      <span class="version-pill">v0.1 alpha</span>
+      <span class="version-pill">v0.1 By N4nkh</span>
     </footer>
   </main>
 
@@ -222,8 +221,6 @@
     const joinBtn   = document.getElementById('btn-join');
     const trainingBtn = document.getElementById('btn-training');
     const hostBtn = document.getElementById('btn-host');
-
-    // Training button - redirect to dashboard (problem list)
     trainingBtn.addEventListener('click', () => {
       window.location.href = '/dashboard';
     });
@@ -240,11 +237,9 @@
         alert('Please enter a room code');
         return;
       }
-      // Redirect to room with code as query parameter
       window.location.href = `/roomhost.html?code=${encodeURIComponent(code)}&mode=join`;
     });
 
-    // Enter key support for room input
     roomInput.addEventListener('keyup', (e) => {
       if (e.key === 'Enter') {
         joinBtn.click();

@@ -31,7 +31,7 @@ DEFAULT_MEMORY_LIMIT_KB = int(os.getenv("DEFAULT_MEMORY_LIMIT_KB", str(256 * 102
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],          # allow all origins (for dev)
+    allow_origins=["*"],       
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -101,8 +101,6 @@ class AddProblemReq(BaseModel):
     def validate_positive(cls, v):
         if v is None:
             return v
-        if v <= 0:
-            raise ValueError("limits must be positive integers")
         return int(v)
 
     @field_validator("tags", mode="before")
@@ -118,14 +116,6 @@ class AddProblemReq(BaseModel):
     @field_validator("tags")
     def sanitize_tags(cls, v):
         return _normalize_tags(v)
-
-    @field_validator("time_limit_ms", "memory_limit_kb")
-    def validate_limits(cls, v):
-        if v is None:
-            return v
-        if v <= 0:
-            raise ValueError("limits must be positive integers")
-        return int(v)
 
     @model_validator(mode="after")
     def check_statement(cls, values):
@@ -184,8 +174,7 @@ class UpdateProblemReq(BaseModel):
     def validate_limits(cls, v):
         if v is None:
             return v
-        if v <= 0:
-            raise ValueError("limits must be positive integers")
+
         return int(v)
 
     @model_validator(mode="after")

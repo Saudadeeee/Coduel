@@ -36,21 +36,17 @@ case "$LANGUAGE" in
     NEEDS_COMPILE=true
     ;;
   py)
-    # Python: compile to check syntax, but still run from source
     BUILD_CMD=(python3 -m py_compile "$SRC_FILE")
     RUN_CMD=(python3 "$SRC_FILE")
     NEEDS_COMPILE=false
     ;;
   java)
-    # Java: compile creates .class file, extract class name from source
     BUILD_CMD=(javac "$SRC_FILE")
-    # Find main class name (class with public static void main)
     MAIN_CLASS=$(grep -E "^\s*public\s+class\s+\w+" "$SRC_FILE" | head -1 | sed -E 's/.*public\s+class\s+(\w+).*/\1/' || echo "Main")
     RUN_CMD=(java "$MAIN_CLASS")
     NEEDS_COMPILE=false
     ;;
   js)
-    # JavaScript: check syntax
     BUILD_CMD=(node --check "$SRC_FILE")
     RUN_CMD=(node "$SRC_FILE")
     NEEDS_COMPILE=false
@@ -76,7 +72,6 @@ if [ "$MODE" = "compile" ]; then
   exit 0
 fi
 
-# Running tests
 echo "Running tests..." >&2
 
 i=1
@@ -87,7 +82,6 @@ while true; do
 
   echo "Running test $i..." >&2
   
-  # Run with run_with_metrics.py
   if python3 /usr/local/bin/run_with_metrics.py \
     --cmd "${RUN_CMD[@]}" \
     --stdin "$IN" \
@@ -102,7 +96,6 @@ while true; do
     else
       echo "TEST $i: WA (Wrong Answer)"
       echo "WA" > "verdict_${i}.txt"
-      # Save diff for debugging
       diff "user_out_${i}.txt" "$OUT" > "diff_${i}.txt" 2>&1 || true
     fi
   else
