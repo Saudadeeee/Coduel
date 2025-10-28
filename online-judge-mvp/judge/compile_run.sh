@@ -27,11 +27,11 @@ cd /work
 
 case "$LANGUAGE" in
   c)
-    BUILD_CMD=(/usr/bin/gcc -std=${STD:-c17} -$OPT -pipe -Wall -Wextra -ffile-prefix-map="$PWD"=. "$SRC_FILE" -o "$EXE_NAME")
+    BUILD_CMD=(/usr/bin/gcc -std=${STD:-c17} -O2 -pipe -Wall -Wextra -ffile-prefix-map="$PWD"=. "$SRC_FILE" -o "$EXE_NAME")
     RUN_CMD=("./$EXE_NAME")
     ;;
   cpp)
-    BUILD_CMD=(/usr/bin/g++ -std=${STD:-c++20} -$OPT -pipe -Wall -Wextra -ffile-prefix-map="$PWD"=. "$SRC_FILE" -o "$EXE_NAME")
+    BUILD_CMD=(/usr/bin/g++ -std=${STD:-c++20} -O2 -pipe -Wall -Wextra -ffile-prefix-map="$PWD"=. "$SRC_FILE" -o "$EXE_NAME")
     RUN_CMD=("./$EXE_NAME")
     ;;
   py)
@@ -61,33 +61,18 @@ if [ "$MODE" = "compile" ]; then
   exit 0
 fi
 
-if [ "$LANGUAGE" = "c" ] || [ "$LANGUAGE" = "cpp" ]; then
-  if [ ! -x "$EXE_NAME" ]; then
-    echo "Executable $EXE_NAME not found" >&2
-    exit 3
-  fi
-fi
-
 i=1
 while true; do
   IN="/tests/input${i}.txt"
   OUT="/tests/output${i}.txt"
   [ -f "$IN" ] || break
 
-  case "$LANGUAGE" in
-    c|cpp)
-      /usr/bin/time -v --output=metrics_${i}.txt "${RUN_CMD[@]}" < "$IN" > "user_out_${i}.txt" 2> "run_${i}.stderr" || true
-      ;;
-    java)
-      /usr/bin/time -v --output=metrics_${i}.txt java Main < "$IN" > "user_out_${i}.txt" 2> "run_${i}.stderr" || true
-      ;;
-    py)
-      /usr/bin/time -v --output=metrics_${i}.txt python3 "$SRC_FILE" < "$IN" > "user_out_${i}.txt" 2> "run_${i}.stderr" || true
-      ;;
-    js)
-      /usr/bin/time -v --output=metrics_${i}.txt node "$SRC_FILE" < "$IN" > "user_out_${i}.txt" 2> "run_${i}.stderr" || true
-      ;;
-  esac
+  python3 /usr/local/bin/run_with_metrics.py \
+    --cmd "${RUN_CMD[@]}" \
+    --stdin "$IN" \
+    --stdout "user_out_${i}.txt" \
+    --stderr "run_${i}.stderr" \
+    --metrics "metrics_${i}.json" || true
 
   if diff -q "user_out_${i}.txt" "$OUT" > /dev/null 2>&1; then
     echo "TEST $i: OK"

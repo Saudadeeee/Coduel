@@ -63,21 +63,28 @@ SOURCE_FILE_MAP = {
 }
 
 def _parse_elapsed_seconds(val):
-    if not val:
+    if val is None:
         return None
-    val = val.strip()
-    if not val:
-        return None
-    try:
-        parts = val.split(":")
-        if len(parts) == 1:
-            return float(parts[0])
-        seconds = 0.0
-        for p in parts:
-            seconds = seconds * 60 + float(p)
-        return seconds
-    except ValueError:
-        return None
+    if isinstance(val, (int, float)):
+        try:
+            return float(val)
+        except (TypeError, ValueError):
+            return None
+    if isinstance(val, str):
+        stripped = val.strip()
+        if not stripped:
+            return None
+        try:
+            parts = stripped.split(":")
+            if len(parts) == 1:
+                return float(parts[0])
+            seconds = 0.0
+            for p in parts:
+                seconds = seconds * 60 + float(p)
+            return seconds
+        except ValueError:
+            return None
+    return None
 
 def docker_run(cmd, mounts=None, readonly_root=True, timeout=None):
     base = ["docker", "run", "--rm", "--network", "none"]
@@ -196,23 +203,44 @@ def run_submission(job):
         metrics = []
         for i in range(1, 1000):
             vfile = os.path.join(tmpdir, f"verdict_{i}.txt")
-            mfile = os.path.join(tmpdir, f"metrics_{i}.txt")
+            json_metrics = os.path.join(tmpdir, f"metrics_{i}.json")
+            txt_metrics = os.path.join(tmpdir, f"metrics_{i}.txt")
             if not os.path.exists(vfile):
                 break
             verdicts.append(open(vfile).read().strip())
-            if os.path.exists(mfile):
-                txt = open(mfile).read()
-                elapsed = None; maxrss = None
-                # /usr/bin/time -v keys (allow optional hints in parenthesis)
-                m1 = re.search(r"Elapsed \(wall clock\) time.*:\s*(.*)", txt)
-                m2 = re.search(r"Maximum resident set size \(kbytes\):\s*(\d+)", txt)
-                if m1: elapsed = m1.group(1).strip()
-                if m2: maxrss = int(m2.group(1))
+
+            elapsed_sec = None
+            elapsed_str = None
+            maxrss = None
+            exit_code = None
+
+            if os.path.exists(json_metrics):
+                try:
+                    data = json.loads(open(json_metrics, encoding="utf-8").read())
+                except json.JSONDecodeError:
+                    data = {}
+                elapsed_sec = _parse_elapsed_seconds(data.get("elapsed_seconds"))
+                if elapsed_sec is not None:
+                    elapsed_str = f"{elapsed_sec:.6f}"
+                maxrss = data.get("max_rss_kb")
+                exit_code = data.get("exit_code")
+            elif os.path.exists(txt_metrics):
+                txt = open(txt_metrics, encoding="utf-8").read()
+                m1 = re.search(r"Elapsed \\(wall clock\\) time.*:\\s*(.*)", txt)
+                m2 = re.search(r"Maximum resident set size \\(kbytes\\):\\s*(\\d+)", txt)
+                if m1:
+                    elapsed_str = m1.group(1).strip()
+                    elapsed_sec = _parse_elapsed_seconds(elapsed_str)
+                if m2:
+                    maxrss = int(m2.group(1))
+
+            if elapsed_sec is not None or maxrss is not None:
                 metrics.append({
                     "test": i,
-                    "elapsed": elapsed,
-                    "elapsed_seconds": _parse_elapsed_seconds(elapsed),
-                    "max_rss_kb": maxrss
+                    "elapsed": elapsed_str,
+                    "elapsed_seconds": elapsed_sec,
+                    "max_rss_kb": maxrss,
+                    "exit_code": exit_code
                 })
         ok = all(v == "OK" for v in verdicts) if verdicts else False
 

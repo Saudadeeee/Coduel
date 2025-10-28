@@ -17,5 +17,7 @@ USER runner
 # copy script vào image
 COPY --chown=runner:runner compile_run.sh /usr/local/bin/compile_run.sh
 RUN chmod +x /usr/local/bin/compile_run.sh
+COPY --chown=runner:runner run_with_metrics.py /usr/local/bin/run_with_metrics.py
+RUN chmod +x /usr/local/bin/run_with_metrics.py
 
 # seccomp profile sẽ được mount từ ngoài nếu cần (Docker Desktop có profile mặc định)
