@@ -4,6 +4,7 @@ import { Server } from "socket.io";
 import path from "path";
 import { fileURLToPath } from "url";
 import { createClient } from "redis";
+import { createProxyMiddleware } from 'http-proxy-middleware';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -28,6 +29,28 @@ redisClient.on("error", (err) => console.error("Redis Client Error", err));
 await redisClient.connect();
 
 app.use(express.json());
+
+// Reverse proxy để chuyển /api/* sang backend API ở port 8000
+const API_TARGET = process.env.API_URL || "http://api:8000";
+app.use('/api', createProxyMiddleware({
+  target: API_TARGET,
+  changeOrigin: true,
+  pathRewrite: {
+    '^/api': '', // Xóa /api prefix khi gửi tới backend
+  },
+  timeout: 300000, // 5 phút timeout cho long-running submissions
+  proxyTimeout: 300000,
+  onProxyReq: (proxyReq, req, res) => {
+    console.log(`[Proxy] ${req.method} ${req.path} -> ${API_TARGET}${req.path.replace('/api', '')}`);
+  },
+  onProxyRes: (proxyRes, req, res) => {
+    console.log(`[Proxy Response] ${req.method} ${req.path} -> ${proxyRes.statusCode}`);
+  },
+  onError: (err, req, res) => {
+    console.error('[Proxy Error]', err.message);
+    res.status(500).json({ error: 'Proxy error', message: err.message });
+  }
+}));
 
 app.use(express.static(publicDir));
 
@@ -464,4 +487,7 @@ io.on("connection", (socket) => {
   });
 });
 
-httpServer.listen(5173, () => console.log("Web server with Socket.IO at http://localhost:5173"));
+httpServer.listen(5173, '0.0.0.0', () => {
+  console.log("Web server with Socket.IO at http://0.0.0.0:5173");
+  console.log("Proxying /api/* to", process.env.API_URL || "http://api:8000");
+});
