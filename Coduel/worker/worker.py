@@ -42,7 +42,7 @@ def _default_mem_limit():
 
 CPU_LIMIT = _env_limit("CPU_LIMIT", _default_cpu_limit)
 MEM_LIMIT = _env_limit("MEM_LIMIT", _default_mem_limit)
-DOCKER_RUN_TIMEOUT = int(os.getenv("DOCKER_RUN_TIMEOUT", "60"))
+DOCKER_RUN_TIMEOUT = int(os.getenv("DOCKER_RUN_TIMEOUT", "10"))
 COMPILE_TIMEOUT = int(os.getenv("COMPILE_TIMEOUT", str(DOCKER_RUN_TIMEOUT)))
 RUN_TIMEOUT = int(os.getenv("RUN_TIMEOUT", str(DOCKER_RUN_TIMEOUT)))
 DOCKER_RUN_EXTRA_ARGS = shlex.split(os.getenv("DOCKER_RUN_EXTRA_ARGS", ""))

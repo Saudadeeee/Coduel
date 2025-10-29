@@ -28,42 +28,9 @@ redisClient.on("error", (err) => console.error("Redis Client Error", err));
 
 await redisClient.connect();
 
-app.use(express.json());
+const jsonParser = express.json();
 
-// Reverse proxy để chuyển /api/* sang backend API ở port 8000
-const API_TARGET = process.env.API_URL || "http://api:8000";
-app.use('/api', createProxyMiddleware({
-  target: API_TARGET,
-  changeOrigin: true,
-  pathRewrite: {
-    '^/api': '', // Xóa /api prefix khi gửi tới backend
-  },
-  timeout: 300000, // 5 phút timeout cho long-running submissions
-  proxyTimeout: 300000,
-  onProxyReq: (proxyReq, req, res) => {
-    console.log(`[Proxy] ${req.method} ${req.path} -> ${API_TARGET}${req.path.replace('/api', '')}`);
-  },
-  onProxyRes: (proxyRes, req, res) => {
-    console.log(`[Proxy Response] ${req.method} ${req.path} -> ${proxyRes.statusCode}`);
-  },
-  onError: (err, req, res) => {
-    console.error('[Proxy Error]', err.message);
-    res.status(500).json({ error: 'Proxy error', message: err.message });
-  }
-}));
-
-app.use(express.static(publicDir));
-
-app.get("/", (_req, res) => res.redirect("/mainmenu.html"));
-app.get("/mainmenu.html", (_req, res) => res.sendFile(path.join(publicDir, "mainmenu.html")));
-app.get("/workspace.html", (_req, res) => res.sendFile(path.join(publicDir, "workspace.html")));
-app.get("/dashboard", (_req, res) => res.sendFile(path.join(publicDir, "dashboard.html")));
-app.get("/roomhost.html", (_req, res) => res.sendFile(path.join(publicDir, "roomhost.html")));
-app.get("/problem-add", (_req, res) => res.sendFile(path.join(publicDir, "problem-add.html")));
-app.get("/problem-edit", (_req, res) => res.sendFile(path.join(publicDir, "problem-edit.html")));
-app.get("/problem", (_req, res) => res.sendFile(path.join(publicDir, "workspace.html")));
-
-app.post("/api/compare-submissions", async (req, res) => {
+app.post("/api/compare-submissions", jsonParser, async (req, res) => {
   try {
     const { submissionA, submissionB } = req.body;
     
@@ -99,6 +66,50 @@ app.post("/api/compare-submissions", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
+// Reverse proxy để chuyển /api/* sang backend API ở port 8000
+const API_TARGET = process.env.API_URL || "http://api:8000";
+app.use('/api', createProxyMiddleware({
+  target: API_TARGET,
+  changeOrigin: true,
+  pathRewrite: {
+    '^/api': '', // Xóa /api prefix khi gửi tới backend
+  },
+  timeout: 300000, // 5 phút timeout cho long-running submissions
+  proxyTimeout: 300000,
+  onProxyReq: (proxyReq, req, res) => {
+    console.log(`[Proxy] ${req.method} ${req.path} -> ${API_TARGET}${req.path.replace('/api', '')}`);
+
+    if (!req.body || !Object.keys(req.body).length) {
+      return;
+    }
+
+    const bodyData = JSON.stringify(req.body);
+    console.log(`[Proxy] forwarding body (${bodyData.length} bytes)`);
+    proxyReq.setHeader('Content-Type', 'application/json');
+    proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
+    proxyReq.write(bodyData);
+    proxyReq.end();
+  },
+  onProxyRes: (proxyRes, req, res) => {
+    console.log(`[Proxy Response] ${req.method} ${req.path} -> ${proxyRes.statusCode}`);
+  },
+  onError: (err, req, res) => {
+    console.error('[Proxy Error]', err.message);
+    res.status(500).json({ error: 'Proxy error', message: err.message });
+  }
+}));
+
+app.use(express.static(publicDir));
+
+app.get("/", (_req, res) => res.redirect("/mainmenu.html"));
+app.get("/mainmenu.html", (_req, res) => res.sendFile(path.join(publicDir, "mainmenu.html")));
+app.get("/workspace.html", (_req, res) => res.sendFile(path.join(publicDir, "workspace.html")));
+app.get("/dashboard", (_req, res) => res.sendFile(path.join(publicDir, "dashboard.html")));
+app.get("/roomhost.html", (_req, res) => res.sendFile(path.join(publicDir, "roomhost.html")));
+app.get("/problem-add", (_req, res) => res.sendFile(path.join(publicDir, "problem-add.html")));
+app.get("/problem-edit", (_req, res) => res.sendFile(path.join(publicDir, "problem-edit.html")));
+app.get("/problem", (_req, res) => res.sendFile(path.join(publicDir, "workspace.html")));
 
 function comparePerformance(perfA, perfB) {
   const TOLERANCE = 0.10;
