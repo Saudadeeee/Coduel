@@ -1,11 +1,64 @@
 import requests
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, NavigableString
 import re
 import json
 import os
 from textwrap import dedent
+from urllib.parse import urljoin
 
 BASE_URL = "https://open.kattis.com/problems/"
+
+LATEX_INLINE_RE = re.compile(r"\$([^$]+)\$")
+LATEX_REPLACEMENTS = [
+    (r"\\leq?", "≤"),
+    (r"\\geq?", "≥"),
+    (r"\\neq", "≠"),
+    (r"\\lt", "<"),
+    (r"\\gt", ">"),
+    (r"\\times", "×"),
+    (r"\\cdot", "·"),
+    (r"\\pm", "±"),
+    (r"\\div", "÷"),
+    (r"\\ldots", "…"),
+    (r"\\dots", "…"),
+    (r"\\le", "≤"),
+    (r"\\ge", "≥"),
+]
+
+def _latex_to_plain(segment: str) -> str:
+    """Best-effort conversion of small inline LaTeX to readable text."""
+    if not segment:
+        return ""
+    # Normalize common spacing commands
+    segment = segment.replace(r"\,", " ")
+    segment = segment.replace(r"\;", " ")
+    segment = segment.replace(r"\:", " ")
+    segment = segment.replace(r"\!", "")
+    segment = segment.replace(r"~", " ")
+    segment = segment.replace(r"\\", "\n")
+    segment = re.sub(r"\\(left|right)", "", segment)
+    for pattern, repl in LATEX_REPLACEMENTS:
+        segment = re.sub(pattern, repl, segment)
+    # Remove braces that wrap single tokens like {N}
+    segment = re.sub(r"\{([^{}]+)\}", r"\1", segment)
+    # Remove remaining backslashes that escape single characters
+    segment = re.sub(r"\\([a-zA-Z0-9])", r"\1", segment)
+    # Collapse multiple spaces/newlines
+    segment = re.sub(r"[ \t]+", " ", segment)
+    segment = re.sub(r"\n\s*", "\n", segment)
+    return segment.strip()
+
+def normalize_text(text: str) -> str:
+    """Normalize inline math markers inside scraped text."""
+    if not text:
+        return text
+
+    def repl(match):
+        return _latex_to_plain(match.group(1))
+
+    text = LATEX_INLINE_RE.sub(repl, text)
+    text = _latex_to_plain(text)
+    return text
 
 def _parse_time_limit(text: str):
     """Return time limit in milliseconds parsed from text."""
@@ -201,34 +254,55 @@ def extract_problem_sections(soup: BeautifulSoup):
     sample_inputs = []
     sample_outputs = []
     sample_tables = soup.find_all("table", class_="sample")
+    sample_sections = []
     
     for table in sample_tables:
         pre_tags = table.find_all("pre")
+        input_text = ""
+        output_text = ""
         if len(pre_tags) >= 2:
-            # First pre is input, second is output
-            sample_inputs.append(pre_tags[0].get_text().strip())
-            sample_outputs.append(pre_tags[1].get_text().strip())
+            input_text = pre_tags[0].get_text().strip()
+            output_text = pre_tags[1].get_text().strip()
         elif len(pre_tags) == 1:
-            # Sometimes there's only one
-            sample_inputs.append(pre_tags[0].get_text().strip())
+            input_text = pre_tags[0].get_text().strip()
+        sample_inputs.append(input_text)
+        if output_text:
+            sample_outputs.append(output_text)
+        elif len(pre_tags) >= 2:
+            sample_outputs.append(output_text)
+        sample_sections.append((input_text, output_text))
 
     # We'll iterate through its children and build a lightweight markdown.
     lines = []
     current_section = None
     
+    sample_sections_queue = list(sample_sections)
+
     # Process direct children to avoid navigation items
     def process_element(el, depth=0):
         nonlocal current_section
         
         if el.name in ["h1", "h2", "h3", "h4", "h5", "h6"]:
-            header_txt = el.get_text(" ", strip=True)
+            header_txt = normalize_text(el.get_text(" ", strip=True))
             # Skip headers that look like navigation
             if any(skip in header_txt.lower() for skip in ["kattis", "problems", "contests", "challenge", "ranklist", "languages", "info", "help", "log in", "submit"]):
                 return
             lines.append(f"## {header_txt}")
             current_section = header_txt.lower()
+        elif el.name == "div" and "illustration" in (el.get("class") or []):
+            img = el.find("img")
+            if img and img.get("src"):
+                img_src = urljoin(BASE_URL, img["src"])
+                alt_text = img.get("alt") or ""
+                lines.append(f"![{alt_text}]({img_src})")
+            desc = el.find("div", class_="description")
+            if desc:
+                desc_text = normalize_text(desc.get_text(" ", strip=True))
+                if desc_text:
+                    lines.append(desc_text)
+            lines.append("")
         elif el.name == "p":
-            ptxt = el.get_text(" ", strip=True)
+            ptxt = normalize_text(el.get_text(" ", strip=True))
             # Skip paragraphs with login/submission text
             if any(skip in ptxt.lower() for skip in ["please log in", "you haven't made any submission", "submit a solution"]):
                 return
@@ -236,20 +310,41 @@ def extract_problem_sections(soup: BeautifulSoup):
                 lines.append(ptxt)
                 lines.append("")  # blank line after paragraph
         elif el.name == "table":
-            # Skip sample tables as we already processed them
-            if "sample" in str(el.get("class", [])).lower():
+            table_classes = " ".join(el.get("class", [])).lower()
+            if "sample" in table_classes:
+                # Render sample section in statement
+                if sample_sections_queue:
+                    sample_idx = len(sample_sections) - len(sample_sections_queue) + 1
+                    inp, outp = sample_sections_queue.pop(0)
+                    lines.append(f"### Sample {sample_idx}")
+                    if inp:
+                        lines.append("**Input**")
+                        lines.append("```text")
+                        lines.append(inp)
+                        lines.append("```")
+                    if outp:
+                        lines.append("**Output**")
+                        lines.append("```text")
+                        lines.append(outp)
+                        lines.append("```")
+                    lines.append("")
                 return
         # also handle <ul> and <ol> lists
         elif el.name == "ul" or el.name == "ol":
             for li in el.find_all("li", recursive=False):
-                li_txt = li.get_text(" ", strip=True)
+                li_txt = normalize_text(li.get_text(" ", strip=True))
                 if li_txt and not any(skip in li_txt.lower() for skip in ["log in", "submit", "kattis"]):
                     lines.append(f"- {li_txt}")
             lines.append("")
     
-    # Process top-level elements
+    # Process top-level elements including stray text nodes
     for child in container.children:
-        if child.name:
+        if isinstance(child, NavigableString):
+            raw = normalize_text(child.strip())
+            if raw:
+                lines.append(raw)
+                lines.append("")
+        elif getattr(child, "name", None):
             process_element(child)
 
     full_statement_md = clean_markdown("\n".join(lines))
@@ -257,7 +352,8 @@ def extract_problem_sections(soup: BeautifulSoup):
     # short description: take first paragraph-ish (first non-empty line that is not header "##")
     short_desc = ""
     for ln in lines:
-        if ln.strip() and not ln.startswith("##") and not ln.startswith("```"):
+        stripped = ln.strip()
+        if stripped and not stripped.startswith("##") and not stripped.startswith("```") and not stripped.startswith("![") and not stripped.lower().startswith("photo by"):
             short_desc = ln.strip()
             break
     if not short_desc:

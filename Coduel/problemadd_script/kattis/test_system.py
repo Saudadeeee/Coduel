@@ -33,7 +33,25 @@ def test_scraper():
     print("\n🔍 Testing Kattis scraper...")
     try:
         from kattis_scrape import build_problem_json
+        problem = build_problem_json("carrots")
         print("✅ Scraper module imported successfully")
+        snippet = "Carrots are good for you"
+        if snippet not in problem["statement"]:
+            print("❌ Statement is missing expected introductory text for 'carrots'")
+            return False
+        if "![/" not in problem["statement"]:
+            print("❌ Statement is missing illustration image markdown for 'carrots'")
+            return False
+        if "1 ≤ N, P ≤ 1 000" not in problem["statement"]:
+            print("❌ Statement is missing normalized inequality text")
+            return False
+        if "### Sample 2" not in problem["statement"]:
+            print("❌ Statement is missing rendered sample sections")
+            return False
+        if len(problem["statement"]) < 500:
+            print("❌ Statement content too short; likely missing sections")
+            return False
+        print("✅ Statement includes full body text and illustration for 'carrots'")
         return True
     except ImportError as e:
         print(f"❌ Cannot import scraper: {e}")

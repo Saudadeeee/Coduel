@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <title>WorkSpace</title>
+  <script src="marked.min.js"></script>
   <style>
     :root {
       color-scheme: dark;
@@ -1612,40 +1613,26 @@ btn.onclick = async () => {
   }
 };
 
-/* markdown -> HTML-ish */
-const marked = {
-  parse(text) {
-    const escape = (t) => t
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;");
+if (typeof marked !== "undefined") {
+  marked.setOptions({
+    gfm: true,
+    breaks: true,
+    smartLists: true,
+    smartypants: false
+  });
+} else {
+  console.warn("marked.js not loaded; problem statements may render incorrectly.");
+}
 
-    const segments = text.split(/```/);
-    let html = "";
-    let inCode = false;
-
-    for (const segment of segments) {
-      if (inCode) {
-        html += `<pre><code>${escape(segment.trim())}</code></pre>`;
-      } else {
-        const blocks = segment.split(/\n\n+/);
-        for (const block of blocks) {
-          const trimmed = block.trim();
-          if (!trimmed) continue;
-          if (/^#/.test(trimmed)) {
-            const level = trimmed.match(/^#+/)[0].length;
-            const content = escape(trimmed.replace(/^#+\s*/, ""));
-            html += `<h${level}>${content}</h${level}>`;
-          } else {
-            const content = escape(trimmed).replace(/\n/g, "<br/>");
-            html += `<p>${content}</p>`;
-          }
-        }
-      }
-      inCode = !inCode;
-    }
-    return html;
+const parseMarkdown = (text) => {
+  if (typeof marked !== "undefined" && typeof marked.parse === "function") {
+    return marked.parse(text);
   }
+  console.warn("Falling back to basic Markdown parser.");
+  return text
+    .split(/\n{2,}/)
+    .map(block => `<p>${escapeHtml(block)}</p>`)
+    .join("");
 };
 
 loadProblemOptions(true);
@@ -1698,7 +1685,7 @@ function renderStatementContent(markdown) {
     return { title: null, hasSample: false };
   }
   const temp = document.createElement("div");
-  temp.innerHTML = marked.parse(markdown);
+  temp.innerHTML = parseMarkdown(markdown);
 
   let docTitle = null;
   const sections = [];
