@@ -1,0 +1,24 @@
+{
+  "number": 74,
+  "difficulty": "easy",
+  "title": "Army Strength (Easy)",
+  "time_limit_ms": 1000,
+  "memory_limit_kb": 1048576,
+  "tags": [],
+  "created_at": 1761734825,
+  "description": "Note that this is an easier version of the problem\narmystrengthhard.",
+  "samples": [
+    {
+      "input": "sample_input.txt",
+      "output": "sample_output.txt",
+      "label": "Sample"
+    }
+  ],
+  "tests": [
+    {
+      "input": "input1.txt",
+      "output": "output1.txt",
+      "visibility": "public"
+    }
+  ]
+}

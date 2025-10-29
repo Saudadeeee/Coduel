@@ -1,0 +1,24 @@
+{
+  "number": 56,
+  "difficulty": "easy",
+  "title": "Above Average",
+  "time_limit_ms": 1000,
+  "memory_limit_kb": 1048576,
+  "tags": [],
+  "created_at": 1761734811,
+  "description": "It is said that",
+  "samples": [
+    {
+      "input": "sample_input.txt",
+      "output": "sample_output.txt",
+      "label": "Sample"
+    }
+  ],
+  "tests": [
+    {
+      "input": "input1.txt",
+      "output": "output1.txt",
+      "visibility": "public"
+    }
+  ]
+}

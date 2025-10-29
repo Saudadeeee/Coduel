@@ -1,0 +1,29 @@
+{
+  "number": 83,
+  "difficulty": "easy",
+  "title": "Bag Deposit",
+  "time_limit_ms": 1000,
+  "memory_limit_kb": 1048576,
+  "tags": [],
+  "created_at": 1761734831,
+  "description": "Tim manages a bag deposit counter. In the morning, people\nwould stop by at his counter to deposit their bags before they\ngo on to do their daily business. They will then come back to\ncollect the bags in the evening each at different times. When\npeople deposit their bags, they will be given a unique id tag\nfor the bag and they need to indicate the time that they will\nbe back to collect their bags. His business has been doing\nreally well but there is one major problem. There are more than 100 bags each day and\nTim can\u2019t just be looking for the bag in the large piles of\nbags. To optimize his operation he will need to find a way to\nstack the bags such that he can place them on the stack as they\ncome in and pick the bag from the top of the stack whenever\npeople come back to collect the bags, instead of trying to dig\nunder the pile. And due to limited space, he will need to\nminimize the number of stacks. There is no limit on how high\nthe stack can be and all the customers will have deposited\ntheir bags before anyone comes back to collect their bag.",
+  "samples": [
+    {
+      "input": "sample_input.txt",
+      "output": "sample_output.txt",
+      "label": "Sample"
+    }
+  ],
+  "tests": [
+    {
+      "input": "input1.txt",
+      "output": "output1.txt",
+      "visibility": "public"
+    },
+    {
+      "input": "input2.txt",
+      "output": "output2.txt",
+      "visibility": "hidden"
+    }
+  ]
+}

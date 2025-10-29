@@ -1,0 +1,24 @@
+{
+  "number": 63,
+  "difficulty": "easy",
+  "title": "Bacon, Eggs, and Spam",
+  "time_limit_ms": 1000,
+  "memory_limit_kb": 1048576,
+  "tags": [],
+  "created_at": 1761734816,
+  "description": "You are a short-order cook in a local diner. Each day, a\nseries of customers enter your diner and order a list of items\nfrom the menu. You not only prepare their orders, but you also\nmake a list of who ordered what. At the end of the day, you\nlike to reflect back on who ordered the various items on your\nmenu. This will help you to make decisions about what you\nshould feature on your menu, how you should price it, and what\nitems you may be able to drop from the menu. Develop a program\nto generate a report of the day\u2019s orders.",
+  "samples": [
+    {
+      "input": "sample_input.txt",
+      "output": "sample_output.txt",
+      "label": "Sample"
+    }
+  ],
+  "tests": [
+    {
+      "input": "input1.txt",
+      "output": "output1.txt",
+      "visibility": "public"
+    }
+  ]
+}

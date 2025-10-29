@@ -1,0 +1,29 @@
+{
+  "number": 121,
+  "difficulty": "medium",
+  "title": "A Rank Problem",
+  "time_limit_ms": 1000,
+  "memory_limit_kb": 1048576,
+  "tags": [],
+  "created_at": 1761734859,
+  "description": "Coach is fed up with sports rankings \u2013 he thinks those who\nmake up these bogus orderings are just nuts. In Coach\u2019s opinion\nchanges in rankings should be evidence-based only. For example,\nsuppose the 4 th place\nteam plays the 1 st place\nteam and loses. Why should the rankings be altered? The \u201cworse\u201d\nteam lost to the \u201cbetter\u201d team, so nothing should change in the\nrankings. Put another way, there\u2019s no evidence that the\nordering should change so why change it? The only time you\nchange something is if, say, the 4 th place team beats the 1 st place team. NOW you\nhave evidence that the rankings should change! Specifically,\nthe 1 st place team\nshould be put directly below the 4 th place team (we now have evidence\nthat backs this up) and the teams in 2 nd through 4 th place should each move up one.\nThe result is that the former 1 st place team is now in 4 th, one position below\nthe team that beat it, the former 4 th place team now in 3 rd. Note that the relative\npositions of the teams now in 1 st to 3 rd place do not change \u2013 there was\nno evidence that they should.",
+  "samples": [
+    {
+      "input": "sample_input.txt",
+      "output": "sample_output.txt",
+      "label": "Sample"
+    }
+  ],
+  "tests": [
+    {
+      "input": "input1.txt",
+      "output": "output1.txt",
+      "visibility": "public"
+    },
+    {
+      "input": "input2.txt",
+      "output": "output2.txt",
+      "visibility": "hidden"
+    }
+  ]
+}

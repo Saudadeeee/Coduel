@@ -1,0 +1,29 @@
+{
+  "number": 95,
+  "difficulty": "easy",
+  "title": "A Towering Problem",
+  "time_limit_ms": 1000,
+  "memory_limit_kb": 2097152,
+  "tags": [],
+  "created_at": 1761734840,
+  "description": "You\u2019ve been put in charge of an art exhibit from the famous\nminimalist sculptor J (even his name is minimalist!). J\u2019s work\ninvolves the careful layout of vertically dispositioned\northogonal parallelpipeds in a set of tapering obelisks \u2014 in\nother words, he puts smaller boxes on top of larger boxes. His\nmost recent triumph is called \u201c2 by 3\u2019s Decreasing,\u201d in which\nhe has various sets of six boxes arranged in two stacks of\nthree boxes each. One such set is shown below:",
+  "samples": [
+    {
+      "input": "sample_input.txt",
+      "output": "sample_output.txt",
+      "label": "Sample"
+    }
+  ],
+  "tests": [
+    {
+      "input": "input1.txt",
+      "output": "output1.txt",
+      "visibility": "public"
+    },
+    {
+      "input": "input2.txt",
+      "output": "output2.txt",
+      "visibility": "hidden"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "number": 102,
+  "difficulty": "medium",
+  "title": "Additive Primes",
+  "time_limit_ms": 1000,
+  "memory_limit_kb": 1048576,
+  "tags": [],
+  "created_at": 1761734846,
+  "description": "A prime number is an integer n ( n \u2265 2 ) such that n cannot be formed as the product of\ntwo other integers smaller than n . In other words, a number is prime\nif its factors are only one and itself. An integer which is\ngreater than 2 and is\nnot prime is called a composite\nnumber .",
+  "samples": [
+    {
+      "input": "sample_input.txt",
+      "output": "sample_output.txt",
+      "label": "Sample"
+    }
+  ],
+  "tests": [
+    {
+      "input": "input1.txt",
+      "output": "output1.txt",
+      "visibility": "public"
+    },
+    {
+      "input": "input2.txt",
+      "output": "output2.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input3.txt",
+      "output": "output3.txt",
+      "visibility": "hidden"
+    }
+  ]
+}

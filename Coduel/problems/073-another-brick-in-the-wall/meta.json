@@ -1,0 +1,29 @@
+{
+  "number": 73,
+  "difficulty": "easy",
+  "title": "Another Brick in the Wall",
+  "time_limit_ms": 1000,
+  "memory_limit_kb": 1048576,
+  "tags": [],
+  "created_at": 1761734824,
+  "description": "The construction worker previously known as Lars has many\nbricks of height 1 and\ndifferent lengths, and he is now trying to build a wall of\nwidth w and height h . Since the\nconstruction worker previously known as Lars knows that the\nsubset sum problem is mathsfNP -hard, he does not try to\noptimize the placement but he just lays the bricks in the order\nthey are in his pile and hopes for the best. First he places\nthe bricks in the first layer, left to right; after the first\nlayer is complete he moves to the second layer and completes\nit, and so on. He only lays bricks horizontally, without\nrotating them. If at some point he cannot place a brick and has\nto leave a layer incomplete, then he gets annoyed and leaves.\nIt does not matter if he has bricks left over after he\nfinishes.",
+  "samples": [
+    {
+      "input": "sample_input.txt",
+      "output": "sample_output.txt",
+      "label": "Sample"
+    }
+  ],
+  "tests": [
+    {
+      "input": "input1.txt",
+      "output": "output1.txt",
+      "visibility": "public"
+    },
+    {
+      "input": "input2.txt",
+      "output": "output2.txt",
+      "visibility": "hidden"
+    }
+  ]
+}

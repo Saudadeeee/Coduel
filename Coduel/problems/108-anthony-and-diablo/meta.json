@@ -1,0 +1,29 @@
+{
+  "number": 108,
+  "difficulty": "medium",
+  "title": "Anthony and Diablo",
+  "time_limit_ms": 1000,
+  "memory_limit_kb": 1048576,
+  "tags": [],
+  "created_at": 1761734850,
+  "description": "Anthony has a pet hamster named Diablo. Diablo enjoys having\nlots of space to move around, so Anthony wants to build him a\ncage that covers as much area as possible.",
+  "samples": [
+    {
+      "input": "sample_input.txt",
+      "output": "sample_output.txt",
+      "label": "Sample"
+    }
+  ],
+  "tests": [
+    {
+      "input": "input1.txt",
+      "output": "output1.txt",
+      "visibility": "public"
+    },
+    {
+      "input": "input2.txt",
+      "output": "output2.txt",
+      "visibility": "hidden"
+    }
+  ]
+}

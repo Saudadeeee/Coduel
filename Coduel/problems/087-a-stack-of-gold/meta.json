@@ -1,0 +1,29 @@
+{
+  "number": 87,
+  "difficulty": "easy",
+  "title": "A Stack of Gold",
+  "time_limit_ms": 1000,
+  "memory_limit_kb": 2097152,
+  "tags": [],
+  "created_at": 1761734834,
+  "description": "Lt.\u00a0Columbo, arguably the best detective in the world,\nwas faced with a problem. He was asked: if he was placed in a\nroom with some number of stacks of gold-colored coins, where\nall but one stack consisted solely of tungsten coins, and the\nremaining stack consisted solely of pure gold coins, how could\nhe determine which stack had the pure gold coins? Oh, excuse\nme, there\u2019s just one more thing \u2026\u2009he was also told he is given\na modern penny scale and one penny. A modern version of the\npenny scale operates as follows: when you deposit a penny and\nput an object (or objects) on the scale, the machine displays\nthe weight on a digital display. The scale is extremely\naccurate, down to milligrams. Every coin is the same size and\ncolor, but the tungsten coins weigh 29 260 mg each and the gold coins\nweigh 29 370 mg\neach.",
+  "samples": [
+    {
+      "input": "sample_input.txt",
+      "output": "sample_output.txt",
+      "label": "Sample"
+    }
+  ],
+  "tests": [
+    {
+      "input": "input1.txt",
+      "output": "output1.txt",
+      "visibility": "public"
+    },
+    {
+      "input": "input2.txt",
+      "output": "output2.txt",
+      "visibility": "hidden"
+    }
+  ]
+}

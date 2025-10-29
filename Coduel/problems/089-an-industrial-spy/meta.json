@@ -1,0 +1,24 @@
+{
+  "number": 89,
+  "difficulty": "easy",
+  "title": "An Industrial Spy",
+  "time_limit_ms": 2000,
+  "memory_limit_kb": 1048576,
+  "tags": [],
+  "created_at": 1761734835,
+  "description": "Industrial spying is very common for modern research labs. I\nam such an industrial spy \u2013 don\u2019t tell anybody! My recent job\nwas to steal the latest inventions from a famous math research\nlab. It was hard to obtain some of their results but I got\ntheir waste out of a document shredder.",
+  "samples": [
+    {
+      "input": "sample_input.txt",
+      "output": "sample_output.txt",
+      "label": "Sample"
+    }
+  ],
+  "tests": [
+    {
+      "input": "input1.txt",
+      "output": "output1.txt",
+      "visibility": "public"
+    }
+  ]
+}

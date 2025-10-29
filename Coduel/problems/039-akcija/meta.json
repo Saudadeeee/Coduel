@@ -1,0 +1,29 @@
+{
+  "number": 39,
+  "difficulty": "easy",
+  "title": "Akcija",
+  "time_limit_ms": 1000,
+  "memory_limit_kb": 1048576,
+  "tags": [],
+  "created_at": 1761734797,
+  "description": "There is a promotional offer in a bookstore \u201cTake 3, pay for\nthe 2 more expensive ones\u201d. So, each customer who picks 3 books gets the\ncheapest one for free. Of course, the customer can take even\nmore books and, depending on the way the books are arranged\ninto groups of three, get the cheapest one in each group for\nfree.",
+  "samples": [
+    {
+      "input": "sample_input.txt",
+      "output": "sample_output.txt",
+      "label": "Sample"
+    }
+  ],
+  "tests": [
+    {
+      "input": "input1.txt",
+      "output": "output1.txt",
+      "visibility": "public"
+    },
+    {
+      "input": "input2.txt",
+      "output": "output2.txt",
+      "visibility": "hidden"
+    }
+  ]
+}

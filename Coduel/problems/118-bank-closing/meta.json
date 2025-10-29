@@ -1,0 +1,24 @@
+{
+  "number": 118,
+  "difficulty": "medium",
+  "title": "Bank Closing",
+  "time_limit_ms": 4000,
+  "memory_limit_kb": 1048576,
+  "tags": [],
+  "created_at": 1761734857,
+  "description": "The bank you work at had way too many customers today to\nkeep the queues in check, so now there are lots of people\nstanding in queues. In fact n people are standing around queued\nup to talk to one of k tellers, so they stand in one of k separate queues.",
+  "samples": [
+    {
+      "input": "sample_input.txt",
+      "output": "sample_output.txt",
+      "label": "Sample"
+    }
+  ],
+  "tests": [
+    {
+      "input": "input1.txt",
+      "output": "output1.txt",
+      "visibility": "public"
+    }
+  ]
+}

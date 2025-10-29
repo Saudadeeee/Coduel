@@ -1,0 +1,29 @@
+{
+  "number": 96,
+  "difficulty": "easy",
+  "title": "Arithmetic Decoding",
+  "time_limit_ms": 1000,
+  "memory_limit_kb": 1048576,
+  "tags": [],
+  "created_at": 1761734841,
+  "description": "Arithmetic coding is a method to represent a message as a\nreal number x such that 0 \u2264 x < 1 . We will\nassume that the message consists only of uppercase \u2018A\u2019s and\n\u2018B\u2019s. The two letters have associated probabilities p_ A and p_ B = 1 - p_ A such that 0 < p_ A < 1 .",
+  "samples": [
+    {
+      "input": "sample_input.txt",
+      "output": "sample_output.txt",
+      "label": "Sample"
+    }
+  ],
+  "tests": [
+    {
+      "input": "input1.txt",
+      "output": "output1.txt",
+      "visibility": "public"
+    },
+    {
+      "input": "input2.txt",
+      "output": "output2.txt",
+      "visibility": "hidden"
+    }
+  ]
+}

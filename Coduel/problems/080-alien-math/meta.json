@@ -1,0 +1,44 @@
+{
+  "number": 80,
+  "difficulty": "easy",
+  "title": "Alien Math",
+  "time_limit_ms": 1000,
+  "memory_limit_kb": 1048576,
+  "tags": [],
+  "created_at": 1761734829,
+  "description": "Humans are exploring the stars, and we have encountered\naliens! In an exchange of scientific knowledge, we\u2019ve learned\nthat not only do they use entirely different symbols to do\nmath, they don\u2019t even use base ten! It would be nice to have a\nprogram to convert the alien numbers to decimal.",
+  "samples": [
+    {
+      "input": "sample_input.txt",
+      "output": "sample_output.txt",
+      "label": "Sample"
+    }
+  ],
+  "tests": [
+    {
+      "input": "input1.txt",
+      "output": "output1.txt",
+      "visibility": "public"
+    },
+    {
+      "input": "input2.txt",
+      "output": "output2.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input3.txt",
+      "output": "output3.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input4.txt",
+      "output": "output4.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input5.txt",
+      "output": "output5.txt",
+      "visibility": "hidden"
+    }
+  ]
+}

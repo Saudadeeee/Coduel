@@ -1,0 +1,39 @@
+{
+  "number": 18,
+  "difficulty": "fast",
+  "title": "Alternating Current",
+  "time_limit_ms": 3000,
+  "memory_limit_kb": 1048576,
+  "tags": [],
+  "created_at": 1761734781,
+  "description": "Fredrik is at home, playing with a custom-built model\nrailway which he is very proud of. The railway consists of N segments connected in\na circle, numbered 1, 2, \u2026 ,\nN in clockwise order. Electricity to the train is\nprovided through M curved wires that pass along the circle. Each segment has at\nleast one wire that goes along it.",
+  "samples": [
+    {
+      "input": "sample_input.txt",
+      "output": "sample_output.txt",
+      "label": "Sample"
+    }
+  ],
+  "tests": [
+    {
+      "input": "input1.txt",
+      "output": "output1.txt",
+      "visibility": "public"
+    },
+    {
+      "input": "input2.txt",
+      "output": "output2.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input3.txt",
+      "output": "output3.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input4.txt",
+      "output": "output4.txt",
+      "visibility": "hidden"
+    }
+  ]
+}

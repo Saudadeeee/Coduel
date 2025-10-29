@@ -1,0 +1,24 @@
+{
+  "number": 104,
+  "difficulty": "medium",
+  "title": "Another Candies",
+  "time_limit_ms": 1000,
+  "memory_limit_kb": 1048576,
+  "tags": [],
+  "created_at": 1761734847,
+  "description": "A class went to a school trip. And, as usually, all N kids have got their\nbackpacks stuffed with candy. But soon quarrels started all\nover the place, as some of the kids had more candies than\nothers. Soon, the teacher realized that he has to step in:\n\"Everybody, listen! Put all the candies you have on this table\nhere!\"",
+  "samples": [
+    {
+      "input": "sample_input.txt",
+      "output": "sample_output.txt",
+      "label": "Sample"
+    }
+  ],
+  "tests": [
+    {
+      "input": "input1.txt",
+      "output": "output1.txt",
+      "visibility": "public"
+    }
+  ]
+}

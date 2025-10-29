@@ -1,0 +1,29 @@
+{
+  "number": 36,
+  "difficulty": "fast",
+  "title": "Bela",
+  "time_limit_ms": 1000,
+  "memory_limit_kb": 1048576,
+  "tags": [],
+  "created_at": 1761734795,
+  "description": "Young Mirko is a smart, but mischievous boy who often\nwanders around parks looking for new ideas. This time he\u2019s come\nacross pensioners playing the card game Belote. They\u2019ve invited\nhim to help them determine the total number of points in a\ngame.",
+  "samples": [
+    {
+      "input": "sample_input.txt",
+      "output": "sample_output.txt",
+      "label": "Sample"
+    }
+  ],
+  "tests": [
+    {
+      "input": "input1.txt",
+      "output": "output1.txt",
+      "visibility": "public"
+    },
+    {
+      "input": "input2.txt",
+      "output": "output2.txt",
+      "visibility": "hidden"
+    }
+  ]
+}

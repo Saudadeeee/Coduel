@@ -1,0 +1,29 @@
+{
+  "number": 4,
+  "difficulty": "fast",
+  "title": "Array Smoothening",
+  "time_limit_ms": 1000,
+  "memory_limit_kb": 1048576,
+  "tags": [],
+  "created_at": 1761734770,
+  "description": "You\u2019ve just finished writing a random array generator for\nyour competitive programming practical examination\nproblem. However, when you tested it, you noticed that the\ndistribution is skewed; some values may appear much more times\nthan the other values. You wanted to smoothen the distribution,\nbut you don\u2019t want to modify your generator anymore. Thus, you\ndecide to remove exactly K elements from the array, such that\nthe maximum occurrence of a value is minimized. Now, given an\narray A of size N , determine the minimum\npossible maximum occurrence of a value from the array after you\nremove exactly K elements from it.",
+  "samples": [
+    {
+      "input": "sample_input.txt",
+      "output": "sample_output.txt",
+      "label": "Sample"
+    }
+  ],
+  "tests": [
+    {
+      "input": "input1.txt",
+      "output": "output1.txt",
+      "visibility": "public"
+    },
+    {
+      "input": "input2.txt",
+      "output": "output2.txt",
+      "visibility": "hidden"
+    }
+  ]
+}

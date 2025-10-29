@@ -1,0 +1,24 @@
+{
+  "number": 107,
+  "difficulty": "medium",
+  "title": "Almost Perfect",
+  "time_limit_ms": 1000,
+  "memory_limit_kb": 1048576,
+  "tags": [],
+  "created_at": 1761734849,
+  "description": "A positive integer p is called a perfect number if all the\nproper divisors of p sum\nto p exactly. Integer d is a proper divisor of p if 1 \u2264 d \u2264 p-1 and p is evenly divisible by d . For example, the\nnumber 28 is a perfect\nnumber, since its proper divisors (which are 1 , 2 , 4 , 7 and 14 ) add up to 28 .",
+  "samples": [
+    {
+      "input": "sample_input.txt",
+      "output": "sample_output.txt",
+      "label": "Sample"
+    }
+  ],
+  "tests": [
+    {
+      "input": "input1.txt",
+      "output": "output1.txt",
+      "visibility": "public"
+    }
+  ]
+}

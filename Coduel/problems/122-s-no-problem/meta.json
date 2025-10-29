@@ -1,0 +1,29 @@
+{
+  "number": 122,
+  "difficulty": "hard",
+  "title": "'S No Problem",
+  "time_limit_ms": 2000,
+  "memory_limit_kb": 1048576,
+  "tags": [],
+  "created_at": 1761735117,
+  "description": "The Yllihc Engineering and Technological Institute (YETI),\nlocated in northern Snowblovia, has two problems: snow and\nmoney. Specifically, they have too much of the former and not\nenough of the latter. Every winter (and fall and spring, for\nthat matter) the campus is covered with blankets of snow, and\nthe sidewalks connecting campus buildings become impassable. To\ncontinue functioning, YETI needs to clear the snow from the\nsidewalks connecting the buildings of the campus. Since budget\nis an issue, these sidewalks are a minimal set that allow a\npath to exist between any two buildings.",
+  "samples": [
+    {
+      "input": "sample_input.txt",
+      "output": "sample_output.txt",
+      "label": "Sample"
+    }
+  ],
+  "tests": [
+    {
+      "input": "input1.txt",
+      "output": "output1.txt",
+      "visibility": "public"
+    },
+    {
+      "input": "input2.txt",
+      "output": "output2.txt",
+      "visibility": "hidden"
+    }
+  ]
+}

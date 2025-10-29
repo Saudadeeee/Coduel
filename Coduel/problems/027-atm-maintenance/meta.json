@@ -1,0 +1,24 @@
+{
+  "number": 27,
+  "difficulty": "fast",
+  "title": "ATM Maintenance",
+  "time_limit_ms": 1000,
+  "memory_limit_kb": 1048576,
+  "tags": [],
+  "created_at": 1761734787,
+  "description": "You are a maintenance worker for a large bank that recently\nbought new ATMs. All of them are working flawlessly, except for\na stubborn one on Main Street. It seems to have a limited\namount of money left in the machine, but the system reporting\nthis number is not working properly. To find out for sure, you\nset some volunteers out to try and fix the problem by having\nthem attempt to withdraw money from their accounts and see if\nit works.",
+  "samples": [
+    {
+      "input": "sample_input.txt",
+      "output": "sample_output.txt",
+      "label": "Sample"
+    }
+  ],
+  "tests": [
+    {
+      "input": "input1.txt",
+      "output": "output1.txt",
+      "visibility": "public"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "number": 117,
+  "difficulty": "medium",
+  "title": "Asteroid Avoidance",
+  "time_limit_ms": 1000,
+  "memory_limit_kb": 1048576,
+  "tags": [],
+  "created_at": 1761734856,
+  "description": "The legendary starship of Flatland, Rectalateral, needs to\nescape from a star which is about to go supernova by\nteleporting away. Unfortunately, the possible teleport\ndestinations are in the middle of an asteroid field. Luckily,\nyou have a map of the asteroid field with the exact radius and\nlocation of the asteroids (asteroids in Flatland are circles,\nobviously). As the navigator on board, you must investigate\neach of the possible teleport destinations and determine if\nthey are safe.",
+  "samples": [
+    {
+      "input": "sample_input.txt",
+      "output": "sample_output.txt",
+      "label": "Sample"
+    }
+  ],
+  "tests": [
+    {
+      "input": "input1.txt",
+      "output": "output1.txt",
+      "visibility": "public"
+    }
+  ]
+}

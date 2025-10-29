@@ -1,0 +1,24 @@
+{
+  "number": 70,
+  "difficulty": "easy",
+  "title": "Beavergnaw",
+  "time_limit_ms": 1000,
+  "memory_limit_kb": 1048576,
+  "tags": [],
+  "created_at": 1761734822,
+  "description": "When chomping a tree the beaver cuts a very specific shape\nout of the tree trunk. What is left in the tree trunk looks\nlike two frustums of a cone joined by a cylinder with the\ndiameter the same as its height. A very curious beaver tries\nnot to demolish a tree but rather sort out what should be the\ndiameter of the cylinder joining the frustums such that he\nchomped out certain amount of wood. You are to help him to do\nthe calculations.",
+  "samples": [
+    {
+      "input": "sample_input.txt",
+      "output": "sample_output.txt",
+      "label": "Sample"
+    }
+  ],
+  "tests": [
+    {
+      "input": "input1.txt",
+      "output": "output1.txt",
+      "visibility": "public"
+    }
+  ]
+}

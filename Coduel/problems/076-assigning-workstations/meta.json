@@ -1,0 +1,29 @@
+{
+  "number": 76,
+  "difficulty": "easy",
+  "title": "Assigning Workstations",
+  "time_limit_ms": 4000,
+  "memory_limit_kb": 1048576,
+  "tags": [],
+  "created_at": 1761734826,
+  "description": "Picture by NASA via WikiMedia Commons",
+  "samples": [
+    {
+      "input": "sample_input.txt",
+      "output": "sample_output.txt",
+      "label": "Sample"
+    }
+  ],
+  "tests": [
+    {
+      "input": "input1.txt",
+      "output": "output1.txt",
+      "visibility": "public"
+    },
+    {
+      "input": "input2.txt",
+      "output": "output2.txt",
+      "visibility": "hidden"
+    }
+  ]
+}

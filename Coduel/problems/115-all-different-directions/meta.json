@@ -1,0 +1,24 @@
+{
+  "number": 115,
+  "difficulty": "medium",
+  "title": "All Different Directions",
+  "time_limit_ms": 1000,
+  "memory_limit_kb": 1048576,
+  "tags": [],
+  "created_at": 1761734855,
+  "description": "If you walk through a big city and try to find your way\naround, you might try asking people for directions. However,\nasking n people for\ndirections might result in n different sets of directions. But\nyou believe in the law of averages: if you consider everyone\u2019s\nadvice, then you will have a good idea of where to go by\ncomputing the average destination that they all lead to. You\nwould also like to know how far off were the worst directions.\nYou compute this as the maximum straight-line distance between\neach direction\u2019s destination and the averaged destination.",
+  "samples": [
+    {
+      "input": "sample_input.txt",
+      "output": "sample_output.txt",
+      "label": "Sample"
+    }
+  ],
+  "tests": [
+    {
+      "input": "input1.txt",
+      "output": "output1.txt",
+      "visibility": "public"
+    }
+  ]
+}

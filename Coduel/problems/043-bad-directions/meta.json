@@ -1,0 +1,24 @@
+{
+  "number": 43,
+  "difficulty": "easy",
+  "title": "Bad Directions",
+  "time_limit_ms": 1000,
+  "memory_limit_kb": 1048576,
+  "tags": [],
+  "created_at": 1761734800,
+  "description": "Due to the empire\u2019s strict control over the galaxy, one of\nthe Rebels droids, A-P5, started to encrypt the distance of\nhyperspace jumps so that the empire is unable to track the\nrebel fleet. You are currently being followed by the empire and\nmust calculate the jump to hyperspace. Your incompetent droid\nco-pilot failed to download the correct decryption program back\non the base. Thus, in order to get the proper hyperspace\ncoordinates, you must write a program to decrypt the hyperspace\ndistance you will travel.",
+  "samples": [
+    {
+      "input": "sample_input.txt",
+      "output": "sample_output.txt",
+      "label": "Sample"
+    }
+  ],
+  "tests": [
+    {
+      "input": "input1.txt",
+      "output": "output1.txt",
+      "visibility": "public"
+    }
+  ]
+}

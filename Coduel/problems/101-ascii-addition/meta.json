@@ -1,0 +1,24 @@
+{
+  "number": 101,
+  "difficulty": "medium",
+  "title": "ASCII Addition",
+  "time_limit_ms": 1000,
+  "memory_limit_kb": 1048576,
+  "tags": [],
+  "created_at": 1761734845,
+  "description": "Nowadays, there are smartphone applications that instantly\ntranslate text and even solve math problems if you just point\nyour phone\u2019s camera at them. Your job is to implement a much\nsimpler functionality reminiscent of the past \u2013 add two\nintegers written down as ASCII art.",
+  "samples": [
+    {
+      "input": "sample_input.txt",
+      "output": "sample_output.txt",
+      "label": "Sample"
+    }
+  ],
+  "tests": [
+    {
+      "input": "input1.txt",
+      "output": "output1.txt",
+      "visibility": "public"
+    }
+  ]
+}

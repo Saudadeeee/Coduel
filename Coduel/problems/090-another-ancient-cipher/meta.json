@@ -1,0 +1,34 @@
+{
+  "number": 90,
+  "difficulty": "easy",
+  "title": "Another Ancient Cipher",
+  "time_limit_ms": 1000,
+  "memory_limit_kb": 1048576,
+  "tags": [],
+  "created_at": 1761734836,
+  "description": "You have probably heard about the Caesar cipher: It is one\nof the most well-known ciphers out there. In an alternative\ntimeline, the Roman emperor Caesar Augustus builds upon this\ncipher to create an encryption even harder to break: The\nAugustus cipher.",
+  "samples": [
+    {
+      "input": "sample_input.txt",
+      "output": "sample_output.txt",
+      "label": "Sample"
+    }
+  ],
+  "tests": [
+    {
+      "input": "input1.txt",
+      "output": "output1.txt",
+      "visibility": "public"
+    },
+    {
+      "input": "input2.txt",
+      "output": "output2.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input3.txt",
+      "output": "output3.txt",
+      "visibility": "hidden"
+    }
+  ]
+}

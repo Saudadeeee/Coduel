@@ -1,0 +1,29 @@
+{
+  "number": 40,
+  "difficulty": "easy",
+  "title": "Alphabet Soup",
+  "time_limit_ms": 1000,
+  "memory_limit_kb": 1048576,
+  "tags": [],
+  "created_at": 1761734798,
+  "description": "Andrew is making himself a nice warm bowl of alphabet soup.\nHowever, before Andrew can eat the soup, he needs to make sure\nthat it contains every letter of the alphabet. Can you write an\nalgorithm that will tell him if his soup has all of the letters\nin it, and if not, which letters are missing?",
+  "samples": [
+    {
+      "input": "sample_input.txt",
+      "output": "sample_output.txt",
+      "label": "Sample"
+    }
+  ],
+  "tests": [
+    {
+      "input": "input1.txt",
+      "output": "output1.txt",
+      "visibility": "public"
+    },
+    {
+      "input": "input2.txt",
+      "output": "output2.txt",
+      "visibility": "hidden"
+    }
+  ]
+}

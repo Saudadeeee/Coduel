@@ -1,0 +1,24 @@
+{
+  "number": 91,
+  "difficulty": "easy",
+  "title": "Ants",
+  "time_limit_ms": 1000,
+  "memory_limit_kb": 1048576,
+  "tags": [],
+  "created_at": 1761734837,
+  "description": "An army of ants walk on a horizontal pole of length l cm, each with a\nconstant speed of 1 cm/s. When a walking ant reaches an end of the pole, it\nimmediatelly falls off it. When two ants meet they turn back\nand start walking in opposite directions. We know the original\npositions of ants on the pole, unfortunately, we do not know\nthe directions in which the ants are walking. Your task is to\ncompute the earliest and the latest possible times needed for\nall ants to fall off the pole.",
+  "samples": [
+    {
+      "input": "sample_input.txt",
+      "output": "sample_output.txt",
+      "label": "Sample"
+    }
+  ],
+  "tests": [
+    {
+      "input": "input1.txt",
+      "output": "output1.txt",
+      "visibility": "public"
+    }
+  ]
+}

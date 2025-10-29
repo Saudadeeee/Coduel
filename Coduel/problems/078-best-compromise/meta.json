@@ -1,0 +1,24 @@
+{
+  "number": 78,
+  "difficulty": "easy",
+  "title": "Best Compromise",
+  "time_limit_ms": 1000,
+  "memory_limit_kb": 1048576,
+  "tags": [],
+  "created_at": 1761734828,
+  "description": "There is a saying \u201ca good compromise makes no one happy\u201d. As\ndistressing as that may be, I guess most people still think it\nis a good idea to seek the best agreement. The problem though,\nis to define the measure in which the word \u201cbest\u201d gets a\nmeaning. Let us consider n people, each with a firm belief on m different yes/no\nissues. We may think of the people\u2019s beliefs as binary strings b_ i of length m for 0<i\u2264 n , i.e. one string per\nperson, with entries reflecting a person\u2019s belief in each of\nthe m issues. An agreement is also a binary string a of length m , indicating the agreed outcome of\neach of the m issues.\nSome would argue that the agreement a that minimises the maximum of H(b_ i-a) over all i , where H(x) is the Hamming function\ncounting the number of non-zero entries of the vector x , is the best\ncompromise. Unfortunately, it is widely believed that finding\nthis agreement is computationally infeasible for n and m large. Another reasonable\nsuggestion is the agreement a that minimises (sum _i=1^ n H(b_ i-a)^\np)^1/p for some positive integer p . Note in particular that when parrow infty ,\nthis measure coincides with the former. I for one am most\ncontent with the choice of p=1 though, don\u2019t you agree?",
+  "samples": [
+    {
+      "input": "sample_input.txt",
+      "output": "sample_output.txt",
+      "label": "Sample"
+    }
+  ],
+  "tests": [
+    {
+      "input": "input1.txt",
+      "output": "output1.txt",
+      "visibility": "public"
+    }
+  ]
+}

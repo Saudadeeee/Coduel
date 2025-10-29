@@ -1,0 +1,29 @@
+{
+  "number": 52,
+  "difficulty": "easy",
+  "title": "Arggggggh!",
+  "time_limit_ms": 1000,
+  "memory_limit_kb": 1048576,
+  "tags": [],
+  "created_at": 1761734808,
+  "description": "Congratulations! You\u2019ve just inherited a treasure map from a\nlong deceased ancestor who just happened to be a pirate. With\nvisions of gold doubloons and jeweled cutlasses dancing in your\nhead you carefully unfold the map. However instead of the\nstandard picture map with a large X where the treasure is, this\nmap is simply a list of instructions on where to start digging.\nThe first instruction is the starting location, given as two\nintegers x y giving the starting point\u2019s\nlatitude and longitude. After this are instructions like N 7 or\nSW 6 which specify to walk 7 feet north or 6 feet southwest.\nAfter following all of these instructions you will be located\nover the spot to start digging.",
+  "samples": [
+    {
+      "input": "sample_input.txt",
+      "output": "sample_output.txt",
+      "label": "Sample"
+    }
+  ],
+  "tests": [
+    {
+      "input": "input1.txt",
+      "output": "output1.txt",
+      "visibility": "public"
+    },
+    {
+      "input": "input2.txt",
+      "output": "output2.txt",
+      "visibility": "hidden"
+    }
+  ]
+}

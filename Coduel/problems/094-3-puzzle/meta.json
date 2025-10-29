@@ -1,0 +1,29 @@
+{
+  "number": 94,
+  "difficulty": "easy",
+  "title": "3-Puzzle",
+  "time_limit_ms": 1000,
+  "memory_limit_kb": 1048576,
+  "tags": [],
+  "created_at": 1761734839,
+  "description": "Your friend needs help solving a 15 -Puzzle, so to warm up, you solve\nthe 3 -Puzzle instead. A 3 -Puzzle consists of a 2 \u00d7 2 grid\ncontaining 3 tiles\nnumbered 1 through 3 and one empty space.\nThe goal is to slide the tiles around so that they are in\nascending row-major order and the empty space is on the bottom\nright like this:",
+  "samples": [
+    {
+      "input": "sample_input.txt",
+      "output": "sample_output.txt",
+      "label": "Sample"
+    }
+  ],
+  "tests": [
+    {
+      "input": "input1.txt",
+      "output": "output1.txt",
+      "visibility": "public"
+    },
+    {
+      "input": "input2.txt",
+      "output": "output2.txt",
+      "visibility": "hidden"
+    }
+  ]
+}

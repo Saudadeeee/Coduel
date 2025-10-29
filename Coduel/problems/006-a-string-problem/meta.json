@@ -1,0 +1,39 @@
+{
+  "number": 6,
+  "difficulty": "fast",
+  "title": "A String Problem",
+  "time_limit_ms": 2000,
+  "memory_limit_kb": 1048576,
+  "tags": [],
+  "created_at": 1761734772,
+  "description": "Lara loves flea markets. Last Saturday, there was the\nRheinaue-Flohmarkt in Bonn, one of the biggest flea markets in\nGermany. Of course, Lara spent the whole day there, strolling\nthrough the market, haggling over prices, and buying all kinds\nof curious things. The most interesting thing she brought home\nwas a small harp in a perfectly circular shape. When she wanted\nto start playing it, she noticed that the strings were all over\nthe place rather than being parallel to each other.",
+  "samples": [
+    {
+      "input": "sample_input.txt",
+      "output": "sample_output.txt",
+      "label": "Sample"
+    }
+  ],
+  "tests": [
+    {
+      "input": "input1.txt",
+      "output": "output1.txt",
+      "visibility": "public"
+    },
+    {
+      "input": "input2.txt",
+      "output": "output2.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input3.txt",
+      "output": "output3.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input4.txt",
+      "output": "output4.txt",
+      "visibility": "hidden"
+    }
+  ]
+}

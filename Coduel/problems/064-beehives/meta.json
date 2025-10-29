@@ -1,0 +1,24 @@
+{
+  "number": 64,
+  "difficulty": "easy",
+  "title": "Beehives",
+  "time_limit_ms": 1000,
+  "memory_limit_kb": 1048576,
+  "tags": [],
+  "created_at": 1761734817,
+  "description": "Bill the beekeeper has a problem! His bees like to fight\nwith each other instead of producing honey. If the bees fight\neach other, then the honey turns out sour. The only way to stop\nthe bees from fighting and keep the honey sweet is to ensure\nthat the hives are not too close together. Help Bill figure out\nhow many of this season\u2019s hives will produce sour honey.",
+  "samples": [
+    {
+      "input": "sample_input.txt",
+      "output": "sample_output.txt",
+      "label": "Sample"
+    }
+  ],
+  "tests": [
+    {
+      "input": "input1.txt",
+      "output": "output1.txt",
+      "visibility": "public"
+    }
+  ]
+}

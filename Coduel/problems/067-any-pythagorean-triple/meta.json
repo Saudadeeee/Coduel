@@ -1,0 +1,24 @@
+{
+  "number": 67,
+  "difficulty": "easy",
+  "title": "Any Pythagorean Triple",
+  "time_limit_ms": 1000,
+  "memory_limit_kb": 1048576,
+  "tags": [],
+  "created_at": 1761734820,
+  "description": "You are given a circumference n and want to find a right-angled\ntriangle with integer side lengths that has a right angle and\nthis circumference. No side can have length 0 , nor a negative length.",
+  "samples": [
+    {
+      "input": "sample_input.txt",
+      "output": "sample_output.txt",
+      "label": "Sample"
+    }
+  ],
+  "tests": [
+    {
+      "input": "input1.txt",
+      "output": "output1.txt",
+      "visibility": "public"
+    }
+  ]
+}

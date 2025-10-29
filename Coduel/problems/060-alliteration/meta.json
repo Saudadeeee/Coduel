@@ -1,0 +1,24 @@
+{
+  "number": 60,
+  "difficulty": "easy",
+  "title": "Alliteration",
+  "time_limit_ms": 2000,
+  "memory_limit_kb": 1048576,
+  "tags": [],
+  "created_at": 1761734814,
+  "description": "Many magnificent minstrels have made massive manuscripts\nmade with multitudes of matching marks. Indeed, introverted\nintellectuals not infrequently instigate these intriguing\nitineraries intending to invigorate their insatiable\nintellects. Nevertheless\u2026you get the idea. For each line of\ntext in the input, output the letter that starts the most words\nin the line. In case there\u2019s a tie, output the first letter\nalphabetically in the tie. Words in the text are always\nseparated by spaces or new lines; a hyphenated word only counts\nas one word, not two.",
+  "samples": [
+    {
+      "input": "sample_input.txt",
+      "output": "sample_output.txt",
+      "label": "Sample"
+    }
+  ],
+  "tests": [
+    {
+      "input": "input1.txt",
+      "output": "output1.txt",
+      "visibility": "public"
+    }
+  ]
+}
