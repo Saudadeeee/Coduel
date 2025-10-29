@@ -7,9 +7,46 @@ from textwrap import dedent
 
 BASE_URL = "https://open.kattis.com/problems/"
 
+def _parse_time_limit(text: str):
+    """Return time limit in milliseconds parsed from text."""
+    text = text.lower()
+    # milliseconds
+    m = re.search(r"([\d.]+)\s*(?:ms|milliseconds?)", text)
+    if m:
+        return int(float(m.group(1)))
+    # seconds
+    m = re.search(r"([\d.]+)\s*(?:s|sec|seconds?)", text)
+    if m:
+        return int(float(m.group(1)) * 1000)
+    # minutes
+    m = re.search(r"([\d.]+)\s*(?:m|min|minutes?)", text)
+    if m:
+        return int(float(m.group(1)) * 60_000)
+    return None
+
+def _parse_memory_limit(text: str):
+    """Return memory limit in kilobytes parsed from text."""
+    text = text.lower()
+    m = re.search(r"([\d.]+)\s*(?:kb|kilobytes?)", text)
+    if m:
+        return int(float(m.group(1)))
+    m = re.search(r"([\d.]+)\s*(?:mb|megabytes?)", text)
+    if m:
+        return int(float(m.group(1)) * 1024)
+    m = re.search(r"([\d.]+)\s*(?:gb|gigabytes?)", text)
+    if m:
+        return int(float(m.group(1)) * 1024 * 1024)
+    return None
+
 def fetch_problem_html(slug: str) -> BeautifulSoup:
     url = BASE_URL + slug
-    resp = requests.get(url, timeout=10)
+    resp = requests.get(
+        url,
+        timeout=10,
+        headers={
+            "User-Agent": "CoduelKattisImporter/1.0 (+https://coduel.local)"
+        },
+    )
     resp.raise_for_status()
     return BeautifulSoup(resp.text, "html.parser")
 
@@ -26,20 +63,27 @@ def extract_limits(soup: BeautifulSoup):
     mem_kb = None
 
     if limit_box:
-        text = limit_box.get_text(" ", strip=True).lower()
-        # time
-        m_time = re.search(r"time\s*limit:\s*([\d.]+)\s*s", text)
-        if m_time:
-            seconds = float(m_time.group(1))
-            time_ms = int(seconds * 1000)
-        # memory
-        m_mem_mb = re.search(r"memory\s*limit:\s*(\d+)\s*mb", text)
-        if m_mem_mb:
-            mb = int(m_mem_mb.group(1))
-            mem_kb = mb * 1024
-        m_mem_kb = re.search(r"memory\s*limit:\s*(\d+)\s*kb", text)
-        if m_mem_kb:
-            mem_kb = int(m_mem_kb.group(1))
+        text = limit_box.get_text(" ", strip=True)
+        parsed_time = _parse_time_limit(text)
+        if parsed_time is not None:
+            time_ms = parsed_time
+        parsed_mem = _parse_memory_limit(text)
+        if parsed_mem is not None:
+            mem_kb = parsed_mem
+
+    if time_ms is None:
+        time_card = soup.find("div", class_=lambda c: c and "metadata-cpu-card" in c)
+        if time_card:
+            parsed_time = _parse_time_limit(time_card.get_text(" ", strip=True))
+            if parsed_time is not None:
+                time_ms = parsed_time
+
+    if mem_kb is None:
+        mem_card = soup.find("div", class_=lambda c: c and ("metadata-memmory-card" in c or "metadata-memory-card" in c))
+        if mem_card:
+            parsed_mem = _parse_memory_limit(mem_card.get_text(" ", strip=True))
+            if parsed_mem is not None:
+                mem_kb = parsed_mem
 
     return time_ms, mem_kb
 
@@ -78,9 +122,28 @@ def extract_difficulty(soup: BeautifulSoup):
                 if diff_val is not None:
                     break
 
-    # Map numeric -> label
     if diff_val is None:
-        return "medium"  # default fallback
+        diff_card = soup.find("div", class_=lambda c: c and "metadata-difficulty-card" in c)
+        if diff_card:
+            card_text = diff_card.get_text(" ", strip=True)
+            m = re.search(r"([\d.]+)", card_text)
+            if m:
+                try:
+                    diff_val = float(m.group(1))
+                except ValueError:
+                    diff_val = None
+            if diff_val is None:
+                txt = card_text.lower()
+                if "fast" in txt:
+                    return "fast"
+                if "easy" in txt:
+                    return "easy"
+                if "medium" in txt or "moderate" in txt or "normal" in txt:
+                    return "medium"
+                if "hard" in txt or "difficult" in txt:
+                    return "hard"
+        if diff_val is None:
+            return "medium"  # default fallback
 
     if diff_val < 1.5:
         return "fast"
@@ -216,12 +279,13 @@ def extract_problem_sections(soup: BeautifulSoup):
     for i in range(max(len(sample_inputs), len(sample_outputs))):
         inp = sample_inputs[i] if i < len(sample_inputs) else ""
         outp = sample_outputs[i] if i < len(sample_outputs) else ""
-        if inp or outp:
-            test_cases.append({
-                "input": inp,
-                "output": outp,
-                "visibility": "public" if i == 0 else "hidden"  # First is public, rest are hidden
-            })
+        if not inp and not outp:
+            continue
+        test_cases.append({
+            "input": inp if inp else "N/A",
+            "output": outp if outp else "N/A",
+            "visibility": "public" if i == 0 else "hidden"  # First is public, rest are hidden
+        })
 
     return {
         "statement_markdown": full_statement_md,
