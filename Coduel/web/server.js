@@ -111,75 +111,200 @@ app.get("/problem-add", (_req, res) => res.sendFile(path.join(publicDir, "proble
 app.get("/problem-edit", (_req, res) => res.sendFile(path.join(publicDir, "problem-edit.html")));
 app.get("/problem", (_req, res) => res.sendFile(path.join(publicDir, "workspace.html")));
 
-function comparePerformance(perfA, perfB) {
+const FINAL_STATUSES = new Set([
+  "done",
+  "failed",
+  "compile_error",
+  "compile_timeout",
+  "run_timeout",
+  "error",
+  "problem_not_found"
+]);
+
+const coerceNumber = (value) => {
+  if (value === undefined || value === null) return null;
+  const num = Number(value);
+  return Number.isFinite(num) ? num : null;
+};
+
+const formatPercent = (value) => {
+  const num = coerceNumber(value);
+  return num === null ? "N/A" : `${num.toFixed(2)}%`;
+};
+
+const formatMilliseconds = (value) => {
+  const num = coerceNumber(value);
+  return num === null ? "N/A" : `${(num * 1000).toFixed(3)} ms`;
+};
+
+const formatMegabytes = (value) => {
+  const num = coerceNumber(value);
+  return num === null ? "N/A" : `${(num / 1024).toFixed(2)} MB`;
+};
+
+function comparePerformance(perfA = {}, perfB = {}) {
   const TOLERANCE = 0.10;
-  
-  const accuracyA = perfA.accuracy || 0;
-  const accuracyB = perfB.accuracy || 0;
-  
+
+  const accuracyA = coerceNumber(perfA.accuracy) ?? 0;
+  const accuracyB = coerceNumber(perfB.accuracy) ?? 0;
+
   if (accuracyA !== accuracyB) {
     return {
       winner: accuracyA > accuracyB ? "A" : "B",
       reason: "accuracy",
       details: {
-        accuracyA: `${accuracyA.toFixed(2)}%`,
-        accuracyB: `${accuracyB.toFixed(2)}%`,
-        diff: `${Math.abs(accuracyA - accuracyB).toFixed(2)}%`
+        accuracyA: formatPercent(accuracyA),
+        accuracyB: formatPercent(accuracyB),
+        diff: formatPercent(Math.abs(accuracyA - accuracyB))
       }
     };
   }
-  
-  const timeA = perfA.median_elapsed_seconds || perfA.avg_elapsed_seconds || perfA.max_elapsed_seconds;
-  const timeB = perfB.median_elapsed_seconds || perfB.avg_elapsed_seconds || perfB.max_elapsed_seconds;
-  
-  if (timeA && timeB) {
+
+  const timeA = coerceNumber(perfA.median_elapsed_seconds)
+    ?? coerceNumber(perfA.avg_elapsed_seconds)
+    ?? coerceNumber(perfA.max_elapsed_seconds);
+  const timeB = coerceNumber(perfB.median_elapsed_seconds)
+    ?? coerceNumber(perfB.avg_elapsed_seconds)
+    ?? coerceNumber(perfB.max_elapsed_seconds);
+
+  if (timeA !== null && timeB !== null) {
     const diff = Math.abs(timeA - timeB);
-    const avg = (timeA + timeB) / 2;
-    
-    if (diff / avg >= TOLERANCE) {
+    const avg = (timeA + timeB) / 2 || 0;
+
+    if (avg > 0 && diff / avg >= TOLERANCE) {
       return {
         winner: timeA < timeB ? "A" : "B",
         reason: "time",
         details: {
-          timeA: `${(timeA * 1000).toFixed(3)} ms`,
-          timeB: `${(timeB * 1000).toFixed(3)} ms`,
-          diff: `${(diff * 1000).toFixed(3)} ms`,
+          timeA: formatMilliseconds(timeA),
+          timeB: formatMilliseconds(timeB),
+          diff: formatMilliseconds(diff),
           tolerance: `${(TOLERANCE * 100)}%`
         }
       };
     }
   }
-  
-  const memA = perfA.median_memory_kb || perfA.avg_memory_kb || perfA.max_memory_kb;
-  const memB = perfB.median_memory_kb || perfB.avg_memory_kb || perfB.max_memory_kb;
-  
-  if (memA && memB) {
+
+  const memA = coerceNumber(perfA.median_memory_kb)
+    ?? coerceNumber(perfA.avg_memory_kb)
+    ?? coerceNumber(perfA.max_memory_kb);
+  const memB = coerceNumber(perfB.median_memory_kb)
+    ?? coerceNumber(perfB.avg_memory_kb)
+    ?? coerceNumber(perfB.max_memory_kb);
+
+  if (memA !== null && memB !== null) {
     const diff = Math.abs(memA - memB);
-    const avg = (memA + memB) / 2;
-    
-    if (diff / avg >= TOLERANCE) {
+    const avg = (memA + memB) / 2 || 0;
+
+    if (avg > 0 && diff / avg >= TOLERANCE) {
       return {
         winner: memA < memB ? "A" : "B",
         reason: "memory",
         details: {
-          memoryA: `${(memA / 1024).toFixed(2)} MB`,
-          memoryB: `${(memB / 1024).toFixed(2)} MB`,
-          diff: `${(diff / 1024).toFixed(2)} MB`,
+          memoryA: formatMegabytes(memA),
+          memoryB: formatMegabytes(memB),
+          diff: formatMegabytes(diff),
           tolerance: `${(TOLERANCE * 100)}%`
         }
       };
     }
   }
-  
+
   return {
     winner: "TIE",
     reason: "all_metrics_equal_within_tolerance",
     details: {
-      accuracy: `${accuracyA.toFixed(2)}%`,
-      time: timeA ? `${(timeA * 1000).toFixed(3)} ms` : "N/A",
-      memory: memA ? `${(memA / 1024).toFixed(2)} MB` : "N/A"
+      accuracy: formatPercent(accuracyA),
+      time: formatMilliseconds(timeA),
+      memory: formatMegabytes(memA)
     }
   };
+}
+
+function normalizePerformance(rawPerformance, status) {
+  const perf = rawPerformance && typeof rawPerformance === "object" ? { ...rawPerformance } : {};
+  const statusLower = (status || "").toLowerCase();
+  const isSuccess = statusLower === "done" || statusLower === "completed";
+
+  return {
+    total_tests: coerceNumber(perf.total_tests) ?? 0,
+    passed: coerceNumber(perf.passed) ?? 0,
+    failed: coerceNumber(perf.failed) ?? 0,
+    accuracy: coerceNumber(perf.accuracy) ?? (isSuccess ? 100 : 0),
+    max_elapsed_seconds: coerceNumber(perf.max_elapsed_seconds),
+    avg_elapsed_seconds: coerceNumber(perf.avg_elapsed_seconds),
+    median_elapsed_seconds: coerceNumber(perf.median_elapsed_seconds),
+    max_memory_kb: coerceNumber(perf.max_memory_kb),
+    avg_memory_kb: coerceNumber(perf.avg_memory_kb),
+    median_memory_kb: coerceNumber(perf.median_memory_kb),
+    overall: perf.overall || (isSuccess ? "passed" : statusLower || "unknown"),
+    ranking_priority: perf.ranking_priority || null
+  };
+}
+
+function buildPlayerSnapshot(submission, parsedResult, status) {
+  const normalizedPerformance = normalizePerformance(parsedResult?.performance, status);
+  return {
+    submissionId: submission.submissionId,
+    status: status || "unknown",
+    performance: normalizedPerformance,
+    error: parsedResult?.error || null
+  };
+}
+
+function safeParseJSON(raw) {
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw);
+  } catch (err) {
+    console.error("Failed to parse JSON payload from Redis", err);
+    return null;
+  }
+}
+
+function getActivePlayers(roomState) {
+  return roomState.players
+    .filter(p => p.role === "player" || p.role === "host")
+    .map(p => p.username);
+}
+
+function resetMatchState(roomState) {
+  const totalRounds = parseInt(roomState.settings?.rounds, 10) || 1;
+  const scores = {};
+  getActivePlayers(roomState).forEach(name => {
+    scores[name] = 0;
+  });
+  roomState.match = {
+    status: "in_progress",
+    totalScheduledRounds: totalRounds,
+    totalRounds,
+    extraRoundsUsed: 0,
+    roundsPlayed: 0,
+    roundResults: [],
+    scores
+  };
+  return roomState.match;
+}
+
+function ensureMatchState(roomState) {
+  if (!roomState.match) {
+    return resetMatchState(roomState);
+  }
+  const knownScores = roomState.match.scores || {};
+  getActivePlayers(roomState).forEach(name => {
+    if (typeof knownScores[name] !== "number") {
+      knownScores[name] = 0;
+    }
+  });
+  roomState.match.scores = knownScores;
+  return roomState.match;
+}
+
+function computeStandings(scores) {
+  const entries = Object.entries(scores);
+  if (!entries.length) return [];
+  entries.sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+  return entries;
 }
 
 const rooms = new Map();
@@ -203,8 +328,10 @@ async function compareAndAnnounceWinner(roomCode) {
     console.log('[DEBUG] No room state or submissions');
     return;
   }
+
+  const matchState = ensureMatchState(roomState);
   
-  const submissions = Object.values(roomState.submissions);
+  const submissions = Object.values(roomState.submissions).sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
   console.log('[DEBUG] Found submissions:', submissions.length);
   
   if (submissions.length < 2) {
@@ -213,36 +340,106 @@ async function compareAndAnnounceWinner(roomCode) {
   }
   
   const [sub1, sub2] = submissions;
+  const [meta1, meta2] = await Promise.all([
+    redisClient.hGetAll(`sub:${sub1.submissionId}`),
+    redisClient.hGetAll(`sub:${sub2.submissionId}`)
+  ]);
+  const status1 = meta1?.status ? String(meta1.status).toLowerCase() : null;
+  const status2 = meta2?.status ? String(meta2.status).toLowerCase() : null;
   
   try {
     console.log('[DEBUG] Fetching results:', sub1.submissionId, sub2.submissionId);
     const result1 = await redisClient.get(`run_result:${sub1.submissionId}`);
     const result2 = await redisClient.get(`run_result:${sub2.submissionId}`);
     
-    if (!result1 || !result2) {
-      console.log('Waiting for results:', !!result1, !!result2);
+    const parsed1 = safeParseJSON(result1);
+    const parsed2 = safeParseJSON(result2);
+
+    const finalStatus1 = status1 ? FINAL_STATUSES.has(status1) : Boolean(parsed1);
+    const finalStatus2 = status2 ? FINAL_STATUSES.has(status2) : Boolean(parsed2);
+
+    if (!parsed1 && !finalStatus1) {
+      console.log('[DEBUG] Waiting for submission result 1 - status:', status1);
+      return;
+    }
+    if (!parsed2 && !finalStatus2) {
+      console.log('[DEBUG] Waiting for submission result 2 - status:', status2);
       return;
     }
     
     console.log('[DEBUG] Comparing results');
-    const perf1 = JSON.parse(result1).performance;
-    const perf2 = JSON.parse(result2).performance;
+    const player1 = buildPlayerSnapshot(sub1, parsed1, status1);
+    const player2 = buildPlayerSnapshot(sub2, parsed2, status2);
+    const perf1 = player1.performance;
+    const perf2 = player2.performance;
     
     const comparison = comparePerformance(perf1, perf2);
+    const roundWinner = comparison.winner === 'A' ? sub1.username : comparison.winner === 'B' ? sub2.username : 'TIE';
+
+    matchState.roundResults.push({
+      round: matchState.roundResults.length + 1,
+      winner: roundWinner,
+      timestamp: Date.now(),
+      comparison,
+      players: {
+        [sub1.username]: player1,
+        [sub2.username]: player2
+      }
+    });
+    matchState.roundsPlayed = matchState.roundResults.length;
+
+    if (roundWinner !== 'TIE') {
+      matchState.scores[roundWinner] = (matchState.scores[roundWinner] || 0) + 1;
+    }
+
+    const standings = computeStandings(matchState.scores);
+    const topWins = standings.length ? standings[0][1] : 0;
+    const leaders = standings.filter(([_, wins]) => wins === topWins);
+
+    let matchStatus = matchState.status || "in_progress";
+    let overallWinner = null;
+    let needsTieBreak = false;
+
+    if (matchState.roundsPlayed >= matchState.totalRounds) {
+      if (leaders.length === 1) {
+        matchStatus = "completed";
+        overallWinner = leaders[0][0];
+      } else if (matchState.extraRoundsUsed === 0) {
+        matchState.extraRoundsUsed = 1;
+        matchState.totalRounds += 1;
+        matchStatus = "tiebreak";
+        needsTieBreak = true;
+      } else {
+        matchStatus = "completed";
+        overallWinner = "TIE";
+      }
+    } else {
+      matchStatus = "in_progress";
+    }
+
+    matchState.status = matchStatus;
+    matchState.overallWinner = overallWinner;
     
     const matchResult = {
+      round: matchState.roundsPlayed,
+      roundWinner,
       players: {
-        [sub1.username]: {
-          submissionId: sub1.submissionId,
-          performance: perf1
-        },
-        [sub2.username]: {
-          submissionId: sub2.submissionId,
-          performance: perf2
-        }
+        [sub1.username]: player1,
+        [sub2.username]: player2
       },
-      winner: comparison.winner === 'A' ? sub1.username : comparison.winner === 'B' ? sub2.username : 'TIE',
-      comparison
+      winner: roundWinner,
+      comparison,
+      match: {
+        status: matchStatus,
+        scores: matchState.scores,
+        roundsPlayed: matchState.roundsPlayed,
+        totalRounds: matchState.totalRounds,
+        scheduledRounds: matchState.totalScheduledRounds,
+        extraRoundsUsed: matchState.extraRoundsUsed,
+        needsTieBreak,
+        overallWinner,
+        roundResults: matchState.roundResults
+      }
     };
     
     console.log('Announcing winner:', matchResult.winner);
@@ -390,6 +587,8 @@ io.on("connection", (socket) => {
   socket.on("start-match", ({ roomCode }) => {
     const roomState = rooms.get(roomCode);
     if (roomState && roomState.players[0]?.socketId === socket.id) {
+      resetMatchState(roomState);
+      roomState.submissions = {};
       io.to(roomCode).emit("match-started", {
         settings: roomState.settings
       });
@@ -403,6 +602,14 @@ io.on("connection", (socket) => {
     const roomState = rooms.get(roomCode);
     if (!roomState) {
       console.log('[ERROR] Room not found:', roomCode);
+      return;
+    }
+    if (roomState.match && roomState.match.status === "completed") {
+      console.log('[DEBUG] Submission ignored, match already completed');
+      socket.emit("match-complete", {
+        message: "Match already finished",
+        match: roomState.match
+      });
       return;
     }
     

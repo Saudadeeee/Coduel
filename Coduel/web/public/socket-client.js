@@ -77,8 +77,18 @@ class SocketClient {
 
       this.socket.on("opponent-submitted", (data) => {
         console.log("Opponent submitted");
-        this.emit("opponent-submitted", data);
-      });
+      this.emit("opponent-submitted", data);
+    });
+
+    this.socket.on("match-result", (data) => {
+      console.log("Match result:", data);
+      this.emit("match-result", data);
+    });
+
+    this.socket.on("match-timeout", (data) => {
+      console.warn("Match timeout:", data);
+      this.emit("match-timeout", data);
+    });
 
       this.socket.on("player-joined", (data) => {
         console.log("Player joined (socket):", data);

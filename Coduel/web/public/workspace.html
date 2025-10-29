@@ -87,7 +87,6 @@
       box-shadow:0 24px 48px rgba(0,0,0,0.8), 0 0 12px rgba(125,78,87,0.6);
     }
 
-    /* ====== LAYOUT CHUNG: 2 CỘT NGANG ====== */
     .wrap {
       flex:1;
       display:flex;
@@ -315,7 +314,6 @@
       box-shadow:inset 0 1px 2px rgba(0,0,0,0.6);
     }
 
-    /* ====== CỘT PHẢI: CHIA DỌC THÀNH 2 PHẦN ====== */
     .right-vertical {
       flex:1;
       min-height:0;
@@ -348,7 +346,6 @@
       border-top:2px solid var(--border);
     }
 
-    /* Divider dọc giữa editor và kết quả */
     .vertical-divider {
       height:8px;
       cursor:row-resize;
@@ -366,7 +363,6 @@
       right:0;
     }
 
-    /* ---- Controls trong editor ---- */
     .code-controls {
       display:flex;
       flex-wrap:wrap;
@@ -458,7 +454,6 @@
       background:#1f2531;
     }
 
-    /* ---- Panel kết quả ---- */
     .status-line {
       font-weight:700;
       font-size:15px;
@@ -557,10 +552,9 @@
       border:1px solid var(--border-soft);
     }
 
-    /* Nút Compile & Run bây giờ là nút nội bộ trong results-panel */
     .run-btn {
       align-self:flex-start;
-      padding:10px 18px;
+      padding:15px 27px;
       background:var(--accent);
       color:#fff;
       border:1px solid var(--accent);
@@ -585,6 +579,30 @@
     }
     .run-btn:active {
       transform:translateY(0);
+    }
+
+    .floating-runner {
+      position:fixed;
+      bottom:24px;
+      right:24px;
+      display:flex;
+      gap:12px;
+      z-index:1500;
+      pointer-events:none;
+    }
+    .floating-runner .run-btn {
+      pointer-events:auto;
+    }
+    @media (max-width:640px) {
+      .floating-runner {
+        left:16px;
+        right:16px;
+        bottom:16px;
+        justify-content:center;
+      }
+      .floating-runner .run-btn {
+        width:100%;
+      }
     }
 
     body.resizing,
@@ -733,6 +751,35 @@
       font-size: 13px;
       color: var(--text-dim);
       font-family: ui-monospace, monospace;
+      display: grid;
+      gap: 4px;
+    }
+
+    .winner-scoreboard {
+      margin-top: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .winner-scoreboard-title {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .winner-scoreboard-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: ui-monospace, monospace;
+      font-size: 13px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      background: rgba(54,65,86,0.25);
+      border: 1px solid var(--border-soft);
     }
 
     .winner-actions {
@@ -917,7 +964,7 @@
 
     <div class="winner-actions">
       <button class="winner-btn winner-btn-secondary" id="backToRoomBtn">
-        ← Back to Room
+        ← Main Menu
       </button>
       <button class="winner-btn winner-btn-primary" id="continueBtn" style="display:none;">
         Continue Next Round →
@@ -1022,11 +1069,13 @@ int main(){
           <div class="run-summary" id="run-summary">No results yet.</div>
           <pre class="log-block" id="rlog" style="display:none;"></pre>
         </div>
-
-        <button id="btn" class="run-btn">Compile &amp; Run</button>
       </section>
     </div>
   </div>
+</div>
+
+<div class="floating-runner">
+  <button id="btn" class="run-btn">Compile &amp; Run</button>
 </div>
 
 <!-- Socket.IO Client -->
@@ -1073,6 +1122,17 @@ const STATUS_KEY = "oj-problem-status";
 const urlParams = new URLSearchParams(window.location.search);
 const initialProblemId = urlParams.get("pid") || "";
 const DEFAULT_LANGUAGE = "cpp";
+const roomCodeParam = urlParams.get("room") || "";
+const isOnlineMode = Boolean(roomCodeParam);
+const initialLanguageParam = urlParams.get("lang") || "";
+
+if (isOnlineMode) {
+  const cleanUrl = new URL(window.location.href);
+  if (cleanUrl.searchParams.has("lang")) {
+    cleanUrl.searchParams.delete("lang");
+    history.replaceState(null, "", cleanUrl);
+  }
+}
 
 const LANGUAGE_ALIASES = {
   "c++": "cpp",
@@ -1095,6 +1155,7 @@ let currentProblemId = initialProblemId;
 let currentLanguage = DEFAULT_LANGUAGE;
 let userTouchedCode = false;
 const languageMap = new Map();
+let matchSettings = null;
 
 const difficultyLabels = {
   fast: "Fast",
@@ -1198,13 +1259,15 @@ function setLanguage(code, { forceSample = false } = {}) {
     langSelect.value = normalized;
   }
   langInput.value = normalized;
-  const url = new URL(window.location.href);
-  if (normalized === DEFAULT_LANGUAGE) {
-    url.searchParams.delete("lang");
-  } else {
-    url.searchParams.set("lang", normalized);
+  if (!isOnlineMode) {
+    const url = new URL(window.location.href);
+    if (normalized === DEFAULT_LANGUAGE) {
+      url.searchParams.delete("lang");
+    } else {
+      url.searchParams.set("lang", normalized);
+    }
+    history.replaceState(null, "", url);
   }
-  history.replaceState(null, "", url);
   if (!option) return;
   const previousSample = previousOption ? (previousOption.sample || "").trim() : "";
   const currentValue = codeArea.value.trim();
@@ -1215,6 +1278,12 @@ function setLanguage(code, { forceSample = false } = {}) {
       userTouchedCode = false;
     }
   }
+}
+
+function enforceHostLanguage(languageValue) {
+  if (!isOnlineMode || !languageValue) return;
+  const normalized = normalizeLanguage(languageValue);
+  setLanguage(normalized);
 }
 
 async function loadStatement(problemId) {
@@ -1367,18 +1436,31 @@ refreshBtn.addEventListener("click", () => loadProblemOptions(true));
 
 /* language handling */
 populateLanguageOptions();
-setLanguage(urlParams.get("lang") || DEFAULT_LANGUAGE, { forceSample: true });
-if (langSelect) {
-  langSelect.addEventListener("change", () => setLanguage(langSelect.value));
-}
-langInput.addEventListener("change", () => setLanguage(langInput.value));
-langInput.addEventListener("blur", () => setLanguage(langInput.value));
-langInput.addEventListener("input", () => {
-  const normalized = normalizeLanguage(langInput.value);
-  if (languageMap.has(normalized)) {
-    currentLanguage = normalized;
+if (isOnlineMode) {
+  if (langSelect) {
+    langSelect.disabled = true;
+    langSelect.title = "Language is locked by the host";
   }
-});
+  if (langInput) {
+    langInput.disabled = true;
+    langInput.placeholder = "Locked by host";
+    langInput.title = "Language is locked by the host";
+  }
+  setLanguage(DEFAULT_LANGUAGE, { forceSample: true });
+} else {
+  setLanguage(initialLanguageParam || DEFAULT_LANGUAGE, { forceSample: true });
+  if (langSelect) {
+    langSelect.addEventListener("change", () => setLanguage(langSelect.value));
+  }
+  langInput.addEventListener("change", () => setLanguage(langInput.value));
+  langInput.addEventListener("blur", () => setLanguage(langInput.value));
+  langInput.addEventListener("input", () => {
+    const normalized = normalizeLanguage(langInput.value);
+    if (languageMap.has(normalized)) {
+      currentLanguage = normalized;
+    }
+  });
+}
 
 /* detect typing in code area */
 codeArea.addEventListener("input", () => {
@@ -1830,7 +1912,11 @@ async function initializeSocket() {
     
     // Listen for room settings to check if spectator is enabled
     socketClient.on('settings-updated', (data) => {
+      matchSettings = data.settings;
       spectatorEnabled = data.settings.spectator;
+      if (matchSettings && matchSettings.language) {
+        enforceHostLanguage(matchSettings.language);
+      }
       
       if (spectatorEnabled) {
         spectatorToggle.style.display = 'block';
@@ -1927,11 +2013,12 @@ const winnerPlayers = document.getElementById('winnerPlayers');
 const continueBtn = document.getElementById('continueBtn');
 const backToRoomBtn = document.getElementById('backToRoomBtn');
 
-let matchSettings = null;
-
 socketClient.on('settings-updated', (data) => {
   matchSettings = data.settings;
   spectatorEnabled = data.settings.spectator;
+  if (matchSettings && matchSettings.language) {
+    enforceHostLanguage(matchSettings.language);
+  }
   
   if (spectatorEnabled) {
     spectatorToggle.style.display = 'block';
@@ -1944,71 +2031,146 @@ socketClient.on('settings-updated', (data) => {
 socketClient.on('room-joined', (data) => {
   if (data.roomState && data.roomState.settings) {
     matchSettings = data.roomState.settings;
+    if (matchSettings.language) {
+      enforceHostLanguage(matchSettings.language);
+    }
   }
 });
 
 function showWinnerModal(data) {
-  const winner = data.winner;
-  const comparison = data.comparison;
-  const players = data.players;
-  
-  if (winner === 'TIE') {
+  const comparison = data.comparison || {};
+  const players = data.players || {};
+  const matchInfo = data.match || {};
+  const roundWinner = data.winner;
+  const roundNumber = data.round || matchInfo.roundsPlayed || 1;
+  const totalRounds = matchInfo.totalRounds || matchInfo.scheduledRounds || 1;
+  const matchStatus = matchInfo.status || 'in_progress';
+  const overallWinner = matchInfo.overallWinner || null;
+  const scores = matchInfo.scores || {};
+  const needsTieBreak = !!matchInfo.needsTieBreak;
+  const isMatchComplete = matchStatus === 'completed';
+  const sortedScores = Object.entries(scores)
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+  const scoreSummary = sortedScores
+    .map(([name, wins]) => `${name}: ${wins}`)
+    .join(' · ');
+
+  backToRoomBtn.textContent = 'Main Menu';
+
+  if (isMatchComplete) {
+    if (overallWinner && overallWinner !== 'TIE') {
+      winnerEmoji.textContent = '*';
+      winnerTitle.textContent = `${overallWinner} wins the match!`;
+      winnerSubtitle.textContent = scoreSummary ? `Final score · ${scoreSummary}` : 'Victory secured.';
+    } else {
+      winnerEmoji.textContent = '=';
+      winnerTitle.textContent = 'Match ends in a draw';
+      winnerSubtitle.textContent = scoreSummary ? `After ${totalRounds} rounds · ${scoreSummary}` : 'Both sides remain tied.';
+    }
+  } else if (needsTieBreak) {
+    winnerEmoji.textContent = '!';
+    winnerTitle.textContent = 'Tie-break required';
+    winnerSubtitle.textContent = 'Scheduled rounds ended in a tie. One extra round will decide the winner.';
+  } else if (roundWinner === 'TIE') {
     winnerEmoji.textContent = '=';
-    winnerTitle.textContent = "It's a TIE!";
-    winnerSubtitle.textContent = 'Both players performed equally';
+    winnerTitle.textContent = `Round ${roundNumber} ends in a tie`;
+    winnerSubtitle.textContent = 'No advantage gained this round.';
   } else {
     winnerEmoji.textContent = '*';
-    winnerTitle.textContent = `${winner} WINS!`;
-    
-    let reasonText = '';
+    winnerTitle.textContent = `${roundWinner} wins Round ${roundNumber}`;
+    let reasonText = 'wins the round';
     if (comparison.reason === 'accuracy') {
-      reasonText = 'by accuracy';
+      reasonText = 'by higher accuracy';
     } else if (comparison.reason === 'time') {
-      reasonText = 'by execution time';
+      reasonText = 'by faster execution time';
     } else if (comparison.reason === 'memory') {
-      reasonText = 'by memory usage';
+      reasonText = 'by lower memory usage';
     }
-    winnerSubtitle.textContent = reasonText;
+    winnerSubtitle.textContent = `${reasonText}.`;
   }
   
   winnerPlayers.innerHTML = '';
   
   Object.entries(players).forEach(([playerName, playerData]) => {
-    const isWinner = winner === playerName;
     const perf = playerData.performance;
+    const statusLabel = String(playerData.status || 'unknown').replace(/_/g, ' ');
+    const accuracyValue = Number(perf.accuracy ?? 0);
+    const accuracyPercent = Number.isFinite(accuracyValue) ? accuracyValue : 0;
+    const timeSeconds =
+      perf.median_elapsed_seconds ??
+      perf.avg_elapsed_seconds ??
+      perf.max_elapsed_seconds ??
+      null;
+    const memoryKb =
+      perf.median_memory_kb ??
+      perf.avg_memory_kb ??
+      perf.max_memory_kb ??
+      null;
+    const roundWinCount = scores[playerName] ?? 0;
+    const timeLabel = Number.isFinite(timeSeconds) ? `${(timeSeconds * 1000).toFixed(2)}ms` : 'N/A';
+    const memoryLabel = Number.isFinite(memoryKb) ? `${(memoryKb / 1024).toFixed(2)}MB` : 'N/A';
     
     const playerCard = document.createElement('div');
-    playerCard.className = `winner-player ${isWinner ? 'winner' : ''}`;
+    const isRoundWinner = roundWinner === playerName && roundWinner !== 'TIE';
+    const isOverallChampion = overallWinner && overallWinner === playerName;
+    playerCard.className = `winner-player ${(isRoundWinner || isOverallChampion) ? 'winner' : ''}`;
     
     const nameDiv = document.createElement('div');
     nameDiv.className = 'winner-player-name';
-    nameDiv.textContent = `${playerName} ${isWinner ? '[W]' : ''}`;
+    nameDiv.textContent = `${playerName}${isRoundWinner || isOverallChampion ? ' [W]' : ''}`;
     
     const metricsDiv = document.createElement('div');
     metricsDiv.className = 'winner-player-metrics';
     
-    const accuracy = perf.accuracy || 0;
-    const time = perf.median_elapsed_seconds || perf.avg_elapsed_seconds || 0;
-    const memory = perf.median_memory_kb || perf.avg_memory_kb || 0;
-    
     metricsDiv.innerHTML = `
-      Accuracy: ${accuracy.toFixed(1)}% | 
-      Time: ${(time * 1000).toFixed(2)}ms | 
-      Memory: ${(memory / 1024).toFixed(2)}MB
+      <div>Status: ${statusLabel}</div>
+      <div>Match wins: ${roundWinCount}</div>
+      <div>Accuracy: ${accuracyPercent.toFixed(1)}%</div>
+      <div>Time: ${timeLabel}</div>
+      <div>Memory: ${memoryLabel}</div>
     `;
     
     playerCard.appendChild(nameDiv);
     playerCard.appendChild(metricsDiv);
     winnerPlayers.appendChild(playerCard);
   });
+
+  if (sortedScores.length) {
+    const scoreboardDiv = document.createElement('div');
+    scoreboardDiv.className = 'winner-scoreboard';
+
+    const scoreboardTitle = document.createElement('div');
+    scoreboardTitle.className = 'winner-scoreboard-title';
+    scoreboardTitle.textContent = 'Match Scoreboard';
+    scoreboardDiv.appendChild(scoreboardTitle);
+
+    sortedScores.forEach(([name, wins]) => {
+      const row = document.createElement('div');
+      row.className = 'winner-scoreboard-row';
+
+      const nameSpan = document.createElement('span');
+      nameSpan.textContent = name;
+
+      const winsSpan = document.createElement('span');
+      winsSpan.textContent = `${wins} win${wins === 1 ? '' : 's'}`;
+
+      row.appendChild(nameSpan);
+      row.appendChild(winsSpan);
+      scoreboardDiv.appendChild(row);
+    });
+
+    winnerPlayers.appendChild(scoreboardDiv);
+  }
   
-  const totalRounds = matchSettings ? matchSettings.rounds : 1;
-  if (totalRounds > 1) {
-    continueBtn.style.display = 'block';
-    backToRoomBtn.textContent = 'Exit Match';
-  } else {
+  if (isMatchComplete) {
     continueBtn.style.display = 'none';
-    backToRoomBtn.textContent = 'Back to Room';
+  } else {
+    continueBtn.style.display = 'block';
+    if (needsTieBreak) {
+      continueBtn.textContent = 'Play Tie-break Round';
+    } else {
+      continueBtn.textContent = `Next Round (${Math.min(roundNumber + 1, totalRounds)})`;
+    }
   }
   
   winnerModal.classList.add('show');
@@ -2019,15 +2181,10 @@ continueBtn.addEventListener('click', () => {
   statusEl.textContent = 'idle';
   clog.textContent = '';
   renderRunResult(null);
-  alert('Next round starting. Code your solution.');
 });
 
 backToRoomBtn.addEventListener('click', () => {
-  if (currentRoomCode) {
-    window.location.href = `/roomhost.html?mode=host&code=${currentRoomCode}`;
-  } else {
-    window.location.href = '/mainmenu.html';
-  }
+  window.location.href = '/mainmenu.html';
 });
 
 </script>
