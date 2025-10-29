@@ -3,6 +3,9 @@
 <head>
   <meta charset="utf-8"/>
   <title>WorkSpace</title>
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css" integrity="sha512-c9fIxgR6+wUWp+dsr5pe0GWJMhF9ElVW9vDCtXQODp166tiEPc4DEqyRuPBU2VLcjNtFFs95Vk4NaJQ0JQj9uw==" crossorigin="anonymous" referrerpolicy="no-referrer"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css" integrity="sha512-OAWSRzV0LxrNnjghIZJ97caW7u80YqEJgJlJlGkGv5bl/3TxAqSeknmT0nMvadbUzIUwoGDoeiTiXxE5u/vBRA==" crossorigin="anonymous" referrerpolicy="no-referrer"/>
   <script src="marked.min.js"></script>
   <style>
     :root {
@@ -86,6 +89,81 @@
     header a:hover {
       background:rgba(125,78,87,0.3);
       box-shadow:0 24px 48px rgba(0,0,0,0.8), 0 0 12px rgba(125,78,87,0.6);
+    }
+
+    .editor-panel {
+      display:flex;
+      flex-direction:column;
+      flex:1;
+      min-height:0;
+    }
+
+    .editor-panel .CodeMirror {
+      flex:1;
+      height:100%;
+      min-height:0;
+    }
+
+    .CodeMirror {
+      font-family:"JetBrains Mono","Fira Code","SFMono-Regular",monospace;
+      font-size:14px;
+      background:#282a36;
+      color:#f8f8f2;
+      border-radius:8px;
+    }
+
+    .CodeMirror-gutters {
+      background:#282a36;
+      border-right:1px solid #44475a;
+    }
+
+    .CodeMirror-focused {
+      outline:none;
+    }
+
+    .cm-s-dracula.CodeMirror {
+      background:#282a36;
+      color:#f8f8f2;
+    }
+    .cm-s-dracula .CodeMirror-gutters {
+      background:#282a36;
+      border-right:1px solid #44475a;
+    }
+    .cm-s-dracula span.cm-keyword,
+    .cm-s-dracula span.cm-operator {
+      color:#ff79c6 !important;
+    }
+    .cm-s-dracula span.cm-string,
+    .cm-s-dracula span.cm-string-2 {
+      color:#f1fa8c !important;
+    }
+    .cm-s-dracula span.cm-number,
+    .cm-s-dracula span.cm-atom {
+      color:#bd93f9 !important;
+    }
+    .cm-s-dracula span.cm-comment {
+      color:#6272a4 !important;
+      font-style:italic;
+    }
+    .cm-s-dracula span.cm-def,
+    .cm-s-dracula span.cm-builtin,
+    .cm-s-dracula span.cm-variable-3 {
+      color:#50fa7b !important;
+    }
+    .cm-s-dracula span.cm-variable,
+    .cm-s-dracula span.cm-variable-2,
+    .cm-s-dracula span.cm-tag {
+      color:#8be9fd !important;
+    }
+    .cm-s-dracula span.cm-type {
+      color:#8be9fd !important;
+    }
+    .cm-s-dracula span.cm-meta,
+    .cm-s-dracula span.cm-qualifier {
+      color:#ffb86c !important;
+    }
+    .cm-s-dracula span.cm-property {
+      color:#66d9ef !important;
     }
 
     .wrap {
@@ -1079,6 +1157,13 @@ int main(){
   <button id="btn" class="run-btn">Compile &amp; Run</button>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js" integrity="sha512-+nQO2ofnUeJgHYa/u/l0iW+EYhIn0R+ifR+BedJEryD91XfMPogv+0h/rbpIKlLeuUp2U7fXKAGeevSjT0H2rA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/clike/clike.min.js" integrity="sha512-Ecox18y9Gd8Fr7k3mgf0DnOVhBL+J1T7/CqCjeyboGUpOZlyt+9BJq/sIBsDCQPSWx7QLnyM8WB0+uClJmu9uA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js" integrity="sha512-WBYC4kBlA2zV8LOlCY9mk8kbMZ+j51N77r3WDYt1TnO4xjP0dsc7pQqAS8dXBj4RoXLOdAxW2P8Fs14r9WQ9jw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js" integrity="sha512-SyU9H33+G3xg3AdKNOeWn5xu2L/c9WTvV6t6SjbUSKX63dBC2WJUPZ5TxfsxM5ZcgbiqCLu9Vkm8NyX9SkwkAA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js" integrity="sha512-6yv/wEMzS1MbmS6nzu1Se0kGkcs8EwScegXHPelqXcRIf+B7JhYLIK+QJgF2abRbS2l63ZqN0z8qJcGf7YpgiA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js" integrity="sha512-sM1iyOH1cwz0MB6Nmhqi2uYUiQR6AGSxgSeWVkYKUrBVkyPf5MgsMVSMaOJW9f2FmAel4JcwCBmdsUWaXZpXOg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
 <!-- Socket.IO Client -->
 <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 <script src="/socket-client.js"></script>
@@ -1118,6 +1203,101 @@ const resultsPanel = document.getElementById("results-panel");
 const verticalDivider = document.getElementById("vertical-divider");
 
 const codeArea = document.getElementById("code");
+document.querySelectorAll("textarea").forEach((el) => {
+  el.setAttribute("spellcheck", "false");
+  el.setAttribute("autocorrect", "off");
+  el.setAttribute("autocapitalize", "off");
+  el.setAttribute("autocomplete", "off");
+});
+
+let codeEditor = null;
+let suppressCodeChangeEvent = false;
+
+const editorModeMap = {
+  cpp: "text/x-c++src",
+  c: "text/x-csrc",
+  py: "python",
+  java: "text/x-java",
+  js: "javascript"
+};
+
+if (window.CodeMirror && codeArea) {
+  codeEditor = CodeMirror.fromTextArea(codeArea, {
+    mode: "text/x-c++src",
+    theme: "dracula",
+    lineNumbers: true,
+    matchBrackets: true,
+    autoCloseBrackets: "()[]{}''\"\"``",
+    lineWrapping: false,
+    indentUnit: 4,
+    indentWithTabs: false,
+    tabSize: 4,
+    extraKeys: {
+      Tab: (cm) => {
+        if (cm.somethingSelected()) {
+          cm.indentSelection("add");
+        } else {
+          cm.replaceSelection("    ", "end");
+        }
+      },
+      "Shift-Tab": (cm) => {
+        if (cm.somethingSelected()) {
+          cm.indentSelection("subtract");
+        } else {
+          const cursor = cm.getCursor();
+          cm.execCommand("indentLess");
+          cm.setCursor({ line: cursor.line, ch: Math.max(cursor.ch - 4, 0) });
+        }
+      }
+    }
+  });
+  codeEditor.setSize("100%", "100%");
+  codeArea.style.display = "none";
+  const cmInput = codeEditor.getInputField();
+  cmInput.setAttribute("spellcheck", "false");
+  cmInput.setAttribute("autocorrect", "off");
+  cmInput.setAttribute("autocapitalize", "off");
+  cmInput.setAttribute("autocomplete", "off");
+  cmInput.setAttribute("inputmode", "text");
+  setTimeout(() => codeEditor.refresh(), 0);
+  applyEditorMode("cpp");
+}
+
+function getCodeValue() {
+  return codeEditor ? codeEditor.getValue() : codeArea.value;
+}
+
+function setCodeValue(value, { silent = false } = {}) {
+  if (codeEditor) {
+    suppressCodeChangeEvent = silent;
+    codeEditor.setValue(value !== undefined ? value : "");
+    if (!silent) {
+      suppressCodeChangeEvent = false;
+    } else {
+      setTimeout(() => {
+        suppressCodeChangeEvent = false;
+      }, 0);
+    }
+  } else {
+    suppressCodeChangeEvent = silent;
+    codeArea.value = value !== undefined ? value : "";
+    suppressCodeChangeEvent = false;
+  }
+}
+
+function focusCodeEditor() {
+  if (codeEditor) {
+    codeEditor.focus();
+  } else if (codeArea) {
+    codeArea.focus();
+  }
+}
+
+function applyEditorMode(langCode) {
+  if (!codeEditor) return;
+  const mode = editorModeMap[langCode] || editorModeMap.cpp;
+  codeEditor.setOption("mode", mode);
+}
 
 const STATUS_KEY = "oj-problem-status";
 const urlParams = new URLSearchParams(window.location.search);
@@ -1256,6 +1436,7 @@ function setLanguage(code, { forceSample = false } = {}) {
   const normalized = normalizeLanguage(code);
   const option = languageMap.get(normalized);
   currentLanguage = normalized;
+  applyEditorMode(normalized);
   if (langSelect && langSelect.value !== normalized) {
     langSelect.value = normalized;
   }
@@ -1271,11 +1452,11 @@ function setLanguage(code, { forceSample = false } = {}) {
   }
   if (!option) return;
   const previousSample = previousOption ? (previousOption.sample || "").trim() : "";
-  const currentValue = codeArea.value.trim();
+  const currentValue = getCodeValue().trim();
   const shouldUpdateSample = forceSample || !userTouchedCode || (!!previousSample && currentValue === previousSample);
   if (shouldUpdateSample) {
     if (option.sample) {
-      codeArea.value = option.sample;
+      setCodeValue(option.sample, { silent: true });
       userTouchedCode = false;
     }
   }
@@ -1463,14 +1644,66 @@ if (isOnlineMode) {
   });
 }
 
-/* detect typing in code area */
-codeArea.addEventListener("input", () => {
+function handleCodeInputChange() {
+  if (suppressCodeChangeEvent) {
+    suppressCodeChangeEvent = false;
+    return;
+  }
   userTouchedCode = true;
   if (currentProblemId) {
     setProblemStatus(currentProblemId, "in-progress");
     updateStatusBadge();
   }
-});
+}
+
+if (codeEditor) {
+  codeEditor.on("change", handleCodeInputChange);
+} else if (codeArea) {
+  codeArea.addEventListener("input", handleCodeInputChange);
+  codeArea.addEventListener("keydown", (event) => {
+    if (event.key === "Tab") {
+      event.preventDefault();
+      const start = codeArea.selectionStart;
+      const end = codeArea.selectionEnd;
+      const insert = "    ";
+      const value = codeArea.value;
+      codeArea.value = value.slice(0, start) + insert + value.slice(end);
+      codeArea.selectionStart = codeArea.selectionEnd = start + insert.length;
+      handleCodeInputChange();
+      return;
+    }
+
+    const pairs = {
+      "(": ")",
+      "[": "]",
+      "{": "}",
+      "'": "'",
+      '"': '"',
+      "`": "`"
+    };
+
+    if (pairs[event.key]) {
+      event.preventDefault();
+      const start = codeArea.selectionStart;
+      const end = codeArea.selectionEnd;
+      const value = codeArea.value;
+      const selected = value.slice(start, end);
+      const open = event.key;
+      const close = pairs[event.key];
+      const insertText = selected ? open + selected + close : open + close;
+      codeArea.value = value.slice(0, start) + insertText + value.slice(end);
+      const cursorOffset = open.length;
+      const newCursor = start + cursorOffset;
+      if (selected) {
+        codeArea.selectionStart = start + cursorOffset;
+        codeArea.selectionEnd = start + cursorOffset + selected.length;
+      } else {
+        codeArea.selectionStart = codeArea.selectionEnd = newCursor;
+      }
+      handleCodeInputChange();
+    }
+  });
+}
 
 /* load problem list ban đầu */
 async function loadProblemOptions(autoSelect = false) {
@@ -1537,7 +1770,7 @@ btn.onclick = async () => {
 
   const body = {
     language: langCode,
-    code: codeArea.value,
+    code: getCodeValue(),
     problem_id: document.getElementById("pid").value,
     opt: "O2"
   };
