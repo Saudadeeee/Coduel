@@ -49,9 +49,9 @@ DOCKER_RUN_EXTRA_ARGS = shlex.split(os.getenv("DOCKER_RUN_EXTRA_ARGS", ""))
 RUNS_PER_TEST = int(os.getenv("RUNS_PER_TEST", "3"))  # Số lần chạy mỗi test để lấy median
 PERFORMANCE_TOLERANCE = float(os.getenv("PERFORMANCE_TOLERANCE", "0.10"))  # 10% tolerance
 JOB_TMP_ROOT = os.getenv("JOB_TMP_ROOT", "/worker_tmp")
-HOST_JOB_TMP_ROOT = os.getenv("HOST_JOB_TMP_ROOT", JOB_TMP_ROOT)
+HOST_JOB_TMP_ROOT = os.getenv("HOST_JOB_TMP_ROOT")  # may be absolute host path
 PROBLEMS_ROOT = os.getenv("PROBLEMS_ROOT", "/problems")
-HOST_PROBLEMS_ROOT = os.getenv("HOST_PROBLEMS_ROOT", PROBLEMS_ROOT)
+HOST_PROBLEMS_ROOT = os.getenv("HOST_PROBLEMS_ROOT")  # may be absolute host path
 os.makedirs(JOB_TMP_ROOT, exist_ok=True)
 
 SOURCE_FILE_MAP = {
@@ -61,6 +61,58 @@ SOURCE_FILE_MAP = {
     "java": "Main.java",
     "js": "main.js"
 }
+
+_CONTAINER_ID = os.getenv("HOSTNAME")
+_MOUNT_CACHE: dict[str, str] = {}
+
+def _resolve_host_path(container_path: str, default_root: str, configured_host_root: str | None) -> str:
+    """
+    Translate a path inside this worker container to the corresponding host path
+    that Docker should mount when spawning the judge container.
+    """
+    container_path = os.path.abspath(container_path)
+
+    # 1) Use configured host root if available
+    if configured_host_root and container_path.startswith(default_root):
+        host_root = configured_host_root.rstrip("/")
+        if os.path.exists(host_root):
+            suffix = container_path[len(default_root):]
+            return host_root + suffix
+
+    # 2) Reuse cached mapping if we already resolved this container path prefix
+    for prefix, host_prefix in _MOUNT_CACHE.items():
+        if container_path.startswith(prefix):
+            suffix = container_path[len(prefix):]
+            return host_prefix + suffix
+
+    # 3) Inspect this container's mounts to find the host source for default_root
+    if _CONTAINER_ID:
+        try:
+            res = subprocess.run(
+                ["docker", "inspect", "-f", "{{json .Mounts}}", _CONTAINER_ID],
+                capture_output=True,
+                text=True,
+                check=False,
+                timeout=5,
+            )
+            if res.returncode == 0 and res.stdout:
+                import json as _json
+                mounts = _json.loads(res.stdout)
+                for mount in mounts:
+                    dest = mount.get("Destination")
+                    src = mount.get("Source")
+                    if not dest or not src:
+                        continue
+                    dest = os.path.abspath(dest.rstrip("/"))
+                    if dest == default_root.rstrip("/"):
+                        _MOUNT_CACHE[dest] = src.rstrip("/")
+                        suffix = container_path[len(default_root):]
+                        return _MOUNT_CACHE[dest] + suffix
+        except Exception:
+            pass
+
+    # 4) Fallback: assume identical path works on host
+    return container_path
 
 def _parse_elapsed_seconds(val):
     if val is None:
@@ -168,10 +220,7 @@ def compile_submission(sub_id):
             f.write(code)
 
         # Run container to compile (not running tests at this step)
-        host_tmpdir = tmpdir
-        if tmpdir.startswith(JOB_TMP_ROOT):
-            suffix = tmpdir[len(JOB_TMP_ROOT):]
-            host_tmpdir = HOST_JOB_TMP_ROOT.rstrip("/") + suffix
+        host_tmpdir = _resolve_host_path(tmpdir, JOB_TMP_ROOT, HOST_JOB_TMP_ROOT)
         mounts = [(host_tmpdir, "/work", "rw")]
         std_arg = std or ""
         
@@ -212,15 +261,8 @@ def run_submission(job):
         return
 
     try:
-        host_tmpdir = tmpdir
-        if tmpdir.startswith(JOB_TMP_ROOT):
-            suffix = tmpdir[len(JOB_TMP_ROOT):]
-            host_tmpdir = HOST_JOB_TMP_ROOT.rstrip("/") + suffix
-
-        host_tests_dir = tests_dir
-        if tests_dir.startswith(PROBLEMS_ROOT):
-            suffix2 = tests_dir[len(PROBLEMS_ROOT):]
-            host_tests_dir = HOST_PROBLEMS_ROOT.rstrip("/") + suffix2
+        host_tmpdir = _resolve_host_path(tmpdir, JOB_TMP_ROOT, HOST_JOB_TMP_ROOT)
+        host_tests_dir = _resolve_host_path(tests_dir, PROBLEMS_ROOT, HOST_PROBLEMS_ROOT)
 
         mounts = [
             (host_tmpdir, "/work", "rw"),
