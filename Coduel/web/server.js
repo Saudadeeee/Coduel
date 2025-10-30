@@ -584,15 +584,47 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("start-match", ({ roomCode }) => {
+  socket.on("start-match", async ({ roomCode }) => {
     const roomState = rooms.get(roomCode);
     if (roomState && roomState.players[0]?.socketId === socket.id) {
       resetMatchState(roomState);
       roomState.submissions = {};
-      io.to(roomCode).emit("match-started", {
-        settings: roomState.settings
-      });
-      console.log(`Match started in room ${roomCode}`);
+      
+      // Select a random problem based on difficulty
+      try {
+        const apiUrl = process.env.API_URL || "http://api:8000";
+        const response = await fetch(`${apiUrl}/problems`);
+        const data = await response.json();
+        const allProblems = data.problems || [];
+        
+        // Filter by difficulty
+        const difficulty = roomState.settings.difficulty;
+        console.log(`Filtering problems: total=${allProblems.length}, difficulty=${difficulty}`);
+        const filteredProblems = allProblems.filter(p => p.difficulty === difficulty);
+        console.log(`Filtered problems: ${filteredProblems.length} problems with difficulty ${difficulty}`);
+        const problemsToChoose = filteredProblems.length > 0 ? filteredProblems : allProblems;
+        
+        // Select random problem
+        const randomIndex = Math.floor(Math.random() * problemsToChoose.length);
+        const selectedProblem = problemsToChoose[randomIndex];
+        
+        console.log(`Selected problem ${selectedProblem.problem_id} (difficulty: ${selectedProblem.difficulty}) for room ${roomCode}`);
+        
+        // Add problem_id to settings
+        roomState.settings.problemId = selectedProblem.problem_id;
+        
+        io.to(roomCode).emit("match-started", {
+          settings: roomState.settings,
+          problemId: selectedProblem.problem_id
+        });
+        console.log(`Match started in room ${roomCode} with problem ${selectedProblem.problem_id}`);
+      } catch (error) {
+        console.error('Error selecting problem:', error);
+        // Fallback: start match without problem selection
+        io.to(roomCode).emit("match-started", {
+          settings: roomState.settings
+        });
+      }
     }
   });
 
@@ -698,8 +730,22 @@ io.on("connection", (socket) => {
       }
 
       if (roomState.players.length === 0 && roomState.spectators.length === 0) {
-        rooms.delete(roomCode);
-        console.log(`Room ${roomCode} deleted (empty)`);
+        // Don't delete room immediately if match has started (has problemId)
+        // This allows players to reconnect after page navigation
+        if (!roomState.settings || !roomState.settings.problemId) {
+          rooms.delete(roomCode);
+          console.log(`Room ${roomCode} deleted (empty, no match started)`);
+        } else {
+          console.log(`Room ${roomCode} is empty but match started - keeping room for reconnection`);
+          // Set a timeout to delete room after 30 seconds if still empty
+          setTimeout(() => {
+            const currentRoom = rooms.get(roomCode);
+            if (currentRoom && currentRoom.players.length === 0 && currentRoom.spectators.length === 0) {
+              rooms.delete(roomCode);
+              console.log(`Room ${roomCode} deleted (timeout after being empty)`);
+            }
+          }, 30000);
+        }
       }
     }
   });

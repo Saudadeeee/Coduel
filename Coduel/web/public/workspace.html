@@ -1739,7 +1739,14 @@ async function loadProblemOptions(autoSelect = false) {
     return;
   }
 
-  pidInput.disabled = false;
+  // Disable problem selection in online mode (will be set by host)
+  if (isOnlineMode) {
+    pidInput.disabled = true;
+    pidInput.title = "Problem is selected when match starts";
+  } else {
+    pidInput.disabled = false;
+    pidInput.title = "";
+  }
 
   problemsCache.forEach((item) => {
     const option = document.createElement("option");
@@ -1752,20 +1759,35 @@ async function loadProblemOptions(autoSelect = false) {
     pidInput.appendChild(option);
   });
 
+  // In online mode without a problem selected yet, show waiting message
+  if (isOnlineMode && !currentProblemId) {
+    console.log('Online mode: waiting for match to start');
+    pidInput.value = "";
+    statementBody.innerHTML = '<div style="text-align: center; padding: 40px; color: #888;">Waiting for host to start the match...</div>';
+    difficultyBadge.textContent = "Difficulty: waiting...";
+    updateStatusBadge();
+    return;
+  }
+
+  // Determine which problem to select
   const desired = currentProblemId && problemsCache.some(p => p.problem_id === currentProblemId)
     ? currentProblemId
-    : problemsCache[0].problem_id;
+    : (isOnlineMode ? "" : problemsCache[0].problem_id);
 
-  console.log('Desired problem:', desired, 'currentProblemId:', currentProblemId);
-  pidInput.value = desired;
-  currentProblemId = desired;
-  updateStatusBadge();
-
-  if (autoSelect && desired) {
-    console.log('Auto-selecting problem:', desired);
+  console.log('Desired problem:', desired, 'currentProblemId:', currentProblemId, 'isOnlineMode:', isOnlineMode);
+  
+  if (desired) {
+    pidInput.value = desired;
+    currentProblemId = desired;
+    updateStatusBadge();
+    
+    // Always load the statement if we have a desired problem
+    console.log('Loading statement for problem:', desired);
     await loadStatement(desired);
-  } else if (!desired) {
+  } else {
+    // No problem to load (shouldn't happen after the check above)
     console.log('No desired problem, showing empty state');
+    pidInput.value = "";
     loadStatement("");
   }
 }
@@ -1880,7 +1902,10 @@ const parseMarkdown = (text) => {
 };
 
 // Initialize and load problems
-loadProblemOptions(true).catch(err => {
+// In online mode, don't auto-select - wait for match-started event
+const shouldAutoSelect = !isOnlineMode;
+console.log('Initializing problems, autoSelect:', shouldAutoSelect, 'isOnlineMode:', isOnlineMode);
+loadProblemOptions(shouldAutoSelect).catch(err => {
   console.error('Failed to load problems:', err);
 });
 
@@ -2140,11 +2165,7 @@ async function initializeSocket() {
   try {
     await socketClient.connect();
     
-    // Join room with proper username and role from URL
-    console.log(`Joining room ${currentRoomCode} as ${username} (${role})`);
-    await socketClient.joinRoom(currentRoomCode, username, role);
-    
-    // Listen for room settings to check if spectator is enabled
+    // Register all event listeners BEFORE joining room
     socketClient.on('settings-updated', (data) => {
       matchSettings = data.settings;
       spectatorEnabled = data.settings.spectator;
@@ -2190,6 +2211,60 @@ async function initializeSocket() {
       console.warn('Match timeout:', data);
       alert('Results taking too long. Check submissions manually.');
     });
+    
+    socketClient.on('match-started', (data) => {
+      console.log('Match started event received:', data);
+      
+      // Update match settings
+      if (data.settings) {
+        matchSettings = data.settings;
+        
+        // Enforce host's language selection
+        if (matchSettings.language) {
+          enforceHostLanguage(matchSettings.language);
+        }
+        
+        // Load the problem selected by the server
+        if (data.problemId) {
+          console.log('Loading problem selected by server:', data.problemId);
+          
+          // Update UI and load the problem
+          currentProblemId = data.problemId;
+          pidInput.value = currentProblemId;
+          pidInput.disabled = true;
+          pidInput.title = "Problem locked for this match";
+          loadStatement(currentProblemId);
+        }
+      }
+    });
+    
+    socketClient.on('room-joined', (data) => {
+      console.log('room-joined event received:', data);
+      if (data.roomState && data.roomState.settings) {
+        matchSettings = data.roomState.settings;
+        console.log('Room settings:', matchSettings);
+        
+        if (matchSettings.language) {
+          enforceHostLanguage(matchSettings.language);
+        }
+        
+        // If room has a problem already selected (match already started), load it
+        if (matchSettings.problemId) {
+          console.log('Room has problem already selected:', matchSettings.problemId);
+          currentProblemId = matchSettings.problemId;
+          pidInput.value = currentProblemId;
+          pidInput.disabled = true;
+          pidInput.title = "Problem locked for this match";
+          loadStatement(currentProblemId);
+        } else {
+          console.log('Room has no problem yet - waiting for match to start');
+        }
+      }
+    });
+    
+    // Now join the room after all listeners are registered
+    console.log(`Joining room ${currentRoomCode} as ${username} (${role})`);
+    await socketClient.joinRoom(currentRoomCode, username, role);
     
     console.log('Socket.IO initialized for room:', currentRoomCode);
   } catch (error) {
@@ -2246,30 +2321,6 @@ const winnerSubtitle = document.getElementById('winnerSubtitle');
 const winnerPlayers = document.getElementById('winnerPlayers');
 const continueBtn = document.getElementById('continueBtn');
 const backToRoomBtn = document.getElementById('backToRoomBtn');
-
-socketClient.on('settings-updated', (data) => {
-  matchSettings = data.settings;
-  spectatorEnabled = data.settings.spectator;
-  if (matchSettings && matchSettings.language) {
-    enforceHostLanguage(matchSettings.language);
-  }
-  
-  if (spectatorEnabled) {
-    spectatorToggle.style.display = 'block';
-  } else {
-    spectatorToggle.style.display = 'none';
-    spectatorModal.classList.remove('show');
-  }
-});
-
-socketClient.on('room-joined', (data) => {
-  if (data.roomState && data.roomState.settings) {
-    matchSettings = data.roomState.settings;
-    if (matchSettings.language) {
-      enforceHostLanguage(matchSettings.language);
-    }
-  }
-});
 
 function showWinnerModal(data) {
   const comparison = data.comparison || {};

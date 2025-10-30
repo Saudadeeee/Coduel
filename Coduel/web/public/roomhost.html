@@ -885,10 +885,11 @@
     });
 
     // Listen for match start (when host clicks START)
+    // Only redirect for non-host players (host will handle redirect separately)
     socketClient.on('match-started', (data) => {
       console.log('Match started!', data);
-      // Redirect all players to workspace with username and role
-      if (currentRoomCode) {
+      // Redirect players (not host) to workspace
+      if (currentRoomCode && userRole !== 'host') {
         window.location.href = `/workspace.html?room=${currentRoomCode}&username=${encodeURIComponent(username)}&role=${userRole}`;
       }
     });
@@ -1031,9 +1032,18 @@
       
       if (currentRoomCode && userRole === 'host') {
         console.log('Host starting match for room:', currentRoomCode);
+        
+        // Listen for match-started event before redirecting
+        socketClient.on('match-started', (data) => {
+          console.log('Match started! Redirecting to workspace...');
+          // Wait a bit to ensure server has saved the state
+          setTimeout(() => {
+            window.location.href = `/workspace.html?room=${currentRoomCode}&username=${encodeURIComponent(username)}&role=${userRole}`;
+          }, 100);
+        });
+        
+        // Emit start-match event
         socketClient.startMatch();
-        // Redirect to workspace with username and role
-        window.location.href = `/workspace.html?room=${currentRoomCode}&username=${encodeURIComponent(username)}&role=${userRole}`;
       }
     });
 
