@@ -1469,7 +1469,9 @@ function enforceHostLanguage(languageValue) {
 }
 
 async function loadStatement(problemId) {
+  console.log('loadStatement called with:', problemId);
   if (!problemId) {
+    console.warn('Empty problemId, showing default message');
     statementTitle.textContent = "Problem";
     problemMeta.innerHTML = "";
     statementBody.textContent = "Select a problem to view its statement.";
@@ -1493,9 +1495,12 @@ async function loadStatement(problemId) {
   difficultyBadge.textContent = "Difficulty: …";
 
   try {
+    console.log(`Fetching problem from: ${api}/problem/${encodeURIComponent(problemId)}`);
     const res = await fetch(`${api}/problem/${encodeURIComponent(problemId)}`);
+    console.log(`API response status: ${res.status}`);
     if (!res.ok) throw new Error(res.statusText);
     const data = await res.json();
+    console.log('Problem data loaded:', data.problem_id, data.title);
 
     const diffLabel = difficultyLabels[data.difficulty] || (data.difficulty || "unknown");
     difficultyBadge.textContent = `Difficulty: ${diffLabel}`;
@@ -1707,19 +1712,22 @@ if (codeEditor) {
 
 /* load problem list ban đầu */
 async function loadProblemOptions(autoSelect = false) {
+  console.log('loadProblemOptions called, autoSelect:', autoSelect, 'currentProblemId:', currentProblemId);
   try {
     const res = await fetch(`${api}/problems`);
     if (!res.ok) throw new Error(res.statusText);
     const data = await res.json();
     problemsCache = Array.isArray(data.problems) ? data.problems : [];
+    console.log(`Loaded ${problemsCache.length} problems`);
   } catch (err) {
-    console.error(err);
+    console.error('Error loading problems:', err);
     problemsCache = [];
   }
 
   pidInput.innerHTML = "";
 
   if (!problemsCache.length) {
+    console.warn('No problems found');
     const option = document.createElement("option");
     option.value = "";
     option.textContent = "No problems available";
@@ -1748,13 +1756,16 @@ async function loadProblemOptions(autoSelect = false) {
     ? currentProblemId
     : problemsCache[0].problem_id;
 
+  console.log('Desired problem:', desired, 'currentProblemId:', currentProblemId);
   pidInput.value = desired;
   currentProblemId = desired;
   updateStatusBadge();
 
   if (autoSelect && desired) {
+    console.log('Auto-selecting problem:', desired);
     await loadStatement(desired);
   } else if (!desired) {
+    console.log('No desired problem, showing empty state');
     loadStatement("");
   }
 }
@@ -1868,7 +1879,10 @@ const parseMarkdown = (text) => {
     .join("");
 };
 
-loadProblemOptions(true);
+// Initialize and load problems
+loadProblemOptions(true).catch(err => {
+  console.error('Failed to load problems:', err);
+});
 
 function renderRunResult(run) {
   if (!run) {
