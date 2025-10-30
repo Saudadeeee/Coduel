@@ -2,7 +2,6 @@ FROM python:3.12-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Prepare Docker CLI (worker needs to call docker run for judge image)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     ca-certificates \
@@ -22,5 +21,5 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY worker.py .
 ENV REDIS_HOST=redis REDIS_PORT=6379
-# Worker runs with Docker socket mounted from compose (add below in compose if needed)
+
 CMD ["python", "worker.py"]

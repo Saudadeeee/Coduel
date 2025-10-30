@@ -1169,9 +1169,9 @@ int main(){
 <script src="/socket-client.js"></script>
 
 <script>
-/* JS phần lớn y như trước, chỉ thay đổi vài selector resize dọc */
 
-const api = "/api"; // Sử dụng relative path thay vì hardcode localhost
+
+const api = "/api"; 
 
 const btn = document.getElementById("btn");
 const statusEl = document.getElementById("status");
@@ -2262,7 +2262,6 @@ async function initializeSocket() {
       }
     });
     
-    // Now join the room after all listeners are registered
     console.log(`Joining room ${currentRoomCode} as ${username} (${role})`);
     await socketClient.joinRoom(currentRoomCode, username, role);
     

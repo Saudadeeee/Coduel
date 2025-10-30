@@ -226,12 +226,10 @@
       window.location.href = '/dashboard';
     });
 
-    // Host Room button - redirect to room host page
     hostBtn.addEventListener('click', () => {
       window.location.href = '/roomhost.html';
     });
 
-    // Join Room button - join with room code
     joinBtn.addEventListener('click', () => {
       const code = roomInput.value.trim();
       if (!code) {

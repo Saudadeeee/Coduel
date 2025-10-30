@@ -442,9 +442,7 @@ def submit(s: SubmitReq):
         "std": s.std or {"c": "c17", "cpp": "c++20"}.get(s.language, ""),
         "created_at": str(int(time.time()))
     })
-    # Save code
     r.set(f"code:{sub_id}", s.code, ex=3600)
-    # Push job to queue
     job = {"submission_id": sub_id}
     r.lpush("queue:compile", json.dumps(job))
     return {"submission_id": sub_id}
@@ -454,7 +452,6 @@ def status(sub_id: str):
     meta = r.hgetall(f"sub:{sub_id}")
     if not meta:
         raise HTTPException(404, "not found")
-    # Result (if available)
     compile_log = r.get(f"compile_log:{sub_id}")
     run_result = r.get(f"run_result:{sub_id}")
     return {
