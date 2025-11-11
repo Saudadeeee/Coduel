@@ -1,0 +1,13 @@
+6
+alex
+reykjavik
+bella
+akureyri
+chris
+reykjavik
+diana
+akureyri
+eric
+reykjavik
+fiona
+akureyri

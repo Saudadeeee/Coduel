@@ -1,0 +1,3 @@
+akureyri 3
+reykjavik 4
+selfoss 3

@@ -1,0 +1,9 @@
+4
+person
+hafnarfjordur
+contestant
+vestmannaeyjar
+competitor
+egilsstadir
+participant
+kopavogur

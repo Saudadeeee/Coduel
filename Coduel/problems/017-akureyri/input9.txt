@@ -1,0 +1,17 @@
+8
+john
+reykjavik
+mary
+reykjavik
+steve
+reykjavik
+lisa
+reykjavik
+mike
+reykjavik
+sarah
+reykjavik
+tom
+reykjavik
+jane
+reykjavik

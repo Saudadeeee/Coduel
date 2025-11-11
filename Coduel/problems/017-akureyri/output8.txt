@@ -1,0 +1,4 @@
+egilsstadir 1
+hafnarfjordur 1
+kopavogur 1
+vestmannaeyjar 1

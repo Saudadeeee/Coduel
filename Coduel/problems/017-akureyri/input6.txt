@@ -1,0 +1,7 @@
+3
+alice
+akureyri
+bob
+akureyri
+charlie
+akureyri
