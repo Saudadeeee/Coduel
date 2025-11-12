@@ -1,12 +1,12 @@
 {
   "number": 28,
-  "difficulty": "fast",
+  "difficulty": "easy",
   "title": "Aaah!",
   "time_limit_ms": 1000,
   "memory_limit_kb": 1048576,
   "tags": [],
   "created_at": 1761734788,
-  "description": "Jon Marius shouted too much at the recent Justin Bieber\nconcert, and now needs to go to the doctor because of his sore\nthroat. The doctor\u2019s instructions are to say \u201caaah\u201d.\nUnfortunately, the doctors sometimes need Jon Marius to say\n\u201caaah\u201d for a while, which Jon Marius has never been good at.\nEach doctor requires a certain level of \u201caah\u201d \u2013 some\nrequire \u201caaaaaah\u201d, while others can actually diagnose his\nthroat with just an \u201ch\u201d. (They often diagnose wrongly, but that\nis beyond the scope of this problem.) Since Jon Marius does not\nwant to go to a doctor and have his time wasted, he wants to\ncompare how long he manages to hold the \u201caaah\u201d with the\ndoctor\u2019s requirements. (After all, who wants to be all like\n\u201caaah\u201d when the doctor wants you to go \u201caaaaaah\u201d?)",
+  "description": "Jon Marius shouted too much at the recent Justin Bieber\nconcert, and now needs to go to the doctor because of his sore\nthroat. The doctor’s instructions are to say “aaah”.\nUnfortunately, the doctors sometimes need Jon Marius to say\n“aaah” for a while, which Jon Marius has never been good at.\nEach doctor requires a certain level of “aah” – some\nrequire “aaaaaah”, while others can actually diagnose his\nthroat with just an “h”. (They often diagnose wrongly, but that\nis beyond the scope of this problem.) Since Jon Marius does not\nwant to go to a doctor and have his time wasted, he wants to\ncompare how long he manages to hold the “aaah” with the\ndoctor’s requirements. (After all, who wants to be all like\n“aaah” when the doctor wants you to go “aaaaaah”?)",
   "samples": [
     {
       "input": "sample_input.txt",
@@ -23,6 +23,46 @@
     {
       "input": "input2.txt",
       "output": "output2.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input3.txt",
+      "output": "output3.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input4.txt",
+      "output": "output4.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input5.txt",
+      "output": "output5.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input6.txt",
+      "output": "output6.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input7.txt",
+      "output": "output7.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input8.txt",
+      "output": "output8.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input9.txt",
+      "output": "output9.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input10.txt",
+      "output": "output10.txt",
       "visibility": "hidden"
     }
   ]

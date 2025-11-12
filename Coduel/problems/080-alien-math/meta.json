@@ -1,12 +1,12 @@
 {
   "number": 80,
-  "difficulty": "easy",
+  "difficulty": "medium",
   "title": "Alien Math",
   "time_limit_ms": 1000,
   "memory_limit_kb": 1048576,
   "tags": [],
   "created_at": 1761734829,
-  "description": "Humans are exploring the stars, and we have encountered\naliens! In an exchange of scientific knowledge, we\u2019ve learned\nthat not only do they use entirely different symbols to do\nmath, they don\u2019t even use base ten! It would be nice to have a\nprogram to convert the alien numbers to decimal.",
+  "description": "Humans are exploring the stars, and we have encountered\naliens! In an exchange of scientific knowledge, we’ve learned\nthat not only do they use entirely different symbols to do\nmath, they don’t even use base ten! It would be nice to have a\nprogram to convert the alien numbers to decimal.",
   "samples": [
     {
       "input": "sample_input.txt",
@@ -38,6 +38,31 @@
     {
       "input": "input5.txt",
       "output": "output5.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input6.txt",
+      "output": "output6.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input7.txt",
+      "output": "output7.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input8.txt",
+      "output": "output8.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input9.txt",
+      "output": "output9.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input10.txt",
+      "output": "output10.txt",
       "visibility": "hidden"
     }
   ]

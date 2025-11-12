@@ -1,12 +1,12 @@
 {
   "number": 66,
-  "difficulty": "easy",
+  "difficulty": "medium",
   "title": "Anti-Palindrome",
   "time_limit_ms": 1000,
   "memory_limit_kb": 1048576,
   "tags": [],
   "created_at": 1761734819,
-  "description": "A palindrome is a sequence of two or more characters that\nreads the same both forward and backward. Palindromes can\nappear inside a longer text, such as \u201cHappy days are here\nagain.\u201d in which \u201cpp\u201d, \u201cehe\u201d and \u201cere\u201d are some of the\npalindromes (ignoring spaces, punctuation, and case). An\nanti-palindrome is a sequence of two or more characters in\nwhich there are no palindromes. You are given text that may\ncontain, or itself form, a palindrome. Your task is to\ndetermine if there are any palindromes in the text, in which\ncase declare \"Palindrome\", or if there are none, declare\n\"Anti-palindrome\". The text may contain spaces, as well as\nalphabetic and other non-alphabetic characters. All\nnon-alphabetic characters should be ignored, and uppercase and\nlowercase letters are considered the same when detecting\npalindromes.",
+  "description": "A palindrome is a sequence of two or more characters that\nreads the same both forward and backward. Palindromes can\nappear inside a longer text, such as “Happy days are here\nagain.” in which “pp”, “ehe” and “ere” are some of the\npalindromes (ignoring spaces, punctuation, and case). An\nanti-palindrome is a sequence of two or more characters in\nwhich there are no palindromes. You are given text that may\ncontain, or itself form, a palindrome. Your task is to\ndetermine if there are any palindromes in the text, in which\ncase declare \"Palindrome\", or if there are none, declare\n\"Anti-palindrome\". The text may contain spaces, as well as\nalphabetic and other non-alphabetic characters. All\nnon-alphabetic characters should be ignored, and uppercase and\nlowercase letters are considered the same when detecting\npalindromes.",
   "samples": [
     {
       "input": "sample_input.txt",
@@ -28,6 +28,41 @@
     {
       "input": "input3.txt",
       "output": "output3.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input4.txt",
+      "output": "output4.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input5.txt",
+      "output": "output5.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input6.txt",
+      "output": "output6.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input7.txt",
+      "output": "output7.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input8.txt",
+      "output": "output8.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input9.txt",
+      "output": "output9.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input10.txt",
+      "output": "output10.txt",
       "visibility": "hidden"
     }
   ]

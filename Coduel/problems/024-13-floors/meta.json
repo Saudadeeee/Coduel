@@ -1,12 +1,12 @@
 {
   "number": 24,
-  "difficulty": "fast",
+  "difficulty": "easy",
   "title": "13 Floors",
   "time_limit_ms": 1000,
   "memory_limit_kb": 1048576,
   "tags": [],
   "created_at": 1761734785,
-  "description": "Bill is responsible for labeling all the floors on a new\nskyscraper. He\u2019s superstitious, so he wants to skip floor 13\nwhile labeling the floors. This means that the 12^text th , 13^text th , and 14^text th floors should be\nlabeled 12 , 14 , and 15 , respectively. Given the true\nfloor number, can you tell Bill what to label that floor?",
+  "description": "Bill is responsible for labeling all the floors on a new\nskyscraper. He’s superstitious, so he wants to skip floor 13\nwhile labeling the floors. This means that the 12^text th , 13^text th , and 14^text th floors should be\nlabeled 12 , 14 , and 15 , respectively. Given the true\nfloor number, can you tell Bill what to label that floor?",
   "samples": [
     {
       "input": "sample_input.txt",
@@ -28,6 +28,41 @@
     {
       "input": "input3.txt",
       "output": "output3.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input4.txt",
+      "output": "output4.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input5.txt",
+      "output": "output5.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input6.txt",
+      "output": "output6.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input7.txt",
+      "output": "output7.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input8.txt",
+      "output": "output8.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input9.txt",
+      "output": "output9.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input10.txt",
+      "output": "output10.txt",
       "visibility": "hidden"
     }
   ]

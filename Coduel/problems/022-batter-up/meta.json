@@ -1,12 +1,12 @@
 {
   "number": 22,
-  "difficulty": "fast",
+  "difficulty": "easy",
   "title": "Batter Up",
   "time_limit_ms": 1000,
   "memory_limit_kb": 1048576,
   "tags": [],
   "created_at": 1761734784,
-  "description": "While the Chicago Cubs were ecstatic with their 2016 World\nSeries championship, they were eliminated from the playoffs in\n2017. Looking ahead to 2018 they are beginning to embrace the\nmore data-driven analysis of player\u2019s values known as\nSabermetrics.",
+  "description": "While the Chicago Cubs were ecstatic with their 2016 World\nSeries championship, they were eliminated from the playoffs in\n2017. Looking ahead to 2018 they are beginning to embrace the\nmore data-driven analysis of player’s values known as\nSabermetrics.",
   "samples": [
     {
       "input": "sample_input.txt",
@@ -28,6 +28,41 @@
     {
       "input": "input3.txt",
       "output": "output3.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input4.txt",
+      "output": "output4.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input5.txt",
+      "output": "output5.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input6.txt",
+      "output": "output6.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input7.txt",
+      "output": "output7.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input8.txt",
+      "output": "output8.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input9.txt",
+      "output": "output9.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input10.txt",
+      "output": "output10.txt",
       "visibility": "hidden"
     }
   ]

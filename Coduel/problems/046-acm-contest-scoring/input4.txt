@@ -1,0 +1,4 @@
+10 A right
+20 B right
+30 C right
+-1

@@ -1,12 +1,12 @@
 {
   "number": 111,
-  "difficulty": "medium",
+  "difficulty": "easy",
   "title": "Best Compression Ever",
   "time_limit_ms": 1000,
   "memory_limit_kb": 1048576,
   "tags": [],
   "created_at": 1761734852,
-  "description": "Being educated in Computer Science and Mathematics is not\nalways easy. Especially not if you have \u201cfriends\u201d who\nrepeatedly insist on showing you their new \u201cproofs\u201d that P\nequals NP, that the Riemann Hypothesis is true, and so on.",
+  "description": "Being educated in Computer Science and Mathematics is not\nalways easy. Especially not if you have “friends” who\nrepeatedly insist on showing you their new “proofs” that P\nequals NP, that the Riemann Hypothesis is true, and so on.",
   "samples": [
     {
       "input": "sample_input.txt",
@@ -28,6 +28,41 @@
     {
       "input": "input3.txt",
       "output": "output3.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input4.txt",
+      "output": "output4.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input5.txt",
+      "output": "output5.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input6.txt",
+      "output": "output6.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input7.txt",
+      "output": "output7.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input8.txt",
+      "output": "output8.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input9.txt",
+      "output": "output9.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input10.txt",
+      "output": "output10.txt",
       "visibility": "hidden"
     }
   ]

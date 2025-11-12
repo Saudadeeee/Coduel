@@ -1,12 +1,12 @@
 {
   "number": 89,
-  "difficulty": "easy",
+  "difficulty": "hard",
   "title": "An Industrial Spy",
   "time_limit_ms": 2000,
   "memory_limit_kb": 1048576,
   "tags": [],
   "created_at": 1761734835,
-  "description": "Industrial spying is very common for modern research labs. I\nam such an industrial spy \u2013 don\u2019t tell anybody! My recent job\nwas to steal the latest inventions from a famous math research\nlab. It was hard to obtain some of their results but I got\ntheir waste out of a document shredder.",
+  "description": "Industrial spying is very common for modern research labs. I\nam such an industrial spy – don’t tell anybody! My recent job\nwas to steal the latest inventions from a famous math research\nlab. It was hard to obtain some of their results but I got\ntheir waste out of a document shredder.",
   "samples": [
     {
       "input": "sample_input.txt",
@@ -19,6 +19,51 @@
       "input": "input1.txt",
       "output": "output1.txt",
       "visibility": "public"
+    },
+    {
+      "input": "input2.txt",
+      "output": "output2.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input3.txt",
+      "output": "output3.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input4.txt",
+      "output": "output4.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input5.txt",
+      "output": "output5.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input6.txt",
+      "output": "output6.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input7.txt",
+      "output": "output7.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input8.txt",
+      "output": "output8.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input9.txt",
+      "output": "output9.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input10.txt",
+      "output": "output10.txt",
+      "visibility": "hidden"
     }
   ]
 }

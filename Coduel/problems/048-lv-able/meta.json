@@ -1,12 +1,12 @@
 {
   "number": 48,
-  "difficulty": "easy",
+  "difficulty": "medium",
   "title": "\"lv\"-able",
   "time_limit_ms": 1000,
   "memory_limit_kb": 1048576,
   "tags": [],
   "created_at": 1761734805,
-  "description": "A string is \u201c lv \u201d-able if it\ncontains the contiguous substring \u201c lv \u201d.",
+  "description": "A string is “ lv ”-able if it\ncontains the contiguous substring “ lv ”.",
   "samples": [
     {
       "input": "sample_input.txt",
@@ -28,6 +28,41 @@
     {
       "input": "input3.txt",
       "output": "output3.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input4.txt",
+      "output": "output4.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input5.txt",
+      "output": "output5.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input6.txt",
+      "output": "output6.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input7.txt",
+      "output": "output7.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input8.txt",
+      "output": "output8.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input9.txt",
+      "output": "output9.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input10.txt",
+      "output": "output10.txt",
       "visibility": "hidden"
     }
   ]

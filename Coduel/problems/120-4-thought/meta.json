@@ -6,7 +6,7 @@
   "memory_limit_kb": 1048576,
   "tags": [],
   "created_at": 1761734858,
-  "description": "Write a program which, given an integer n as input, will produce a\nmathematical expression whose solution is n . The solution is restricted to\nusing exactly four 4 \u2019s\nand exactly three of the binary operations selected from the\nset \\ *, +, -, /\\ .\nThe number 4 is the ONLY\nnumber you can use. You are not allowed to concatenate fours to\ngenerate other numbers, such as 44 or 444 .",
+  "description": "Write a program which, given an integer n as input, will produce a\nmathematical expression whose solution is n . The solution is restricted to\nusing exactly four 4 ’s\nand exactly three of the binary operations selected from the\nset \\ *, +, -, /\\ .\nThe number 4 is the ONLY\nnumber you can use. You are not allowed to concatenate fours to\ngenerate other numbers, such as 44 or 444 .",
   "samples": [
     {
       "input": "sample_input.txt",
@@ -19,6 +19,51 @@
       "input": "input1.txt",
       "output": "output1.txt",
       "visibility": "public"
+    },
+    {
+      "input": "input2.txt",
+      "output": "output2.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input3.txt",
+      "output": "output3.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input4.txt",
+      "output": "output4.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input5.txt",
+      "output": "output5.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input6.txt",
+      "output": "output6.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input7.txt",
+      "output": "output7.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input8.txt",
+      "output": "output8.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input9.txt",
+      "output": "output9.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input10.txt",
+      "output": "output10.txt",
+      "visibility": "hidden"
     }
   ]
 }

@@ -1,12 +1,12 @@
 {
   "number": 36,
-  "difficulty": "fast",
+  "difficulty": "easy",
   "title": "Bela",
   "time_limit_ms": 1000,
   "memory_limit_kb": 1048576,
   "tags": [],
   "created_at": 1761734795,
-  "description": "Young Mirko is a smart, but mischievous boy who often\nwanders around parks looking for new ideas. This time he\u2019s come\nacross pensioners playing the card game Belote. They\u2019ve invited\nhim to help them determine the total number of points in a\ngame.",
+  "description": "Young Mirko is a smart, but mischievous boy who often\nwanders around parks looking for new ideas. This time he’s come\nacross pensioners playing the card game Belote. They’ve invited\nhim to help them determine the total number of points in a\ngame.",
   "samples": [
     {
       "input": "sample_input.txt",
@@ -23,6 +23,46 @@
     {
       "input": "input2.txt",
       "output": "output2.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input3.txt",
+      "output": "output3.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input4.txt",
+      "output": "output4.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input5.txt",
+      "output": "output5.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input6.txt",
+      "output": "output6.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input7.txt",
+      "output": "output7.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input8.txt",
+      "output": "output8.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input9.txt",
+      "output": "output9.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input10.txt",
+      "output": "output10.txt",
       "visibility": "hidden"
     }
   ]

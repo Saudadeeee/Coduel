@@ -1,12 +1,12 @@
 {
   "number": 77,
   "difficulty": "easy",
-  "title": "Atl\u00f6gur",
+  "title": "Atlögur",
   "time_limit_ms": 1000,
   "memory_limit_kb": 1048576,
   "tags": [],
   "created_at": 1761734827,
-  "description": "Gu\u00f0mundur is a Ph.D. student at an Icelandic university,\nwhere he studies history. He has a burning interest in duels\nand the ways of knights of past times. In the middle ages, and\nthe ages before them, battles between knights were common. His\nresearch revolves around these knights and, in particular, he\nis interested in writing about the most victorious knight.",
+  "description": "Guðmundur is a Ph.D. student at an Icelandic university,\nwhere he studies history. He has a burning interest in duels\nand the ways of knights of past times. In the middle ages, and\nthe ages before them, battles between knights were common. His\nresearch revolves around these knights and, in particular, he\nis interested in writing about the most victorious knight.",
   "samples": [
     {
       "input": "sample_input.txt",
@@ -28,6 +28,41 @@
     {
       "input": "input3.txt",
       "output": "output3.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input4.txt",
+      "output": "output4.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input5.txt",
+      "output": "output5.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input6.txt",
+      "output": "output6.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input7.txt",
+      "output": "output7.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input8.txt",
+      "output": "output8.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input9.txt",
+      "output": "output9.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input10.txt",
+      "output": "output10.txt",
       "visibility": "hidden"
     }
   ]

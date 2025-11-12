@@ -1,12 +1,12 @@
 {
   "number": 112,
-  "difficulty": "medium",
+  "difficulty": "hard",
   "title": "24 Game",
   "time_limit_ms": 1000,
   "memory_limit_kb": 1048576,
   "tags": [],
   "created_at": 1761734853,
-  "description": "In his unending goal to become the greatest programmer of\nall time, Gustav has decided to go to Singapore. Curiosity\nleads him into the game room, where some of his new friends are\nplaying cards. \"What game are you playing?\" he asks. His\nfriends go on to tell him about a seemingly ancient\nmathematical card game called twenty four. The goal is to\ncreate the number T ,\ntypically 24 , using only\nthe numbers on the C cards placed on the table, the four basic arithmetic operators\n(+,-,*,/) and parentheses. Gustav can also change the order of\nthe cards. Note that unary operators are not allowed (i.e., 1 \u00b7 -2 is invalid).\nCards with numbers on them take on that value. Ace represents\none, Jack represents 11 ,\nQueen represents 12 and\nKing represents 13 .",
+  "description": "In his unending goal to become the greatest programmer of\nall time, Gustav has decided to go to Singapore. Curiosity\nleads him into the game room, where some of his new friends are\nplaying cards. \"What game are you playing?\" he asks. His\nfriends go on to tell him about a seemingly ancient\nmathematical card game called twenty four. The goal is to\ncreate the number T ,\ntypically 24 , using only\nthe numbers on the C cards placed on the table, the four basic arithmetic operators\n(+,-,*,/) and parentheses. Gustav can also change the order of\nthe cards. Note that unary operators are not allowed (i.e., 1 · -2 is invalid).\nCards with numbers on them take on that value. Ace represents\none, Jack represents 11 ,\nQueen represents 12 and\nKing represents 13 .",
   "samples": [
     {
       "input": "sample_input.txt",
@@ -28,6 +28,41 @@
     {
       "input": "input3.txt",
       "output": "output3.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input4.txt",
+      "output": "output4.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input5.txt",
+      "output": "output5.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input6.txt",
+      "output": "output6.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input7.txt",
+      "output": "output7.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input8.txt",
+      "output": "output8.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input9.txt",
+      "output": "output9.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input10.txt",
+      "output": "output10.txt",
       "visibility": "hidden"
     }
   ]

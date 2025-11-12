@@ -1,12 +1,12 @@
 {
   "number": 34,
-  "difficulty": "fast",
+  "difficulty": "medium",
   "title": "Bar Shelf",
   "time_limit_ms": 2000,
   "memory_limit_kb": 1048576,
   "tags": [],
   "created_at": 1761734793,
-  "description": "A perfectly civilised arrangement of bottles. Detail from Dictionnaire encyclop\u00e9dique de l\u2019\u00e9picerie et des\nindustries annexes by Albert Seigneurie, 1904,\np.\u00a0117. Public domain.",
+  "description": "A perfectly civilised arrangement of bottles. Detail from Dictionnaire encyclopédique de l’épicerie et des\nindustries annexes by Albert Seigneurie, 1904,\np. 117. Public domain.",
   "samples": [
     {
       "input": "sample_input.txt",
@@ -28,6 +28,41 @@
     {
       "input": "input3.txt",
       "output": "output3.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input4.txt",
+      "output": "output4.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input5.txt",
+      "output": "output5.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input6.txt",
+      "output": "output6.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input7.txt",
+      "output": "output7.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input8.txt",
+      "output": "output8.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input9.txt",
+      "output": "output9.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input10.txt",
+      "output": "output10.txt",
       "visibility": "hidden"
     }
   ]

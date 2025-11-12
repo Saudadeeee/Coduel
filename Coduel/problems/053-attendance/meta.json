@@ -6,7 +6,7 @@
   "memory_limit_kb": 1048576,
   "tags": [],
   "created_at": 1761734808,
-  "description": "Taking attendance in your class is a tedious task. You call\nout the names of students one at a time in alphabetical order.\nIf the student is present, they respond by saying \u201c Present! \u201d before you call the next name.",
+  "description": "Taking attendance in your class is a tedious task. You call\nout the names of students one at a time in alphabetical order.\nIf the student is present, they respond by saying “ Present! ” before you call the next name.",
   "samples": [
     {
       "input": "sample_input.txt",
@@ -33,6 +33,36 @@
     {
       "input": "input4.txt",
       "output": "output4.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input5.txt",
+      "output": "output5.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input6.txt",
+      "output": "output6.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input7.txt",
+      "output": "output7.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input8.txt",
+      "output": "output8.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input9.txt",
+      "output": "output9.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input10.txt",
+      "output": "output10.txt",
       "visibility": "hidden"
     }
   ]

@@ -6,7 +6,7 @@
   "memory_limit_kb": 1048576,
   "tags": [],
   "created_at": 1761734813,
-  "description": "The decimal numeral system is composed of ten digits, which\nwe represent as \"0123456789\" (the digits in a system are\nwritten from lowest to highest). Imagine you have discovered an\nalien numeral system composed of some number of digits, which\nmay or may not be the same as those used in decimal. For\nexample, if the alien numeral system were represented as \"oF8\",\nthen the numbers one through ten would be (F, 8, Fo, FF, F8,\n8o, 8F, 88, Foo, FoF). We would like to be able to work with\nnumbers in arbitrary alien systems. More generally, we want to\nbe able to convert an arbitrary number that\u2019s written in one\nalien system into a second alien system.",
+  "description": "The decimal numeral system is composed of ten digits, which\nwe represent as \"0123456789\" (the digits in a system are\nwritten from lowest to highest). Imagine you have discovered an\nalien numeral system composed of some number of digits, which\nmay or may not be the same as those used in decimal. For\nexample, if the alien numeral system were represented as \"oF8\",\nthen the numbers one through ten would be (F, 8, Fo, FF, F8,\n8o, 8F, 88, Foo, FoF). We would like to be able to work with\nnumbers in arbitrary alien systems. More generally, we want to\nbe able to convert an arbitrary number that’s written in one\nalien system into a second alien system.",
   "samples": [
     {
       "input": "sample_input.txt",
@@ -19,6 +19,51 @@
       "input": "input1.txt",
       "output": "output1.txt",
       "visibility": "public"
+    },
+    {
+      "input": "input2.txt",
+      "output": "output2.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input3.txt",
+      "output": "output3.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input4.txt",
+      "output": "output4.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input5.txt",
+      "output": "output5.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input6.txt",
+      "output": "output6.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input7.txt",
+      "output": "output7.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input8.txt",
+      "output": "output8.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input9.txt",
+      "output": "output9.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input10.txt",
+      "output": "output10.txt",
+      "visibility": "hidden"
     }
   ]
 }

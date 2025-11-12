@@ -1,12 +1,12 @@
 {
   "number": 116,
-  "difficulty": "medium",
+  "difficulty": "hard",
   "title": "Architecture",
   "time_limit_ms": 1000,
   "memory_limit_kb": 1048576,
   "tags": [],
   "created_at": 1761734856,
-  "description": "Your brother has won an award at the recent Breakthroughs in\nArchitectural Problems Conference and has been given the once\nin a lifetime opportunity of redesigning the city center of his\nfavorite city Nijmegen. Since the most striking parts of a\ncity\u2019s layout are the skylines, your brother has started by\ndrawing ideas for how he wants the northern and eastern\nskylines of Nijmegen to look. However, some of his proposals\nlook rather outlandish, and you are starting to wonder whether\nhis designs are possible.",
+  "description": "Your brother has won an award at the recent Breakthroughs in\nArchitectural Problems Conference and has been given the once\nin a lifetime opportunity of redesigning the city center of his\nfavorite city Nijmegen. Since the most striking parts of a\ncity’s layout are the skylines, your brother has started by\ndrawing ideas for how he wants the northern and eastern\nskylines of Nijmegen to look. However, some of his proposals\nlook rather outlandish, and you are starting to wonder whether\nhis designs are possible.",
   "samples": [
     {
       "input": "sample_input.txt",
@@ -23,6 +23,46 @@
     {
       "input": "input2.txt",
       "output": "output2.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input3.txt",
+      "output": "output3.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input4.txt",
+      "output": "output4.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input5.txt",
+      "output": "output5.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input6.txt",
+      "output": "output6.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input7.txt",
+      "output": "output7.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input8.txt",
+      "output": "output8.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input9.txt",
+      "output": "output9.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input10.txt",
+      "output": "output10.txt",
       "visibility": "hidden"
     }
   ]

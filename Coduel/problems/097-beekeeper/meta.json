@@ -6,7 +6,7 @@
   "memory_limit_kb": 1048576,
   "tags": [],
   "created_at": 1761734842,
-  "description": "It\u2019s Bill the beekeeper again. In this problem, we learn\nthat didn\u2019t choose his career for the best reason. Bill chose\nto be a beekeeper because he really, really likes the look of\nthe double e\u2019s in the word \u201cbeekeeper\u201d. Your task is to help\nidentify other words Bill will really like.",
+  "description": "It’s Bill the beekeeper again. In this problem, we learn\nthat didn’t choose his career for the best reason. Bill chose\nto be a beekeeper because he really, really likes the look of\nthe double e’s in the word “beekeeper”. Your task is to help\nidentify other words Bill will really like.",
   "samples": [
     {
       "input": "sample_input.txt",
@@ -19,6 +19,51 @@
       "input": "input1.txt",
       "output": "output1.txt",
       "visibility": "public"
+    },
+    {
+      "input": "input2.txt",
+      "output": "output2.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input3.txt",
+      "output": "output3.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input4.txt",
+      "output": "output4.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input5.txt",
+      "output": "output5.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input6.txt",
+      "output": "output6.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input7.txt",
+      "output": "output7.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input8.txt",
+      "output": "output8.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input9.txt",
+      "output": "output9.txt",
+      "visibility": "hidden"
+    },
+    {
+      "input": "input10.txt",
+      "output": "output10.txt",
+      "visibility": "hidden"
     }
   ]
 }
