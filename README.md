@@ -716,20 +716,9 @@ Check all logs:
 docker-compose logs -f
 ```
 
-##  Roadmap
+##  Upcomming
 
-### Phase 1: Core Features 
-- [x] Docker-based judge system
-- [x] Multi-language support (C/C++/Python/Java/JS)
-- [x] Problem CRUD operations
-- [x] Solo training mode
-- [x] Multiplayer room system
-- [x] Real-time code spectating
-- [x] Performance-based judging
-- [x] Multi-round matches
-- [x] Winner modal with statistics
-
-### Phase 2: Enhanced Features 
+### Phase 1: Enhanced Features 
 - [ ] User authentication & profiles
 - [ ] Persistent leaderboard
 - [ ] Problem difficulty rating
@@ -738,7 +727,7 @@ docker-compose logs -f
 - [ ] Syntax highlighting in spectator
 - [ ] Match replay system
 
-### Phase 3: Advanced Features 
+### Phase 2: Advanced Features 
 - [ ] Tournament bracket system
 - [ ] Team battles (2v2)
 - [ ] Spectator-only role
@@ -748,7 +737,7 @@ docker-compose logs -f
 - [ ] Rating system (ELO)
 - [ ] Achievement badges
 
-### Phase 4: Scale & Polish 
+### Phase 3: Scale & Polish 
 - [ ] Kubernetes deployment
 - [ ] CDN for static assets
 - [ ] Database persistence (PostgreSQL)
