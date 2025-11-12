@@ -291,7 +291,7 @@ docker ps
    - Solve problems as they appear
    - Submit before opponent to gain advantage
 
-### Code Spectating (Anti-Cheat)
+### Code Spectating (Anti-Cheat) Up-Comming
 If enabled by host:
 - Click eye icon (👁️) in workspace
 - Watch opponent's code in real-time
@@ -864,5 +864,17 @@ Need help? Here are your options:
 **Built with ❤️ by competitive programmers, for competitive programmers**
 
 [ Star this repo](https://github.com/Saudadeeee/Coduel.git) | [ Report Bug](https://github.com/Saudadeeee/Coduel/issues) | [ Request Feature](https://github.com/Saudadeeee/Coduel.git)
+
+---
+
+### 💖 Support This Project
+
+If you find this project helpful, consider supporting its development!
+
+<a href="https://buymeacoffee.com/n4nkh" target="_blank">
+  <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" >
+</a>
+
+Your support helps keep this project maintained and growing. Thank you! 🙏
 
 </div>
