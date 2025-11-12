@@ -521,7 +521,7 @@
   </template>
 
   <script>
-    const api = "/api"; // Sử dụng relative path
+    const api = "/api"; 
 
     const problemListEl = document.getElementById("problem-list");
     const editForm = document.getElementById("edit-form");
@@ -615,13 +615,11 @@
     async function selectProblem(problemId) {
       selectedProblemId = problemId;
       
-      // Update UI
       document.querySelectorAll(".problem-item").forEach(item => {
         item.classList.remove("selected");
       });
       event.currentTarget.classList.add("selected");
 
-      // Load problem details
       try {
         const res = await fetch(`${api}/problem/${encodeURIComponent(problemId)}`);
         if (!res.ok) throw new Error(res.statusText);
@@ -641,7 +639,6 @@
         document.getElementById("memory-limit").value = data.memory_limit_kb || "";
         document.getElementById("tags").value = Array.isArray(data.tags) ? data.tags.join(", ") : "";
 
-        // Clear and populate tests
         testsWrap.innerHTML = "";
         if (data.tests && data.tests.length > 0) {
           data.tests.forEach(test => {
@@ -651,11 +648,9 @@
           addTest();
         }
 
-        // Show form
         editForm.classList.add("active");
         message.style.display = "none";
 
-        // Scroll to form
         editForm.scrollIntoView({ behavior: "smooth", block: "start" });
       } catch (err) {
         console.error(err);
@@ -756,7 +751,6 @@
 
         showMessage("success", `Successfully updated problem: ${data.problem_id}`);
 
-        // Reload problem list
         await loadProblems();
 
       } catch (err) {
@@ -795,7 +789,6 @@
 
         showMessage("success", `Deleted problem: ${data.problem_id}`);
 
-        // Reset form and reload
         editForm.classList.remove("active");
         selectedProblemId = null;
         await loadProblems();
@@ -817,7 +810,6 @@
         .replace(/'/g, "&#39;");
     }
 
-    // Load problems on page load
     loadProblems();
   </script>
 </body>

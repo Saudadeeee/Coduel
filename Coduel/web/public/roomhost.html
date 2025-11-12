@@ -229,7 +229,6 @@
         0 24px 48px rgba(0,0,0,0.75);
     }
 
-    /* ROOM SUMMARY ("Room Rules Preview") */
     .summary-panel {
       background-color: rgba(17,21,28,0.3);
       border: 1px solid var(--c-border);
@@ -261,12 +260,11 @@
       text-overflow: ellipsis;
     }
 
-    /* RIGHT COLUMN: players list */
     .right-col {
       display: flex;
       flex-direction: column;
       gap: 1rem;
-      min-width: 0; /* fix overflow in grid child */
+      min-width: 0; 
     }
 
     .players-panel {
@@ -369,13 +367,11 @@
 </head>
 <body>
 
-  <!-- Loading indicator -->
   <div id="loadingScreen" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: white; font-size: 18px;">
     <div style="margin-bottom: 10px;">⏳ Loading...</div>
     <div style="font-size: 14px; color: #9aa4ba;">If this persists, check console (F12)</div>
   </div>
 
-  <!-- NICKNAME MODAL -->
   <div id="nicknameModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; display: none; align-items: center; justify-content: center;">
     <div style="background: var(--c-bg-top); border: 2px solid var(--c-border); border-radius: 16px; padding: 40px; max-width: 400px; width: 90%; text-align: center;">
       <h2 style="margin-bottom: 10px; color: var(--c-text-main);">Enter Your Nickname</h2>
@@ -398,7 +394,6 @@
     <div class="roomcode-hint" id="copyStatus" style="visibility:hidden;">copied!</div>
   </section>
 
-  <!-- JOIN ROOM INPUT (Hidden by default, shown for joining) -->
   <section class="join-room-section" id="joinRoomSection" style="display:none;">
     <div class="settings-panel" style="max-width: 400px; margin: 0 auto;">
       <div class="panel-title">
@@ -557,13 +552,11 @@
   <script src="/socket-client.js"></script>
 
   <script>
-    // Wait for all scripts to load
     window.addEventListener('DOMContentLoaded', initializePage);
 
     function initializePage() {
       console.log('=== Page Initialization Started ===');
       
-      // Check if dependencies loaded
       if (typeof io === 'undefined') {
         console.error('Socket.IO not loaded!');
         document.getElementById('loadingScreen').innerHTML = 
@@ -583,7 +576,6 @@
       console.log('✓ Socket.IO loaded');
       console.log('✓ SocketClient loaded');
 
-    // COPY ROOM CODE WHEN CLICK
     const roomCodeDisplay = document.getElementById('roomCodeDisplay');
     const roomCodeText = document.getElementById('roomCodeText');
     const copyStatus = document.getElementById('copyStatus');
@@ -606,7 +598,6 @@
       }
     });
 
-    // SYNC SUMMARY PANEL WHEN SETTINGS CHANGE
     const difficultySelect = document.getElementById('difficultySelect');
     const languageSelect   = document.getElementById('languageSelect');
     const timeLimitSelect  = document.getElementById('timeLimitSelect');
@@ -630,14 +621,11 @@
     [difficultySelect, languageSelect, timeLimitSelect, roundSelect, spectatorSelect]
       .forEach(sel => sel.addEventListener('change', refreshSummary));
 
-    // DON'T call refreshSummary() here - will be called after UI shows
-
-    // ===== SOCKET.IO INTEGRATION =====
     const socketClient = SocketClient.getInstance();
     let currentRoomCode = null;
-    let userRole = null; // 'host' or 'player'
+    let userRole = null; 
     let isReady = false;
-    let username = null; // User's nickname
+    let username = null; 
 
     const lobbyLayout = document.getElementById('lobbyLayout');
     const joinRoomSection = document.getElementById('joinRoomSection');
@@ -650,37 +638,31 @@
     const nicknameConfirmBtn = document.getElementById('nicknameConfirmBtn');
     const nicknameError = document.getElementById('nicknameError');
 
-    // Generate random 6-digit room code
     function generateRoomCode() {
       return Math.floor(100000 + Math.random() * 900000).toString();
     }
 
-    // Check if page opened as host or join mode
     function getPageMode() {
       const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get('mode'); // 'host' or 'join'
+      return urlParams.get('mode'); 
     }
 
-    // Get room code from URL (when joining)
     function getRoomCodeFromURL() {
       const urlParams = new URLSearchParams(window.location.search);
       return urlParams.get('code');
     }
 
-    // Show nickname modal
     function showNicknameModal(callback) {
       document.getElementById('loadingScreen').style.display = 'none';
       nicknameModal.style.display = 'flex';
       nicknameInput.focus();
       
-      // Handle enter key
       nicknameInput.onkeypress = (e) => {
         if (e.key === 'Enter') {
           nicknameConfirmBtn.click();
         }
       };
       
-      // Handle confirm button
       nicknameConfirmBtn.onclick = () => {
         const nick = nicknameInput.value.trim();
         if (nick.length < 2 || nick.length > 20) {
@@ -693,24 +675,17 @@
       };
     }
 
-    // Initialize as HOST
     async function initializeAsHost() {
-      // Show nickname modal first
+
       showNicknameModal(async () => {
         userRole = 'host';
         currentRoomCode = generateRoomCode();
         roomCodeText.textContent = currentRoomCode;
-
-        // Show UI
         document.getElementById('roomcodeWrapper').style.display = 'flex';
         lobbyLayout.style.display = 'grid';
         joinRoomSection.style.display = 'none';
-
-        // Show START button for host
         startBtn.style.display = 'block';
         readyBtn.style.display = 'none';
-
-        // Enable all settings for host
         difficultySelect.disabled = false;
         languageSelect.disabled = false;
         timeLimitSelect.disabled = false;
@@ -719,10 +694,8 @@
 
         console.log('Room created as HOST:', currentRoomCode, 'Username:', username);
 
-        // Initialize summary
         refreshSummary();
 
-        // Connect to socket
         try {
           await socketClient.connect();
           await socketClient.joinRoom(currentRoomCode, username, 'host');
@@ -734,51 +707,38 @@
       });
     }
 
-    // Initialize as PLAYER (show join input)
     function initializeAsJoinMode() {
-      userRole = null; // Not determined yet
+      userRole = null; 
       
-      // Hide loading, show UI
       document.getElementById('loadingScreen').style.display = 'none';
       document.getElementById('roomcodeWrapper').style.display = 'flex';
       
-      // Check if room code already provided in URL
       const prefilledCode = getRoomCodeFromURL();
       if (prefilledCode) {
         joinRoomCodeInput.value = prefilledCode;
       }
       
-      // Show join section, hide lobby
       joinRoomSection.style.display = 'block';
       lobbyLayout.style.display = 'none';
       
       console.log('Join mode - waiting for room code');
     }
 
-    // Join room as PLAYER
     async function joinRoomAsPlayer(roomCode) {
-      // Show nickname modal first
+ 
       showNicknameModal(async () => {
         userRole = 'player';
         currentRoomCode = roomCode;
         roomCodeText.textContent = currentRoomCode;
-
-        // Show UI
         document.getElementById('roomcodeWrapper').style.display = 'flex';
         lobbyLayout.style.display = 'grid';
         joinRoomSection.style.display = 'none';
-
-        // Show READY button for player
         startBtn.style.display = 'none';
         readyBtn.style.display = 'block';
-        
-        // Initialize ready status as false for new player
         isReady = false;
         readyBtn.textContent = 'READY';
         readyBtn.style.background = '#4a9eff';
         readyBtn.style.borderColor = '#4a9eff';
-
-        // Disable all settings for player (read-only)
         difficultySelect.disabled = true;
         languageSelect.disabled = true;
         timeLimitSelect.disabled = true;
@@ -786,11 +746,8 @@
         spectatorSelect.disabled = true;
 
         console.log('Joined room as PLAYER:', currentRoomCode, 'Username:', username);
-
-        // Initialize summary
         refreshSummary();
 
-        // Connect to socket
         try {
           await socketClient.connect();
           await socketClient.joinRoom(currentRoomCode, username, 'player');
@@ -802,7 +759,6 @@
       });
     }
 
-    // Sync settings to server when changed (HOST only)
     function syncSettings() {
       if (!currentRoomCode || userRole !== 'host') return;
 
@@ -818,19 +774,16 @@
       socketClient.updateSettings(settings);
     }
 
-    // Listen for setting changes (HOST only)
     [difficultySelect, languageSelect, timeLimitSelect, roundSelect, spectatorSelect]
       .forEach(sel => sel.addEventListener('change', () => {
         refreshSummary();
         syncSettings();
       }));
 
-    // Listen for settings updates from server (PLAYER receives)
     socketClient.on('settings-updated', (data) => {
       console.log('Settings updated from server:', data);
       
       if (userRole === 'player') {
-        // Update UI with new settings
         difficultySelect.value = data.settings.difficulty;
         languageSelect.value = data.settings.language;
         timeLimitSelect.value = data.settings.timeLimit;
@@ -840,7 +793,6 @@
       }
     });
 
-    // Listen for room-joined confirmation
     socketClient.on('room-joined', (data) => {
       console.log('Room joined confirmed:', data);
       if (data.roomState && data.roomState.players) {
@@ -848,7 +800,6 @@
       }
     });
 
-    // Listen for players joining
     socketClient.on('player-joined', (data) => {
       console.log('Player joined:', data);
       updatePlayerList(data.players);
@@ -859,20 +810,17 @@
       updatePlayerList(data.players);
     });
 
-    // Listen for player ready status updates
     socketClient.on('player-ready-update', (data) => {
       console.log('Player ready status updated:', data);
       updatePlayerList(data.players);
     });
 
-    // Listen for room state updates
     socketClient.on('room-state', (data) => {
       console.log('Room state received:', data);
       if (data.players) {
         updatePlayerList(data.players);
       }
       if (data.settings && userRole === 'player') {
-        // Update settings if player
         difficultySelect.value = data.settings.difficulty;
         languageSelect.value = data.settings.language;
         timeLimitSelect.value = data.settings.timeLimit;
@@ -882,42 +830,34 @@
       }
     });
 
-    // Listen for match start (when host clicks START)
-    // Only redirect for non-host players (host will handle redirect separately)
+    
     socketClient.on('match-started', (data) => {
       console.log('Match started!', data);
-      // Redirect players (not host) to workspace
       if (currentRoomCode && userRole !== 'host') {
         window.location.href = `/workspace.html?room=${currentRoomCode}&username=${encodeURIComponent(username)}&role=${userRole}`;
       }
     });
 
-    // Function to update player list dynamically
     function updatePlayerList(players) {
       const tbody = document.getElementById('playersTbody');
       const playerCount = document.getElementById('playerCount');
       
       if (!tbody || !players) return;
 
-      // Update player count (current / max)
-      const maxPlayers = 8; // Can be made configurable
+      const maxPlayers = 8; 
       if (playerCount) {
         playerCount.textContent = `${players.length} / ${maxPlayers}`;
       }
 
-      // Clear and rebuild table
       tbody.innerHTML = '';
-
-      // Check if all players are ready
       let allPlayersReady = true;
       players.forEach(player => {
-        // Host is always considered ready, but other players need to be ready
+       
         if (player.role !== 'host' && !player.ready) {
           allPlayersReady = false;
         }
       });
 
-      // Update START button state for host
       if (userRole === 'host' && startBtn) {
         if (allPlayersReady && players.length > 0) {
           startBtn.disabled = false;
@@ -935,7 +875,6 @@
       players.forEach(player => {
         const row = document.createElement('tr');
         
-        // Player name column - show "you" for current user
         const nameCell = document.createElement('td');
         const isCurrentUser = player.username === username;
         nameCell.textContent = isCurrentUser ? 'you' : (player.username || 'Player');
@@ -964,7 +903,6 @@
         tbody.appendChild(row);
       });
 
-      // Update waiting text
       const waitingText = document.getElementById('waitingText');
       if (waitingText) {
         if (userRole === 'host') {
@@ -977,13 +915,11 @@
             waitingText.textContent = 'waiting for players to join...';
           }
         } else {
-          // Player view
           waitingText.textContent = 'waiting for host to start...';
         }
       }
     }
 
-    // JOIN ROOM button handler
     joinRoomBtn.addEventListener('click', async () => {
       const roomCode = joinRoomCodeInput.value.trim();
       
@@ -1000,7 +936,6 @@
       }
     });
 
-    // READY button handler (PLAYER only)
     readyBtn.addEventListener('click', () => {
       isReady = !isReady;
       
@@ -1014,14 +949,12 @@
         readyBtn.style.borderColor = '#4a9eff';
       }
 
-      // Send ready status to server
       if (currentRoomCode && username) {
         socketClient.sendReadyStatus(isReady);
         console.log('Ready status sent:', isReady);
       }
     });
 
-    // START button handler (HOST only)
     startBtn.addEventListener('click', () => {
       if (startBtn.disabled) {
         alert('Cannot start match: Not all players are ready yet!');
@@ -1031,26 +964,20 @@
       if (currentRoomCode && userRole === 'host') {
         console.log('Host starting match for room:', currentRoomCode);
         
-        // Listen for match-started event before redirecting
         socketClient.on('match-started', (data) => {
           console.log('Match started! Redirecting to workspace...');
-          // Wait a bit to ensure server has saved the state
           setTimeout(() => {
             window.location.href = `/workspace.html?room=${currentRoomCode}&username=${encodeURIComponent(username)}&role=${userRole}`;
           }, 100);
         });
-        
-        // Emit start-match event
         socketClient.startMatch();
       }
     });
 
-    // OUT ROOM button handler (ALL users)
     const outRoomBtn = document.getElementById('outRoomBtn');
     outRoomBtn.addEventListener('click', () => {
       const confirmLeave = confirm('Are you sure you want to leave this room?');
       if (confirmLeave) {
-        // Disconnect socket and return to main menu
         if (socketClient) {
           socketClient.disconnect();
         }
@@ -1058,14 +985,12 @@
       }
     });
 
-    // Initialize on page load
     const pageMode = getPageMode();
     
     try {
       if (pageMode === 'join') {
         initializeAsJoinMode();
       } else {
-        // Default to host mode
         initializeAsHost();
       }
     } catch (error) {
@@ -1076,7 +1001,7 @@
         '<div style="margin-top: 20px;"><a href="/mainmenu.html" style="color: #4a9eff;">← Back to Main Menu</a></div>';
     }
 
-    } // End of initializePage function
+    } 
 
     console.log('=== Page Script Loaded ===');
   </script>
