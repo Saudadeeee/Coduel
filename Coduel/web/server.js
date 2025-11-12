@@ -67,15 +67,14 @@ app.post("/api/compare-submissions", jsonParser, async (req, res) => {
   }
 });
 
-// Reverse proxy để chuyển /api/* sang backend API ở port 8000
 const API_TARGET = process.env.API_URL || "http://api:8000";
 app.use('/api', createProxyMiddleware({
   target: API_TARGET,
   changeOrigin: true,
   pathRewrite: {
-    '^/api': '', // Xóa /api prefix khi gửi tới backend
+    '^/api': '',
   },
-  timeout: 300000, // 5 phút timeout cho long-running submissions
+  timeout: 300000,
   proxyTimeout: 300000,
   onProxyReq: (proxyReq, req, res) => {
     console.log(`[Proxy] ${req.method} ${req.path} -> ${API_TARGET}${req.path.replace('/api', '')}`);
@@ -309,7 +308,6 @@ function computeStandings(scores) {
 
 const rooms = new Map();
 
-// Helper function to check if all players have submitted
 function checkAllPlayersSubmitted(roomCode) {
   const roomState = rooms.get(roomCode);
   if (!roomState) return false;
@@ -590,27 +588,23 @@ io.on("connection", (socket) => {
       resetMatchState(roomState);
       roomState.submissions = {};
       
-      // Select a random problem based on difficulty
       try {
         const apiUrl = process.env.API_URL || "http://api:8000";
         const response = await fetch(`${apiUrl}/problems`);
         const data = await response.json();
         const allProblems = data.problems || [];
         
-        // Filter by difficulty
         const difficulty = roomState.settings.difficulty;
         console.log(`Filtering problems: total=${allProblems.length}, difficulty=${difficulty}`);
         const filteredProblems = allProblems.filter(p => p.difficulty === difficulty);
         console.log(`Filtered problems: ${filteredProblems.length} problems with difficulty ${difficulty}`);
         const problemsToChoose = filteredProblems.length > 0 ? filteredProblems : allProblems;
         
-        // Select random problem
         const randomIndex = Math.floor(Math.random() * problemsToChoose.length);
         const selectedProblem = problemsToChoose[randomIndex];
         
         console.log(`Selected problem ${selectedProblem.problem_id} (difficulty: ${selectedProblem.difficulty}) for room ${roomCode}`);
         
-        // Add problem_id to settings
         roomState.settings.problemId = selectedProblem.problem_id;
         
         io.to(roomCode).emit("match-started", {
@@ -620,7 +614,7 @@ io.on("connection", (socket) => {
         console.log(`Match started in room ${roomCode} with problem ${selectedProblem.problem_id}`);
       } catch (error) {
         console.error('Error selecting problem:', error);
-        // Fallback: start match without problem selection
+
         io.to(roomCode).emit("match-started", {
           settings: roomState.settings
         });
@@ -710,7 +704,6 @@ io.on("connection", (socket) => {
         roomState.players.splice(playerIndex, 1);
         delete roomState.playerCodes[socket.id];
         
-        // Broadcast updated player list
         io.to(roomCode).emit("player-left", { 
           username: player.username, 
           role: player.role,
@@ -730,14 +723,13 @@ io.on("connection", (socket) => {
       }
 
       if (roomState.players.length === 0 && roomState.spectators.length === 0) {
-        // Don't delete room immediately if match has started (has problemId)
-        // This allows players to reconnect after page navigation
+
         if (!roomState.settings || !roomState.settings.problemId) {
           rooms.delete(roomCode);
           console.log(`Room ${roomCode} deleted (empty, no match started)`);
         } else {
           console.log(`Room ${roomCode} is empty but match started - keeping room for reconnection`);
-          // Set a timeout to delete room after 30 seconds if still empty
+        
           setTimeout(() => {
             const currentRoom = rooms.get(roomCode);
             if (currentRoom && currentRoom.players.length === 0 && currentRoom.spectators.length === 0) {
