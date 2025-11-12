@@ -77,7 +77,7 @@ def _resolve_host_path(container_path: str, default_root: str, configured_host_r
         if os.path.exists(host_root):
             suffix = container_path[len(default_root):]
             return host_root + suffix
-   for prefix, host_prefix in _MOUNT_CACHE.items():
+    for prefix, host_prefix in _MOUNT_CACHE.items():
         if container_path.startswith(prefix):
             suffix = container_path[len(prefix):]
             return host_prefix + suffix
@@ -387,7 +387,7 @@ def run_submission(job):
         r.hset(f"sub:{sub_id}", "status", "error")
         r.set(f"run_result:{sub_id}", json.dumps({"error": str(e)}), ex=3600)
     finally:
-       try:
+        try:
             shutil.rmtree(tmpdir, ignore_errors=True)
         except:
             pass
