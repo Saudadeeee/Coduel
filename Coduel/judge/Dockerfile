@@ -17,4 +17,6 @@ COPY --chown=runner:runner compile_run.sh /usr/local/bin/compile_run.sh
 RUN chmod +x /usr/local/bin/compile_run.sh
 COPY --chown=runner:runner run_with_metrics.py /usr/local/bin/run_with_metrics.py
 RUN chmod +x /usr/local/bin/run_with_metrics.py
+COPY --chown=runner:runner compare_output.py /usr/local/bin/compare_output.py
+RUN chmod +x /usr/local/bin/compare_output.py
 
