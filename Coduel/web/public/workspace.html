@@ -539,6 +539,12 @@
       color:var(--text-main);
     }
 
+    .results-panel strong {
+      display: block;
+      margin-bottom: 8px;
+      margin-top: 4px;
+    }
+
     .log-block {
       background:var(--code-bg);
       border-radius:8px;
@@ -1112,8 +1118,6 @@
           <label for="lang-select">Language:</label>
           <div class="language-picker">
             <select id="lang-select"></select>
-            <input id="lang-input" list="language-options" placeholder="Search language..." />
-            <datalist id="language-options"></datalist>
           </div>
 
         </div>
@@ -1324,11 +1328,11 @@ const LANGUAGE_ALIASES = {
 };
 
 const LANGUAGE_OPTIONS = [
-  { code: "cpp", label: "C++ (C++20)", sample: `// C++20 sample\n#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios::sync_with_stdio(false);\n    cin.tie(nullptr);\n    long long a,b;\n    if(!(cin>>a>>b)) return 0;\n    cout << (a+b) << "\\n";\n    return 0;\n}` },
-  { code: "c", label: "C (C17)", sample: `// C17 sample\n#include <stdio.h>\nint main(void){\n    long long a,b;\n    if(scanf("%lld %lld", &a, &b)!=2) return 0;\n    printf("%lld\\n", a+b);\n    return 0;\n}` },
-  { code: "py", label: "Python 3", sample: `# Python 3 sample\nimport sys\nline = sys.stdin.readline().strip()\nif line:\n    a, b = map(int, line.split())\n    print(a + b)` },
-  { code: "java", label: "Java 17", sample: `import java.io.*;\nimport java.util.*;\npublic class Main {\n    public static void main(String[] args) throws Exception {\n        FastScanner fs = new FastScanner(System.in);\n        long a = fs.nextLong();\n        long b = fs.nextLong();\n        System.out.println(a + b);\n    }\n    static class FastScanner {\n        private final InputStream in;\n        private final byte[] buffer = new byte[1 << 16];\n        private int ptr = 0, len = 0;\n        FastScanner(InputStream is) { in = is; }\n        private int read() throws IOException {\n            if (ptr >= len) {\n                len = in.read(buffer);\n                ptr = 0;\n                if (len <= 0) return -1;\n            }\n            return buffer[ptr++];\n        }\n        long nextLong() throws IOException {\n            int c; do { c = read(); } while (c <= ' ');\n            long sign = 1;\n            if (c == '-') { sign = -1; c = read(); }\n            long val = c - '0';\n            while ((c = read()) > ' ') val = val * 10 + c - '0';\n            return val * sign;\n        }\n    }\n}` },
-  { code: "js", label: "JavaScript (Node)", sample: `// JavaScript (Node) sample\nconst fs = require('fs');\nconst input = fs.readFileSync(0,'utf8').trim().split(/\\s+/);\nif (input.length >= 2) {\n  const a = BigInt(input[0]);\n  const b = BigInt(input[1]);\n  console.log((a + b).toString());\n}` }
+  { code: "cpp", label: "C++", sample: `// C++20 sample\n#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios::sync_with_stdio(false);\n    cin.tie(nullptr);\n    long long a,b;\n    if(!(cin>>a>>b)) return 0;\n    cout << (a+b) << "\\n";\n    return 0;\n}` },
+  { code: "c", label: "C", sample: `// C17 sample\n#include <stdio.h>\nint main(void){\n    long long a,b;\n    if(scanf("%lld %lld", &a, &b)!=2) return 0;\n    printf("%lld\\n", a+b);\n    return 0;\n}` },
+  { code: "py", label: "Python", sample: `# Python 3 sample\nimport sys\nline = sys.stdin.readline().strip()\nif line:\n    a, b = map(int, line.split())\n    print(a + b)` },
+  { code: "java", label: "Java", sample: `import java.io.*;\nimport java.util.*;\npublic class Main {\n    public static void main(String[] args) throws Exception {\n        FastScanner fs = new FastScanner(System.in);\n        long a = fs.nextLong();\n        long b = fs.nextLong();\n        System.out.println(a + b);\n    }\n    static class FastScanner {\n        private final InputStream in;\n        private final byte[] buffer = new byte[1 << 16];\n        private int ptr = 0, len = 0;\n        FastScanner(InputStream is) { in = is; }\n        private int read() throws IOException {\n            if (ptr >= len) {\n                len = in.read(buffer);\n                ptr = 0;\n                if (len <= 0) return -1;\n            }\n            return buffer[ptr++];\n        }\n        long nextLong() throws IOException {\n            int c; do { c = read(); } while (c <= ' ');\n            long sign = 1;\n            if (c == '-') { sign = -1; c = read(); }\n            long val = c - '0';\n            while ((c = read()) > ' ') val = val * 10 + c - '0';\n            return val * sign;\n        }\n    }\n}` },
+  { code: "js", label: "JavaScript", sample: `// JavaScript (Node) sample\nconst fs = require('fs');\nconst input = fs.readFileSync(0,'utf8').trim().split(/\\s+/);\nif (input.length >= 2) {\n  const a = BigInt(input[0]);\n  const b = BigInt(input[1]);\n  console.log((a + b).toString());\n}` }
 ];
 
 let problemsCache = [];
