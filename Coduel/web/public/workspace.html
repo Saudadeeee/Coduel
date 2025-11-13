@@ -108,7 +108,6 @@
       font-family:"JetBrains Mono","Fira Code","SFMono-Regular",monospace !important;
       font-size:14px !important;
       background:#282a36;
-      /* color removed - let theme handle syntax highlighting */
       border-radius:8px;
     }
 
@@ -206,7 +205,6 @@
       color:var(--text-main);
     }
 
-    /* Divider ngang giữa 2 cột */
     .divider {
       width:8px;
       cursor:col-resize;
@@ -224,7 +222,6 @@
       bottom:0;
     }
 
-    /* ====== TRONG CỘT TRÁI: CHỈ ĐỀ BÀI ====== */
     .statement-panel {
       flex:1;
       min-height:0;
@@ -962,7 +959,6 @@
       border-color: var(--text-main);
     }
 
-    /* Responsive for small screens */
     @media (max-width: 768px) {
       .winner-content {
         width: 95%;
@@ -1203,7 +1199,6 @@
     <div class="winner-stats">
       <h3>Performance Comparison</h3>
       <div class="winner-players" id="winnerPlayers">
-        <!-- Player stats will be populated here -->
       </div>
     </div>
 
@@ -1240,7 +1235,6 @@
 </header>
 
 <div class="wrap" id="split">
-  <!-- CỘT TRÁI: ĐỀ BÀI -->
   <div class="pane-left" id="left-pane">
     <section class="statement-panel" id="statement-panel">
       <div class="statement-header">
@@ -1262,13 +1256,10 @@
     </section>
   </div>
 
-  <!-- DIVIDER NGANG -->
   <div class="divider" id="divider"></div>
 
-  <!-- CỘT PHẢI: TRÊN = CODE, DƯỚI = KẾT QUẢ -->
   <div class="pane-right" id="right-pane">
     <div class="right-vertical" id="vertical">
-      <!-- EDITOR TRÊN -->
       <section class="editor-panel" id="editor-panel">
         <div class="code-controls">
           <label for="pid">Problem:</label>
@@ -1291,10 +1282,8 @@ int main(){
         </textarea>
       </section>
 
-      <!-- DIVIDER DỌC -->
       <div class="vertical-divider" id="vertical-divider"></div>
 
-      <!-- KẾT QUẢ DƯỚI -->
       <section class="results-panel" id="results-panel">
         <div class="status-line">Status: <span id="status">idle</span></div>
 
@@ -1324,7 +1313,6 @@ int main(){
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-<!-- Socket.IO Client -->
 <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 <script src="/socket-client.js"></script>
 
@@ -1388,7 +1376,11 @@ if (window.CodeMirror && codeArea) {
     theme: "dracula",
     lineNumbers: true,
     matchBrackets: true,
-    autoCloseBrackets: "()[]{}''\"\"``",
+    autoCloseBrackets: {
+      pairs: "()[]{}''\"\"``",
+      explode: "[]{}",
+      override: true
+    },
     lineWrapping: false,
     indentUnit: 4,
     indentWithTabs: false,
@@ -1408,6 +1400,66 @@ if (window.CodeMirror && codeArea) {
           const cursor = cm.getCursor();
           cm.execCommand("indentLess");
           cm.setCursor({ line: cursor.line, ch: Math.max(cursor.ch - 4, 0) });
+        }
+      },
+      "'": (cm) => {
+        const cursor = cm.getCursor();
+        const line = cm.getLine(cursor.line);
+        const nextChar = line.charAt(cursor.ch);
+        if (nextChar === "'") {
+          cm.setCursor({ line: cursor.line, ch: cursor.ch + 1 });
+        } else {
+          return CodeMirror.Pass;
+        }
+      },
+      '"': (cm) => {
+        const cursor = cm.getCursor();
+        const line = cm.getLine(cursor.line);
+        const nextChar = line.charAt(cursor.ch);
+        if (nextChar === '"') {
+          cm.setCursor({ line: cursor.line, ch: cursor.ch + 1 });
+        } else {
+          return CodeMirror.Pass;
+        }
+      },
+      ")": (cm) => {
+        const cursor = cm.getCursor();
+        const line = cm.getLine(cursor.line);
+        const nextChar = line.charAt(cursor.ch);
+        if (nextChar === ")") {
+          cm.setCursor({ line: cursor.line, ch: cursor.ch + 1 });
+        } else {
+          return CodeMirror.Pass;
+        }
+      },
+      "]": (cm) => {
+        const cursor = cm.getCursor();
+        const line = cm.getLine(cursor.line);
+        const nextChar = line.charAt(cursor.ch);
+        if (nextChar === "]") {
+          cm.setCursor({ line: cursor.line, ch: cursor.ch + 1 });
+        } else {
+          return CodeMirror.Pass;
+        }
+      },
+      "}": (cm) => {
+        const cursor = cm.getCursor();
+        const line = cm.getLine(cursor.line);
+        const nextChar = line.charAt(cursor.ch);
+        if (nextChar === "}") {
+          cm.setCursor({ line: cursor.line, ch: cursor.ch + 1 });
+        } else {
+          return CodeMirror.Pass;
+        }
+      },
+      "`": (cm) => {
+        const cursor = cm.getCursor();
+        const line = cm.getLine(cursor.line);
+        const nextChar = line.charAt(cursor.ch);
+        if (nextChar === "`") {
+          cm.setCursor({ line: cursor.line, ch: cursor.ch + 1 });
+        } else {
+          return CodeMirror.Pass;
         }
       }
     }
@@ -1469,7 +1521,6 @@ function applyEditorMode(langCode) {
   const mode = editorModeMap[langCode] || editorModeMap.cpp;
   console.log("Applying editor mode:", langCode, "=>", mode);
   codeEditor.setOption("mode", mode);
-  // Force refresh to apply highlighting
   setTimeout(() => {
     codeEditor.refresh();
     console.log("Editor refreshed with mode:", mode);
@@ -1576,13 +1627,11 @@ function updateStatusFromMeta(metaStatus) {
 
 function populateLanguageOptions() {
   languageMap.clear();
-  // langOptionsEl removed - using langSelect only
   if (langSelect) {
     langSelect.innerHTML = "";
   }
   LANGUAGE_OPTIONS.forEach(({ code, label, sample }) => {
     languageMap.set(code, { code, label, sample });
-    // Removed datalist option creation - using select dropdown only
     if (langSelect) {
       const selectOption = document.createElement("option");
       selectOption.value = code;
@@ -1614,7 +1663,6 @@ function setLanguage(code, { forceSample = false } = {}) {
   if (langSelect && langSelect.value !== normalized) {
     langSelect.value = normalized;
   }
-  // langInput.value = normalized; // Removed - using langSelect only
   if (!isOnlineMode) {
     const url = new URL(window.location.href);
     if (normalized === DEFAULT_LANGUAGE) {
@@ -1732,7 +1780,6 @@ async function loadStatement(problemId) {
   }
 }
 
-/* RESIZE NGANG: cột trái / cột phải */
 let isDragging = false;
 divider.addEventListener("mousedown", () => {
   isDragging = true;
@@ -1753,7 +1800,6 @@ window.addEventListener("mouseup", () => {
   }
 });
 
-/* RESIZE DỌC: editor trên / results dưới (chỉ trong cột phải) */
 let isVerticalDragging = false;
 verticalDivider.addEventListener("mousedown", () => {
   isVerticalDragging = true;
