@@ -88,7 +88,11 @@
     .menu-btn {
       appearance: none;
       background-color: var(--c-btn-bg);
-      border: 2px solid var(--c-btn-bg);
+      border: 3px solid transparent;
+      border-top-color: rgba(255, 255, 255, 0.3);
+      border-left-color: rgba(255, 255, 255, 0.2);
+      border-right-color: rgba(0, 0, 0, 0.4);
+      border-bottom-color: rgba(0, 0, 0, 0.5);
       color: var(--c-text-main);
       font-size: 1rem;
       font-weight: 600;
@@ -99,19 +103,37 @@
       cursor: pointer;
       box-shadow:
         0 20px 40px rgba(0,0,0,0.6),
-        0 2px 4px rgba(0,0,0,0.8);
+        0 2px 4px rgba(0,0,0,0.8),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        inset 0 -2px 4px rgba(0, 0, 0, 0.3);
       transition: all 0.15s ease;
     }
 
     .menu-btn:hover,
     .menu-btn:focus {
       background-color: var(--c-btn-bg-hover);
-      border-color: var(--c-btn-bg-hover);
+      border-top-color: rgba(255, 255, 255, 0.4);
+      border-left-color: rgba(255, 255, 255, 0.3);
       transform: translateY(-2px) scale(1.02);
       box-shadow:
         0 30px 60px rgba(0,0,0,0.7),
-        0 4px 8px rgba(0,0,0,0.9);
+        0 4px 8px rgba(0,0,0,0.9),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15),
+        inset 0 -2px 4px rgba(0, 0, 0, 0.2);
       outline: none;
+    }
+
+    .menu-btn:active {
+      transform: translateY(1px) scale(0.98);
+      border-top-color: rgba(0, 0, 0, 0.4);
+      border-left-color: rgba(0, 0, 0, 0.3);
+      border-right-color: rgba(255, 255, 255, 0.2);
+      border-bottom-color: rgba(255, 255, 255, 0.15);
+      box-shadow:
+        0 10px 20px rgba(0,0,0,0.5),
+        0 1px 2px rgba(0,0,0,0.9),
+        inset 0 2px 4px rgba(0, 0, 0, 0.5),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.05);
     }
 
     .join-extra {
@@ -175,6 +197,27 @@
       font-weight: 500;
       color: var(--c-text-main);
     }
+
+    /* Buy Me a Coffee Button */
+    .coffee-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1000;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .coffee-btn:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 8px 24px rgba(255, 221, 0, 0.3);
+    }
+
+    .coffee-btn img {
+      height: 50px;
+      width: auto;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
+    }
   </style>
 </head>
 <body>
@@ -216,6 +259,11 @@
       <span class="version-pill">v0.1 By N4nkh</span>
     </footer>
   </main>
+
+  <!-- Buy Me a Coffee Button -->
+  <a href="https://buymeacoffee.com/n4nkh" target="_blank" class="coffee-btn" title="Support this project">
+    <img src="https://cdn.buymeacoffee.com/buttons/v2/default-white.png" alt="Buy Me A Coffee">
+  </a>
 
   <script>
     const roomInput = document.getElementById('room-code');
