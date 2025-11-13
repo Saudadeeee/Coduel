@@ -326,6 +326,37 @@ def run_submission(job):
             if passed:
                 passed_count += 1
             metric = metrics_map.get(idx)
+            
+            # Read input, output, expected output for each test
+            input_file = os.path.join(tests_dir, f"input{idx}.txt")
+            user_output_file = os.path.join(tmpdir, f"user_out_{idx}.txt")
+            expected_file = os.path.join(tests_dir, f"output{idx}.txt")
+            
+            input_content = None
+            user_output = None
+            expected_output = None
+            
+            if os.path.exists(input_file):
+                try:
+                    with open(input_file, 'r', encoding='utf-8') as f:
+                        input_content = f.read()
+                except:
+                    pass
+            
+            if os.path.exists(user_output_file):
+                try:
+                    with open(user_output_file, 'r', encoding='utf-8') as f:
+                        user_output = f.read()
+                except:
+                    pass
+            
+            if os.path.exists(expected_file):
+                try:
+                    with open(expected_file, 'r', encoding='utf-8') as f:
+                        expected_output = f.read()
+                except:
+                    pass
+            
             tests_summary.append({
                 "label": f"Test {idx}",
                 "test": idx,
@@ -333,7 +364,10 @@ def run_submission(job):
                 "verdict": verdict,
                 "elapsed": metric["elapsed"] if metric else None,
                 "elapsed_seconds": metric["elapsed_seconds"] if metric else None,
-                "max_rss_kb": metric["max_rss_kb"] if metric else None
+                "max_rss_kb": metric["max_rss_kb"] if metric else None,
+                "input": input_content,
+                "output": user_output,
+                "expected": expected_output
             })
 
         elapsed_values = [m["elapsed_seconds"] for m in metrics if m.get("elapsed_seconds") is not None]

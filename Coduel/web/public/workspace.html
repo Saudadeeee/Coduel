@@ -642,33 +642,106 @@
     }
 
     .run-tests li {
+      background:rgba(54,65,86,0.25);
+      border-radius:6px;
+      border:1px solid var(--border-soft);
+      overflow:hidden;
+    }
+
+    .test-header {
       display:flex;
       justify-content:space-between;
       align-items:center;
-      background:rgba(54,65,86,0.25);
-      border-radius:6px;
-      padding:6px 10px;
+      padding:8px 12px;
       font-weight:600;
       color:var(--text-main);
-      border:1px solid var(--border-soft);
       font-size:13px;
+      cursor:pointer;
+      user-select:none;
+      transition:background 0.2s;
     }
 
-    .run-tests li.pass {
+    .test-header:hover {
+      background:rgba(255,255,255,0.05);
+    }
+
+    .test-header.pass {
       color:var(--chip-pass-fg);
       background:var(--chip-pass-bg);
-      border:1px solid rgba(133,255,168,0.4);
+      border-bottom:1px solid rgba(133,255,168,0.2);
     }
-    .run-tests li.fail {
+    .test-header.fail {
       color:#ff7a7a;
       background:#3a1f1f;
-      border:1px solid rgba(255,122,122,0.4);
+      border-bottom:1px solid rgba(255,122,122,0.2);
     }
 
-    .run-tests li span {
+    .test-header-left {
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+
+    .test-expand-icon {
+      font-size:12px;
+      transition:transform 0.2s;
+    }
+
+    .test-expand-icon.expanded {
+      transform:rotate(90deg);
+    }
+
+    .test-header span {
       font-size:12px;
       font-weight:500;
       color:var(--text-dimmer);
+    }
+
+    .test-details {
+      display:none;
+      padding:12px;
+      background:rgba(0,0,0,0.3);
+      border-top:1px solid var(--border-soft);
+    }
+
+    .test-details.expanded {
+      display:block;
+    }
+
+    .test-io-section {
+      margin-bottom:10px;
+    }
+
+    .test-io-section:last-child {
+      margin-bottom:0;
+    }
+
+    .test-io-label {
+      font-size:12px;
+      font-weight:600;
+      color:var(--text-dim);
+      margin-bottom:4px;
+      text-transform:uppercase;
+      letter-spacing:0.5px;
+    }
+
+    .test-io-content {
+      background:var(--code-bg);
+      border:1px solid var(--border);
+      border-radius:4px;
+      padding:8px;
+      font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Courier New", monospace;
+      font-size:12px;
+      color:var(--code-fg);
+      white-space:pre-wrap;
+      word-wrap:break-word;
+      max-height:200px;
+      overflow-y:auto;
+    }
+
+    .test-io-content.empty {
+      color:var(--text-dimmer);
+      font-style:italic;
     }
 
     .run-metrics {
@@ -2088,6 +2161,15 @@ btn.onclick = async () => {
   }
 };
 
+function toggleTestDetails(testNum) {
+  const detailsEl = document.getElementById(`test-details-${testNum}`);
+  const iconEl = document.getElementById(`test-icon-${testNum}`);
+  if (detailsEl && iconEl) {
+    detailsEl.classList.toggle('expanded');
+    iconEl.classList.toggle('expanded');
+  }
+}
+
 if (typeof marked !== "undefined") {
   marked.setOptions({
     gfm: true,
@@ -2134,7 +2216,44 @@ function renderRunResult(run) {
     const verdict = passed ? "pass" : (test.verdict || "fail");
     const elapsed = formatMetric(test.elapsed_seconds, test.elapsed);
     const memory = formatMemory(test.max_rss_kb);
-    return `<li class="${cls}">Test case ${test.test || idx + 1}: ${verdict}<span>${elapsed}${elapsed && memory ? " · " : ""}${memory}</span></li>`;
+    const testNum = test.test || idx + 1;
+    
+    const hasDetails = test.input || test.output || test.expected;
+    const detailsHtml = hasDetails ? `
+      <div class="test-details" id="test-details-${testNum}">
+        ${test.input ? `
+          <div class="test-io-section">
+            <div class="test-io-label">Input</div>
+            <div class="test-io-content">${escapeHtml(test.input)}</div>
+          </div>
+        ` : ''}
+        ${test.output !== null && test.output !== undefined ? `
+          <div class="test-io-section">
+            <div class="test-io-label">Your Output</div>
+            <div class="test-io-content ${test.output === '' ? 'empty' : ''}">${test.output === '' ? '(empty output)' : escapeHtml(test.output)}</div>
+          </div>
+        ` : ''}
+        ${test.expected ? `
+          <div class="test-io-section">
+            <div class="test-io-label">Expected Output</div>
+            <div class="test-io-content">${escapeHtml(test.expected)}</div>
+          </div>
+        ` : ''}
+      </div>
+    ` : '';
+    
+    return `
+      <li>
+        <div class="test-header ${cls}" onclick="toggleTestDetails(${testNum})" data-test="${testNum}">
+          <div class="test-header-left">
+            <span class="test-expand-icon" id="test-icon-${testNum}">▶</span>
+            <span>Test case ${testNum}: ${verdict}</span>
+          </div>
+          <span>${elapsed}${elapsed && memory ? " · " : ""}${memory}</span>
+        </div>
+        ${detailsHtml}
+      </li>
+    `;
   }).join("");
 
   const perf = run.performance || {};
