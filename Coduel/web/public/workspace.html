@@ -4,8 +4,8 @@
   <meta charset="utf-8"/>
   <title>WorkSpace</title>
   <link rel="icon" type="image/png" href="favicon.png" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css" integrity="sha512-c9fIxgR6+wUWp+dsr5pe0GWJMhF9ElVW9vDCtXQODp166tiEPc4DEqyRuPBU2VLcjNtFFs95Vk4NaJQ0JQj9uw==" crossorigin="anonymous" referrerpolicy="no-referrer"/>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css" integrity="sha512-OAWSRzV0LxrNnjghIZJ97caW7u80YqEJgJlJlGkGv5bl/3TxAqSeknmT0nMvadbUzIUwoGDoeiTiXxE5u/vBRA==" crossorigin="anonymous" referrerpolicy="no-referrer"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css" crossorigin="anonymous" referrerpolicy="no-referrer"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css" crossorigin="anonymous" referrerpolicy="no-referrer"/>
   <script src="marked.min.js"></script>
   <style>
     :root {
@@ -105,11 +105,18 @@
     }
 
     .CodeMirror {
-      font-family:"JetBrains Mono","Fira Code","SFMono-Regular",monospace;
-      font-size:14px;
+      font-family:"JetBrains Mono","Fira Code","SFMono-Regular",monospace !important;
+      font-size:14px !important;
       background:#282a36;
-      color:#f8f8f2;
+      /* color removed - let theme handle syntax highlighting */
       border-radius:8px;
+    }
+
+    .CodeMirror pre,
+    .CodeMirror-line,
+    .CodeMirror-lines {
+      font-family:"JetBrains Mono","Fira Code","SFMono-Regular",monospace !important;
+      font-size:14px !important;
     }
 
     .CodeMirror-gutters {
@@ -122,7 +129,10 @@
     }
 
     .cm-s-dracula.CodeMirror {
-      background:#282a36;
+      background:#282a36 !important;
+      color:#f8f8f2 !important;
+    }
+    .cm-s-dracula .CodeMirror-line {
       color:#f8f8f2;
     }
     .cm-s-dracula .CodeMirror-gutters {
@@ -471,13 +481,39 @@
     input {
       padding:6px 10px;
       border:1px solid var(--border);
-      background:var(--panel-bg-soft);
+      background:var(--code-bg);
       color:var(--text-main);
       border-radius:6px;
       font-size:14px;
       box-shadow:0 16px 32px rgba(0,0,0,0.6);
     }
-    select { min-width:160px; }
+    select { 
+      min-width:160px;
+      cursor:pointer;
+    }
+    
+    select:hover {
+      background:var(--panel-bg);
+      border-color:var(--accent);
+    }
+    
+    select:focus {
+      outline:none;
+      border-color:var(--accent);
+      box-shadow:0 0 0 2px rgba(125,78,87,0.3);
+    }
+    
+    select option {
+      background:var(--code-bg);
+      color:var(--text-main);
+      padding:8px;
+    }
+    
+    select option:hover,
+    select option:checked {
+      background:var(--accent);
+      color:#fff;
+    }
 
     .language-picker select {
       min-width:180px;
@@ -1126,10 +1162,6 @@
 #include &lt;bits/stdc++.h&gt;
 using namespace std;
 int main(){
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
-    long long a,b; if(!(cin&gt;&gt;a&gt;&gt;b)) return 0;
-    cout &lt;&lt; (a+b) &lt;&lt; "\n";
     return 0;
 }
         </textarea>
@@ -1161,12 +1193,12 @@ int main(){
   <button id="btn" class="run-btn">Compile &amp; Run</button>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js" integrity="sha512-+nQO2ofnUeJgHYa/u/l0iW+EYhIn0R+ifR+BedJEryD91XfMPogv+0h/rbpIKlLeuUp2U7fXKAGeevSjT0H2rA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/clike/clike.min.js" integrity="sha512-Ecox18y9Gd8Fr7k3mgf0DnOVhBL+J1T7/CqCjeyboGUpOZlyt+9BJq/sIBsDCQPSWx7QLnyM8WB0+uClJmu9uA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js" integrity="sha512-WBYC4kBlA2zV8LOlCY9mk8kbMZ+j51N77r3WDYt1TnO4xjP0dsc7pQqAS8dXBj4RoXLOdAxW2P8Fs14r9WQ9jw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js" integrity="sha512-SyU9H33+G3xg3AdKNOeWn5xu2L/c9WTvV6t6SjbUSKX63dBC2WJUPZ5TxfsxM5ZcgbiqCLu9Vkm8NyX9SkwkAA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js" integrity="sha512-6yv/wEMzS1MbmS6nzu1Se0kGkcs8EwScegXHPelqXcRIf+B7JhYLIK+QJgF2abRbS2l63ZqN0z8qJcGf7YpgiA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js" integrity="sha512-sM1iyOH1cwz0MB6Nmhqi2uYUiQR6AGSxgSeWVkYKUrBVkyPf5MgsMVSMaOJW9f2FmAel4JcwCBmdsUWaXZpXOg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/clike/clike.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 <!-- Socket.IO Client -->
 <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
@@ -1187,8 +1219,8 @@ const pidInput = document.getElementById("pid");
 const refreshBtn = document.getElementById("refresh-problems");
 
 const langSelect = document.getElementById("lang-select");
-const langInput = document.getElementById("lang-input");
-const langOptionsEl = document.getElementById("language-options");
+// const langInput = document.getElementById("lang-input"); // Removed - using langSelect only
+// const langOptionsEl = document.getElementById("language-options"); // Removed - using langSelect only
 
 const statementBody = document.getElementById("statement-body");
 const statementTitle = document.getElementById("statement-title");
@@ -1226,6 +1258,7 @@ const editorModeMap = {
 };
 
 if (window.CodeMirror && codeArea) {
+  console.log("Initializing CodeMirror with theme: dracula");
   codeEditor = CodeMirror.fromTextArea(codeArea, {
     mode: "text/x-c++src",
     theme: "dracula",
@@ -1265,6 +1298,13 @@ if (window.CodeMirror && codeArea) {
   cmInput.setAttribute("inputmode", "text");
   setTimeout(() => codeEditor.refresh(), 0);
   applyEditorMode("cpp");
+  console.log("CodeMirror initialized successfully with theme:", codeEditor.getOption("theme"));
+  console.log("CodeMirror mode:", codeEditor.getOption("mode"));
+} else {
+  console.error("CodeMirror initialization failed:", {
+    hasCodeMirror: !!window.CodeMirror,
+    hasCodeArea: !!codeArea
+  });
 }
 
 function getCodeValue() {
@@ -1298,9 +1338,18 @@ function focusCodeEditor() {
 }
 
 function applyEditorMode(langCode) {
-  if (!codeEditor) return;
+  if (!codeEditor) {
+    console.error("applyEditorMode: codeEditor is null");
+    return;
+  }
   const mode = editorModeMap[langCode] || editorModeMap.cpp;
+  console.log("Applying editor mode:", langCode, "=>", mode);
   codeEditor.setOption("mode", mode);
+  // Force refresh to apply highlighting
+  setTimeout(() => {
+    codeEditor.refresh();
+    console.log("Editor refreshed with mode:", mode);
+  }, 100);
 }
 
 const STATUS_KEY = "oj-problem-status";
@@ -1328,11 +1377,11 @@ const LANGUAGE_ALIASES = {
 };
 
 const LANGUAGE_OPTIONS = [
-  { code: "cpp", label: "C++", sample: `// C++20 sample\n#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n    ios::sync_with_stdio(false);\n    cin.tie(nullptr);\n    long long a,b;\n    if(!(cin>>a>>b)) return 0;\n    cout << (a+b) << "\\n";\n    return 0;\n}` },
-  { code: "c", label: "C", sample: `// C17 sample\n#include <stdio.h>\nint main(void){\n    long long a,b;\n    if(scanf("%lld %lld", &a, &b)!=2) return 0;\n    printf("%lld\\n", a+b);\n    return 0;\n}` },
-  { code: "py", label: "Python", sample: `# Python 3 sample\nimport sys\nline = sys.stdin.readline().strip()\nif line:\n    a, b = map(int, line.split())\n    print(a + b)` },
-  { code: "java", label: "Java", sample: `import java.io.*;\nimport java.util.*;\npublic class Main {\n    public static void main(String[] args) throws Exception {\n        FastScanner fs = new FastScanner(System.in);\n        long a = fs.nextLong();\n        long b = fs.nextLong();\n        System.out.println(a + b);\n    }\n    static class FastScanner {\n        private final InputStream in;\n        private final byte[] buffer = new byte[1 << 16];\n        private int ptr = 0, len = 0;\n        FastScanner(InputStream is) { in = is; }\n        private int read() throws IOException {\n            if (ptr >= len) {\n                len = in.read(buffer);\n                ptr = 0;\n                if (len <= 0) return -1;\n            }\n            return buffer[ptr++];\n        }\n        long nextLong() throws IOException {\n            int c; do { c = read(); } while (c <= ' ');\n            long sign = 1;\n            if (c == '-') { sign = -1; c = read(); }\n            long val = c - '0';\n            while ((c = read()) > ' ') val = val * 10 + c - '0';\n            return val * sign;\n        }\n    }\n}` },
-  { code: "js", label: "JavaScript", sample: `// JavaScript (Node) sample\nconst fs = require('fs');\nconst input = fs.readFileSync(0,'utf8').trim().split(/\\s+/);\nif (input.length >= 2) {\n  const a = BigInt(input[0]);\n  const b = BigInt(input[1]);\n  console.log((a + b).toString());\n}` }
+  { code: "cpp", label: "C++", sample: `// C++20 sample\n#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n    return 0;\n}` },
+  { code: "c", label: "C", sample: `// C17 sample\n#include <stdio.h>\nint main(void){\n    return 0;\n}` },
+  { code: "py", label: "Python", sample: `# Python 3 sample\nprint("Hello, World!")` },
+  { code: "java", label: "Java", sample: `public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello, World!");\n    }\n}` },
+  { code: "js", label: "JavaScript", sample: `// JavaScript (Node) sample\nconsole.log("Hello, World!");` }
 ];
 
 let problemsCache = [];
@@ -1403,16 +1452,13 @@ function updateStatusFromMeta(metaStatus) {
 
 function populateLanguageOptions() {
   languageMap.clear();
-  langOptionsEl.innerHTML = "";
+  // langOptionsEl removed - using langSelect only
   if (langSelect) {
     langSelect.innerHTML = "";
   }
   LANGUAGE_OPTIONS.forEach(({ code, label, sample }) => {
     languageMap.set(code, { code, label, sample });
-    const option = document.createElement("option");
-    option.value = code;
-    option.label = label;
-    langOptionsEl.appendChild(option);
+    // Removed datalist option creation - using select dropdown only
     if (langSelect) {
       const selectOption = document.createElement("option");
       selectOption.value = code;
@@ -1444,7 +1490,7 @@ function setLanguage(code, { forceSample = false } = {}) {
   if (langSelect && langSelect.value !== normalized) {
     langSelect.value = normalized;
   }
-  langInput.value = normalized;
+  // langInput.value = normalized; // Removed - using langSelect only
   if (!isOnlineMode) {
     const url = new URL(window.location.href);
     if (normalized === DEFAULT_LANGUAGE) {
@@ -1632,25 +1678,14 @@ if (isOnlineMode) {
     langSelect.disabled = true;
     langSelect.title = "Language is locked by the host";
   }
-  if (langInput) {
-    langInput.disabled = true;
-    langInput.placeholder = "Locked by host";
-    langInput.title = "Language is locked by the host";
-  }
+  // Removed langInput handling - using langSelect only
   setLanguage(DEFAULT_LANGUAGE, { forceSample: true });
 } else {
   setLanguage(initialLanguageParam || DEFAULT_LANGUAGE, { forceSample: true });
   if (langSelect) {
     langSelect.addEventListener("change", () => setLanguage(langSelect.value));
   }
-  langInput.addEventListener("change", () => setLanguage(langInput.value));
-  langInput.addEventListener("blur", () => setLanguage(langInput.value));
-  langInput.addEventListener("input", () => {
-    const normalized = normalizeLanguage(langInput.value);
-    if (languageMap.has(normalized)) {
-      currentLanguage = normalized;
-    }
-  });
+  // Removed langInput event listeners - using langSelect only
 }
 
 function handleCodeInputChange() {
@@ -1802,8 +1837,8 @@ btn.onclick = async () => {
   clog.textContent = ""; rlog.textContent = "";
   renderRunResult(null);
 
-  const langCode = normalizeLanguage(langInput.value);
-  setLanguage(langCode);
+  // Use currentLanguage instead of langInput
+  const langCode = currentLanguage || DEFAULT_LANGUAGE;
 
   const body = {
     language: langCode,
