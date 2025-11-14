@@ -447,6 +447,44 @@ async function compareAndAnnounceWinner(roomCode) {
     
     roomState.submissions = {};
     
+    // If match continues (not completed), start next round
+    if (matchStatus === 'in_progress' || matchStatus === 'tiebreak') {
+      console.log(`Starting next round (${matchState.roundsPlayed + 1}/${matchState.totalRounds})`);
+      
+      // Wait a moment for clients to show result modal
+      setTimeout(async () => {
+        try {
+          const apiUrl = process.env.API_URL || "http://api:8000";
+          const response = await fetch(`${apiUrl}/problems`);
+          const data = await response.json();
+          const allProblems = data.problems || [];
+          
+          const difficulty = roomState.settings.difficulty;
+          const filteredProblems = difficulty === 'any' ? allProblems : allProblems.filter(p => p.difficulty === difficulty);
+          const problemsToChoose = filteredProblems.length > 0 ? filteredProblems : allProblems;
+          
+          const randomIndex = Math.floor(Math.random() * problemsToChoose.length);
+          const selectedProblem = problemsToChoose[randomIndex];
+          
+          console.log(`Selected problem ${selectedProblem.problem_id} for next round`);
+          
+          roomState.settings.problemId = selectedProblem.problem_id;
+          
+          io.to(roomCode).emit('next-round', {
+            round: matchState.roundsPlayed + 1,
+            totalRounds: matchState.totalRounds,
+            problemId: selectedProblem.problem_id,
+            settings: roomState.settings,
+            status: matchStatus
+          });
+          
+          console.log(`Next round started in room ${roomCode}`);
+        } catch (error) {
+          console.error('Error starting next round:', error);
+        }
+      }, 3000); // 3 seconds delay to show result
+    }
+    
   } catch (error) {
     console.error('Error comparing submissions:', error);
   }
@@ -503,7 +541,8 @@ io.on("connection", (socket) => {
             ready: p.ready 
           })),
           spectators: roomState.spectators.map(s => ({ username: s.username })),
-          settings: roomState.settings
+          settings: roomState.settings,
+          matchStarted: roomState.matchStarted || false
         }
       });
 
@@ -587,6 +626,8 @@ io.on("connection", (socket) => {
     if (roomState && roomState.players[0]?.socketId === socket.id) {
       resetMatchState(roomState);
       roomState.submissions = {};
+      roomState.matchStarted = true;
+      roomState.matchStarted = true;
       
       try {
         const apiUrl = process.env.API_URL || "http://api:8000";

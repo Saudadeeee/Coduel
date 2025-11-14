@@ -85,6 +85,11 @@ class SocketClient {
       this.emit("match-result", data);
     });
 
+    this.socket.on("next-round", (data) => {
+      console.log("Next round:", data);
+      this.emit("next-round", data);
+    });
+
     this.socket.on("match-timeout", (data) => {
       console.warn("Match timeout:", data);
       this.emit("match-timeout", data);

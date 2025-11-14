@@ -302,6 +302,17 @@
       transform: translateY(0);
     }
 
+    .spinner-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .input-spinner input[type="number"]:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
     .summary-panel {
       background-color: rgba(17,21,28,0.3);
       border: 1px solid var(--c-border);
@@ -868,6 +879,10 @@
         timeLimitInput.disabled = true;
         roundInput.disabled = true;
         spectatorSelect.disabled = true;
+        document.getElementById('btnIncTime').disabled = true;
+        document.getElementById('btnDecTime').disabled = true;
+        document.getElementById('btnIncRounds').disabled = true;
+        document.getElementById('btnDecRounds').disabled = true;
 
         console.log('Joined room as PLAYER:', currentRoomCode, 'Username:', username);
         refreshSummary();
@@ -920,7 +935,6 @@
         difficultySelect.value = data.settings.difficulty;
         languageSelect.value = data.settings.language;
         
-        // Parse timeLimit (e.g., "5m" -> 5, "none" -> 0)
         const timeLimitStr = data.settings.timeLimit || 'none';
         if (timeLimitStr === 'none') {
           timeLimitInput.value = 0;

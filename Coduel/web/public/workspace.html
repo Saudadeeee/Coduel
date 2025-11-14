@@ -73,6 +73,62 @@
       color:var(--text-main);
     }
 
+    .header-center {
+      display:flex;
+      align-items:center;
+      gap:20px;
+      position:absolute;
+      left:50%;
+      transform:translateX(-50%);
+    }
+
+    .timer-display {
+      display:none;
+      flex-direction:column;
+      align-items:center;
+      gap:4px;
+      padding:8px 20px;
+      background:rgba(54,65,86,0.4);
+      border:2px solid var(--border);
+      border-radius:12px;
+      box-shadow:0 8px 16px rgba(0,0,0,0.4);
+    }
+
+    .timer-display.active {
+      display:flex;
+    }
+
+    .timer-label {
+      font-size:10px;
+      text-transform:uppercase;
+      letter-spacing:0.1em;
+      color:var(--text-dim);
+      font-weight:600;
+    }
+
+    .timer-value {
+      font-family:"JetBrains Mono","Fira Code",monospace;
+      font-size:24px;
+      font-weight:700;
+      color:var(--text-main);
+      line-height:1;
+    }
+
+    .timer-value.warning {
+      color:#ffb37a;
+      animation:pulse 1s ease-in-out infinite;
+    }
+
+    .timer-value.critical {
+      color:#ff6b6b;
+      animation:pulse 0.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity:1; transform:scale(1); }
+      50% { opacity:0.7; transform:scale(1.05); }
+    }
+
     header a {
       color:var(--text-main);
       text-decoration:none;
@@ -1337,6 +1393,13 @@
   <a href="/mainmenu.html" style="text-decoration:none; color:inherit;">
     <h1>Coduel</h1>
   </a>
+  <div class="header-center">
+    <div class="timer-display" id="timerDisplay">
+      <div class="timer-label">Time Remaining</div>
+      <div class="timer-value" id="timerValue">--:--</div>
+    </div>
+  </div>
+  <div></div>
 </header>
 
 <div class="wrap" id="split">
@@ -2448,6 +2511,61 @@ function escapeHtml(value) {
     .replace(/'/g, "&#39;");
 }
 
+function startTimer(durationMs) {
+  if (!durationMs || durationMs <= 0) return;
+  
+  const timerDisplay = document.getElementById('timerDisplay');
+  const timerValue = document.getElementById('timerValue');
+  
+  if (!timerDisplay || !timerValue) return;
+  
+  timerDisplay.classList.add('active');
+  timerEndTime = Date.now() + durationMs;
+  
+  if (timerInterval) clearInterval(timerInterval);
+  
+  function updateTimer() {
+    const remaining = timerEndTime - Date.now();
+    
+    if (remaining <= 0) {
+      timerValue.textContent = '00:00';
+      timerValue.classList.remove('warning', 'critical');
+      timerValue.classList.add('critical');
+      clearInterval(timerInterval);
+      return;
+    }
+    
+    const totalSeconds = Math.ceil(remaining / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    
+    timerValue.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    
+    // Visual warnings
+    timerValue.classList.remove('warning', 'critical');
+    if (totalSeconds <= 60) {
+      timerValue.classList.add('critical');
+    } else if (totalSeconds <= 180) {
+      timerValue.classList.add('warning');
+    }
+  }
+  
+  updateTimer();
+  timerInterval = setInterval(updateTimer, 1000);
+}
+
+function stopTimer() {
+  if (timerInterval) {
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
+  timerEndTime = null;
+  const timerDisplay = document.getElementById('timerDisplay');
+  if (timerDisplay) {
+    timerDisplay.classList.remove('active');
+  }
+}
+
 function formatTimeLimit(ms) {
   if (ms === null || ms === undefined) return "";
   const num = Number(ms);
@@ -2504,6 +2622,8 @@ const spectatorStatus = document.getElementById('spectatorStatus');
 let currentRoomCode = null;
 let spectatorEnabled = false;
 let codeChangeTimeout = null;
+let timerInterval = null;
+let timerEndTime = null;
 
 // Get room code from URL query parameter
 function getRoomCodeFromURL() {
@@ -2579,17 +2699,95 @@ async function initializeSocket() {
       showWinnerModal(data);
     });
     
+    socketClient.on('next-round', (data) => {
+      console.log('=== NEXT ROUND EVENT ===');
+      console.log('Round:', data.round, '/', data.totalRounds);
+      console.log('New problem:', data.problemId);
+      console.log('Settings:', data.settings);
+      
+      // Stop current timer
+      console.log('Stopping current timer...');
+      stopTimer();
+      
+      // Update current problem
+      currentProblemId = data.problemId;
+      pidInput.value = currentProblemId;
+      pidInput.disabled = true;
+      
+      // Load new problem
+      loadStatement(currentProblemId);
+      
+      // Clear code editor
+      if (codeEditor) {
+        codeEditor.setValue('');
+      }
+      
+      // Restart timer if time limit is set - use setTimeout to ensure DOM is ready
+      if (data.settings && data.settings.timeLimit && data.settings.timeLimit !== 'none') {
+        const timeLimitStr = String(data.settings.timeLimit);
+        const minutes = parseInt(timeLimitStr.replace(/[^\d]/g, ''));
+        
+        if (!isNaN(minutes) && minutes > 0) {
+          console.log('✓ Will start timer for round', data.round, '-', minutes, 'minutes');
+          
+          // Delay timer start slightly to ensure DOM updates complete
+          setTimeout(() => {
+            console.log('Starting timer NOW');
+            startTimer(minutes * 60 * 1000);
+            
+            // Verify timer is visible
+            const timerDisplay = document.getElementById('timerDisplay');
+            if (timerDisplay) {
+              console.log('Timer display classList:', timerDisplay.classList.toString());
+            }
+          }, 100);
+        } else {
+          console.log('✗ Invalid minutes:', minutes);
+        }
+      } else {
+        console.log('✗ No time limit for next round');
+      }
+      
+      // Show notification
+      alert(`Round ${data.round} / ${data.totalRounds}${data.status === 'tiebreak' ? ' (TIEBREAK)' : ''}\nNew problem loaded!`);
+    });
+    
     socketClient.on('match-timeout', (data) => {
       console.warn('Match timeout:', data);
       alert('Results taking too long. Check submissions manually.');
     });
     
     socketClient.on('match-started', (data) => {
-      console.log('Match started event received:', data);
+      console.log('=== MATCH STARTED EVENT ===');
+      console.log('Full data:', JSON.stringify(data, null, 2));
       
       // Update match settings
       if (data.settings) {
         matchSettings = data.settings;
+        
+        console.log('Match settings:', JSON.stringify(matchSettings, null, 2));
+        console.log('Time limit value:', matchSettings.timeLimit);
+        console.log('Time limit type:', typeof matchSettings.timeLimit);
+        
+        // Start timer if time limit is set
+        if (matchSettings.timeLimit && matchSettings.timeLimit !== 'none') {
+          // Parse time limit (could be "5m" or just "5")
+          const timeLimitStr = String(matchSettings.timeLimit);
+          const minutes = parseInt(timeLimitStr.replace(/[^\d]/g, ''));
+          
+          console.log('Time limit string:', timeLimitStr);
+          console.log('Parsed minutes:', minutes);
+          console.log('Is valid?', !isNaN(minutes) && minutes > 0);
+          
+          if (!isNaN(minutes) && minutes > 0) {
+            console.log('✓ Starting timer for', minutes, 'minutes');
+            startTimer(minutes * 60 * 1000);
+          } else {
+            console.log('✗ Invalid time limit - not starting timer');
+          }
+        } else {
+          console.log('✗ No time limit set (value:', matchSettings.timeLimit, ')');
+        }
         
         // Enforce host's language selection
         if (matchSettings.language) {
@@ -2618,6 +2816,24 @@ async function initializeSocket() {
         
         if (matchSettings.language) {
           enforceHostLanguage(matchSettings.language);
+        }
+        
+        // If match already started, start timer
+        if (data.roomState.matchStarted) {
+          console.log('=== MATCH ALREADY STARTED - STARTING TIMER ===');
+          console.log('Time limit:', matchSettings.timeLimit);
+          
+          if (matchSettings.timeLimit && matchSettings.timeLimit !== 'none') {
+            const timeLimitStr = String(matchSettings.timeLimit);
+            const minutes = parseInt(timeLimitStr.replace(/[^\d]/g, ''));
+            
+            console.log('Parsed minutes:', minutes);
+            
+            if (!isNaN(minutes) && minutes > 0) {
+              console.log('✓ Starting timer for', minutes, 'minutes');
+              startTimer(minutes * 60 * 1000);
+            }
+          }
         }
         
         // If room has a problem already selected (match already started), load it
@@ -2842,6 +3058,23 @@ continueBtn.addEventListener('click', () => {
 backToRoomBtn.addEventListener('click', () => {
   window.location.href = '/mainmenu.html';
 });
+
+// Expose timer functions globally for testing
+window.testTimer = function(minutes) {
+  console.log('Testing timer with', minutes, 'minutes');
+  startTimer(minutes * 60 * 1000);
+};
+
+window.stopTestTimer = function() {
+  console.log('Stopping timer');
+  stopTimer();
+};
+
+// Log when page loads
+console.log('Workspace loaded. Timer functions available:');
+console.log('- testTimer(minutes) - Test timer with specified minutes');
+console.log('- stopTestTimer() - Stop the timer');
+console.log('Example: testTimer(5) to test a 5-minute timer');
 
 </script>
 </body>
