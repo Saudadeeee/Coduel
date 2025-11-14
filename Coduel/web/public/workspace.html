@@ -2527,6 +2527,15 @@ function startTimer(durationMs) {
       timerValue.classList.remove('warning', 'critical');
       timerValue.classList.add('critical');
       clearInterval(timerInterval);
+      
+      // Auto-submit when time runs out (only in online mode)
+      if (isOnlineMode && currentProblemId) {
+        statusEl.textContent = 'Time\'s up! Auto-submitting...';
+        setTimeout(() => {
+          submitCode(false);
+        }, 500);
+      }
+      
       return;
     }
     

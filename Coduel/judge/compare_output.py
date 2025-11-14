@@ -1,14 +1,25 @@
 #!/usr/bin/env python3
 """
-Simple token-based output comparison (whitespace-insensitive).
+Token-based output comparison with floating-point tolerance.
 """
 import sys
 
 
-def compare_outputs(user_file, expected_file):
+def is_number(s):
+    """Check if a string represents a number."""
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
+
+
+def compare_outputs(user_file, expected_file, epsilon=1e-4):
     """
     Compare outputs token by token.
-    Ignores whitespace differences - flexible and simple.
+    - Ignores whitespace differences
+    - For numbers: accepts if |user - expected| <= epsilon or relative error <= epsilon
+    - For strings: exact match required
     """
     try:
         with open(user_file, 'r', encoding='utf-8') as f:
@@ -23,13 +34,39 @@ def compare_outputs(user_file, expected_file):
     user_tokens = user_output.split()
     expected_tokens = expected_output.split()
     
-    # Compare token by token
-    if user_tokens == expected_tokens:
-        print("OK")
-        sys.exit(0)
-    else:
+    # Check token count
+    if len(user_tokens) != len(expected_tokens):
         print("WA")
         sys.exit(1)
+    
+    # Compare token by token
+    for user_token, expected_token in zip(user_tokens, expected_tokens):
+        # If both are numbers, use epsilon comparison
+        if is_number(user_token) and is_number(expected_token):
+            user_val = float(user_token)
+            expected_val = float(expected_token)
+            
+            # Absolute difference
+            abs_diff = abs(user_val - expected_val)
+            
+            # Relative difference (avoid division by zero)
+            if expected_val != 0:
+                rel_diff = abs_diff / abs(expected_val)
+            else:
+                rel_diff = abs_diff
+            
+            # Accept if either absolute or relative error is within epsilon
+            if abs_diff > epsilon and rel_diff > epsilon:
+                print("WA")
+                sys.exit(1)
+        else:
+            # For non-numbers, exact match required
+            if user_token != expected_token:
+                print("WA")
+                sys.exit(1)
+    
+    print("OK")
+    sys.exit(0)
 
 
 if __name__ == '__main__':

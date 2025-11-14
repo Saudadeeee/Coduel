@@ -139,9 +139,23 @@ const formatMegabytes = (value) => {
 
 function comparePerformance(perfA = {}, perfB = {}) {
   const TOLERANCE = 0.10;
+  const MIN_ACCURACY_THRESHOLD = 40;
 
   const accuracyA = coerceNumber(perfA.accuracy) ?? 0;
   const accuracyB = coerceNumber(perfB.accuracy) ?? 0;
+
+  // If both players have accuracy < 40%, declare a tie regardless of other metrics
+  if (accuracyA < MIN_ACCURACY_THRESHOLD && accuracyB < MIN_ACCURACY_THRESHOLD) {
+    return {
+      winner: "TIE",
+      reason: "both_below_accuracy_threshold",
+      details: {
+        accuracyA: formatPercent(accuracyA),
+        accuracyB: formatPercent(accuracyB),
+        threshold: formatPercent(MIN_ACCURACY_THRESHOLD)
+      }
+    };
+  }
 
   if (accuracyA !== accuracyB) {
     return {
