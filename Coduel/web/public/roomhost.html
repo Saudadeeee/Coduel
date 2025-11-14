@@ -229,6 +229,79 @@
         0 24px 48px rgba(0,0,0,0.75);
     }
 
+    .input-spinner {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      width: 100%;
+    }
+
+    .input-spinner input[type="number"] {
+      flex: 1;
+      background-color: rgba(17,21,28,0.6);
+      color: var(--c-text-main);
+      border: 1px solid var(--c-border);
+      border-radius: var(--radius-pill);
+      font-size: 0.8rem;
+      line-height: 1.2rem;
+      font-family: inherit;
+      font-weight: 500;
+      padding: 0.6rem 0.8rem;
+      outline: none;
+      text-align: center;
+      box-shadow:
+        0 16px 32px rgba(0,0,0,0.6),
+        0 2px 4px rgba(0,0,0,0.8);
+      transition: all 0.15s ease;
+      appearance: textfield;
+      -moz-appearance: textfield;
+    }
+
+    .input-spinner input[type="number"]::-webkit-outer-spin-button,
+    .input-spinner input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .input-spinner input[type="number"]:focus {
+      border-color: var(--c-accent);
+      box-shadow:
+        0 0 10px rgba(125,78,87,0.6),
+        0 24px 48px rgba(0,0,0,0.75);
+    }
+
+    .spinner-btn {
+      width: 36px;
+      height: 36px;
+      background-color: rgba(54,65,86,0.4);
+      color: var(--c-text-main);
+      border: 1px solid var(--c-border);
+      border-radius: 50%;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+      box-shadow:
+        0 8px 16px rgba(0,0,0,0.4),
+        0 2px 4px rgba(0,0,0,0.6);
+    }
+
+    .spinner-btn:hover {
+      background-color: rgba(54,65,86,0.6);
+      border-color: var(--c-accent);
+      transform: translateY(-1px);
+      box-shadow:
+        0 12px 24px rgba(0,0,0,0.5),
+        0 0 8px rgba(125,78,87,0.5);
+    }
+
+    .spinner-btn:active {
+      transform: translateY(0);
+    }
+
     .summary-panel {
       background-color: rgba(17,21,28,0.3);
       border: 1px solid var(--c-border);
@@ -443,10 +516,11 @@
             <span class="hint">(problem level)</span>
           </label>
           <select class="setting-select" id="difficultySelect">
-            <option value="fast">fast</option>
-            <option value="easy">easy</option>
-            <option value="medium">medium</option>
-            <option value="hard">hard</option>
+            <option value="any">Any</option>
+            <option value="fast">Fast</option>
+            <option value="easy">Easy</option>
+            <option value="medium">Medium</option>
+            <option value="hard">Hard</option>
           </select>
         </div>
 
@@ -466,14 +540,13 @@
         <div class="setting-field">
           <label class="setting-label">
             <span>Time Limit</span>
-            <span class="hint">(per round)</span>
+            <span class="hint">(minutes per round, 0 = unlimited)</span>
           </label>
-          <select class="setting-select" id="timeLimitSelect">
-            <option value="none" selected>None</option>
-            <option value="5m">5m</option>
-            <option value="10m">10m</option>
-            <option value="20m">20m</option>
-          </select>
+          <div class="input-spinner">
+            <button class="spinner-btn" id="btnDecTime">−</button>
+            <input type="number" id="timeLimitInput" value="0" min="0" max="120" />
+            <button class="spinner-btn" id="btnIncTime">+</button>
+          </div>
         </div>
 
         <div class="setting-field">
@@ -481,12 +554,11 @@
             <span>Rounds</span>
             <span class="hint">(best of)</span>
           </label>
-          <select class="setting-select" id="roundSelect">
-            <option value="1">1</option>
-            <option value="3" selected>3</option>
-            <option value="5">5</option>
-            <option value="10">10</option>
-          </select>
+          <div class="input-spinner">
+            <button class="spinner-btn" id="btnDecRounds">−</button>
+            <input type="number" id="roundInput" value="3" min="1" max="99" />
+            <button class="spinner-btn" id="btnIncRounds">+</button>
+          </div>
         </div>
 
         <div class="setting-field">
@@ -600,8 +672,8 @@
 
     const difficultySelect = document.getElementById('difficultySelect');
     const languageSelect   = document.getElementById('languageSelect');
-    const timeLimitSelect  = document.getElementById('timeLimitSelect');
-    const roundSelect      = document.getElementById('roundSelect');
+    const timeLimitInput   = document.getElementById('timeLimitInput');
+    const roundInput       = document.getElementById('roundInput');
     const spectatorSelect  = document.getElementById('spectatorSelect');
 
     const summaryDifficulty = document.getElementById('summaryDifficulty');
@@ -611,15 +683,67 @@
     const summarySpec       = document.getElementById('summarySpec');
 
     function refreshSummary() {
-      summaryDifficulty.textContent = "Difficulty : " + difficultySelect.value;
+      const timeVal = parseInt(timeLimitInput.value) || 0;
+      const timeText = timeVal === 0 ? 'None' : timeVal + 'm';
+      
+      summaryDifficulty.textContent = "Difficulty : " + difficultySelect.value.charAt(0).toUpperCase() + difficultySelect.value.slice(1);
       summaryLanguage.textContent   = "Language  : " + languageSelect.options[languageSelect.selectedIndex].text;
-      summaryTime.textContent       = "TimeLimit : " + timeLimitSelect.options[timeLimitSelect.selectedIndex].text;
-      summaryRounds.textContent     = "Rounds    : " + roundSelect.value;
+      summaryTime.textContent       = "TimeLimit : " + timeText;
+      summaryRounds.textContent     = "Rounds    : " + (parseInt(roundInput.value) || 1);
       summarySpec.textContent       = "Spectator : " + spectatorSelect.value.charAt(0).toUpperCase() + spectatorSelect.value.slice(1);
     }
 
-    [difficultySelect, languageSelect, timeLimitSelect, roundSelect, spectatorSelect]
+    function incrementTime() {
+      const current = parseInt(timeLimitInput.value) || 0;
+      const max = parseInt(timeLimitInput.max) || 120;
+      if (current < max) {
+        timeLimitInput.value = current + 1;
+        refreshSummary();
+        if (userRole === 'host') syncSettings();
+      }
+    }
+
+    function decrementTime() {
+      const current = parseInt(timeLimitInput.value) || 0;
+      const min = parseInt(timeLimitInput.min) || 0;
+      if (current > min) {
+        timeLimitInput.value = Math.max(min, current - 5);
+        refreshSummary();
+        if (userRole === 'host') syncSettings();
+      }
+    }
+
+    function incrementRounds() {
+      const current = parseInt(roundInput.value) || 1;
+      const max = parseInt(roundInput.max) || 99;
+      if (current < max) {
+        roundInput.value = current + 1;
+        refreshSummary();
+        if (userRole === 'host') syncSettings();
+      }
+    }
+
+    function decrementRounds() {
+      const current = parseInt(roundInput.value) || 1;
+      const min = parseInt(roundInput.min) || 1;
+      if (current > min) {
+        roundInput.value = current - 1;
+        refreshSummary();
+        if (userRole === 'host') syncSettings();
+      }
+    }
+
+    // Setup button event listeners
+    document.getElementById('btnIncTime').addEventListener('click', incrementTime);
+    document.getElementById('btnDecTime').addEventListener('click', decrementTime);
+    document.getElementById('btnIncRounds').addEventListener('click', incrementRounds);
+    document.getElementById('btnDecRounds').addEventListener('click', decrementRounds);
+
+    [difficultySelect, languageSelect, spectatorSelect]
       .forEach(sel => sel.addEventListener('change', refreshSummary));
+    
+    [timeLimitInput, roundInput]
+      .forEach(inp => inp.addEventListener('input', refreshSummary));
 
     const socketClient = SocketClient.getInstance();
     let currentRoomCode = null;
@@ -688,8 +812,8 @@
         readyBtn.style.display = 'none';
         difficultySelect.disabled = false;
         languageSelect.disabled = false;
-        timeLimitSelect.disabled = false;
-        roundSelect.disabled = false;
+        timeLimitInput.disabled = false;
+        roundInput.disabled = false;
         spectatorSelect.disabled = false;
 
         console.log('Room created as HOST:', currentRoomCode, 'Username:', username);
@@ -741,8 +865,8 @@
         readyBtn.style.borderColor = '#4a9eff';
         difficultySelect.disabled = true;
         languageSelect.disabled = true;
-        timeLimitSelect.disabled = true;
-        roundSelect.disabled = true;
+        timeLimitInput.disabled = true;
+        roundInput.disabled = true;
         spectatorSelect.disabled = true;
 
         console.log('Joined room as PLAYER:', currentRoomCode, 'Username:', username);
@@ -762,11 +886,14 @@
     function syncSettings() {
       if (!currentRoomCode || userRole !== 'host') return;
 
+      const timeVal = parseInt(timeLimitInput.value) || 0;
+      const timeLimitStr = timeVal === 0 ? 'none' : timeVal + 'm';
+
       const settings = {
         difficulty: difficultySelect.value,
         language: languageSelect.value,
-        timeLimit: timeLimitSelect.value,
-        rounds: parseInt(roundSelect.value),
+        timeLimit: timeLimitStr,
+        rounds: parseInt(roundInput.value) || 1,
         spectator: spectatorSelect.value === 'true'
       };
 
@@ -774,10 +901,16 @@
       socketClient.updateSettings(settings);
     }
 
-    [difficultySelect, languageSelect, timeLimitSelect, roundSelect, spectatorSelect]
+    [difficultySelect, languageSelect, spectatorSelect]
       .forEach(sel => sel.addEventListener('change', () => {
         refreshSummary();
-        syncSettings();
+        if (userRole === 'host') syncSettings();
+      }));
+    
+    [timeLimitInput, roundInput]
+      .forEach(inp => inp.addEventListener('change', () => {
+        refreshSummary();
+        if (userRole === 'host') syncSettings();
       }));
 
     socketClient.on('settings-updated', (data) => {
@@ -786,8 +919,16 @@
       if (userRole === 'player') {
         difficultySelect.value = data.settings.difficulty;
         languageSelect.value = data.settings.language;
-        timeLimitSelect.value = data.settings.timeLimit;
-        roundSelect.value = data.settings.rounds;
+        
+        // Parse timeLimit (e.g., "5m" -> 5, "none" -> 0)
+        const timeLimitStr = data.settings.timeLimit || 'none';
+        if (timeLimitStr === 'none') {
+          timeLimitInput.value = 0;
+        } else {
+          timeLimitInput.value = parseInt(timeLimitStr) || 0;
+        }
+        
+        roundInput.value = data.settings.rounds || 1;
         spectatorSelect.value = data.settings.spectator ? 'true' : 'false';
         refreshSummary();
       }
