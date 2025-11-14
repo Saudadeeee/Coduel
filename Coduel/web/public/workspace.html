@@ -129,7 +129,23 @@
       50% { opacity:0.7; transform:scale(1.05); }
     }
 
-    header a {
+    .coffee-btn {
+      display: block;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .coffee-btn:hover {
+      transform: scale(1.05);
+      opacity: 0.9;
+    }
+
+    .coffee-btn img {
+      height: 36px;
+      width: auto;
+      display: block;
+    }
+
+    header > a:first-child {
       color:var(--text-main);
       text-decoration:none;
       font-weight:600;
@@ -142,7 +158,7 @@
       font-size:13px;
       line-height:1.2rem;
     }
-    header a:hover {
+    header > a:first-child:hover {
       background:rgba(125,78,87,0.3);
       box-shadow:0 24px 48px rgba(0,0,0,0.8), 0 0 12px rgba(125,78,87,0.6);
     }
@@ -1399,7 +1415,11 @@
       <div class="timer-value" id="timerValue">--:--</div>
     </div>
   </div>
-  <div></div>
+  <div>
+    <a href="https://buymeacoffee.com/n4nkh" target="_blank" class="coffee-btn" title="Support this project">
+      <img src="https://cdn.buymeacoffee.com/buttons/v2/default-white.png" alt="Buy Me A Coffee">
+    </a>
+  </div>
 </header>
 
 <div class="wrap" id="split">
