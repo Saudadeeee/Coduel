@@ -797,8 +797,37 @@
       z-index:1500;
       pointer-events:none;
     }
-    .floating-runner .run-btn {
+    .floating-runner .run-btn,
+    .floating-runner .test-btn {
       pointer-events:auto;
+    }
+    .test-btn {
+      padding:16px 32px;
+      border:none;
+      border-radius:999px;
+      font-size:15px;
+      font-weight:700;
+      letter-spacing:-0.01em;
+      color:var(--text-main);
+      background:rgba(54,65,86,0.4);
+      cursor:pointer;
+      box-shadow:
+        0 16px 32px rgba(0,0,0,0.4),
+        0 2px 4px rgba(0,0,0,0.3);
+      border:2px solid rgba(54,65,86,0.6);
+      transition:all 0.15s ease;
+      text-shadow:0 1px 2px rgba(0,0,0,0.3);
+    }
+    .test-btn:hover {
+      background:rgba(54,65,86,0.6);
+      border-color:rgba(154,164,186,0.5);
+      box-shadow:
+        0 20px 40px rgba(0,0,0,0.5),
+        0 4px 8px rgba(0,0,0,0.4);
+      transform:translateY(-1px);
+    }
+    .test-btn:active {
+      transform:translateY(0);
     }
     @media (max-width:640px) {
       .floating-runner {
@@ -806,9 +835,12 @@
         right:16px;
         bottom:16px;
         justify-content:center;
+        flex-wrap:wrap;
       }
-      .floating-runner .run-btn {
-        width:100%;
+      .floating-runner .run-btn,
+      .floating-runner .test-btn {
+        flex:1;
+        min-width:140px;
       }
     }
 
@@ -1376,6 +1408,7 @@ int main(){
 </div>
 
 <div class="floating-runner">
+  <button id="btn-test" class="test-btn">Run Test</button>
   <button id="btn" class="run-btn">Compile &amp; Run</button>
 </div>
 
@@ -1395,6 +1428,7 @@ int main(){
 const api = "/api"; 
 
 const btn = document.getElementById("btn");
+const btnTest = document.getElementById("btn-test");
 const statusEl = document.getElementById("status");
 const clog = document.getElementById("clog");
 const rlog = document.getElementById("rlog");
@@ -2074,8 +2108,8 @@ async function loadProblemOptions(autoSelect = false) {
   }
 }
 
-/* nút Compile & Run */
-btn.onclick = async () => {
+/* Shared submission function */
+async function submitCode(isTest = false) {
   statusEl.textContent = "submitting...";
   clog.textContent = ""; rlog.textContent = "";
   renderRunResult(null);
@@ -2099,7 +2133,7 @@ btn.onclick = async () => {
     return;
   }
 
-  if (currentProblemId) {
+  if (currentProblemId && !isTest) {
     setProblemStatus(currentProblemId, "in-progress");
     updateStatusBadge();
   }
@@ -2118,11 +2152,11 @@ btn.onclick = async () => {
     }
     const js = await res.json();
     const id = js.submission_id;
-    console.log('Submission ID:', id);
-    statusEl.textContent = "queued ("+id+")";
+    console.log('Submission ID:', id, isTest ? '(test)' : '(official)');
+    statusEl.textContent = "queued ("+id+")" + (isTest ? " [TEST]" : "");
     
-    // Notify opponent via socket if in multiplayer mode
-    if (currentRoomCode) {
+    // Notify opponent via socket if in multiplayer mode and not a test
+    if (currentRoomCode && !isTest) {
       socketClient.submitCode(currentRoomCode, id);
       console.log('Notified room about submission:', id);
     }
@@ -2138,7 +2172,7 @@ btn.onclick = async () => {
       }
       const data = await sres.json();
       console.log('Status update:', data.meta.status, data);
-      statusEl.textContent = data.meta.status;
+      statusEl.textContent = data.meta.status + (isTest ? " [TEST]" : "");
       updateStatusFromMeta(data.meta.status);
       if (data.compile_log) clog.textContent = data.compile_log;
       renderRunResult(data.run_result);
@@ -2159,6 +2193,16 @@ btn.onclick = async () => {
     statusEl.textContent = "submit failed";
     console.error('Submit error:', err);
   }
+}
+
+/* nút Run Test */
+btnTest.onclick = async () => {
+  await submitCode(true);
+};
+
+/* nút Compile & Run */
+btn.onclick = async () => {
+  await submitCode(false);
 };
 
 function toggleTestDetails(testNum) {
