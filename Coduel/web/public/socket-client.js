@@ -24,7 +24,6 @@ class SocketClient {
       this.socket = io(serverUrl);
 
       this.socket.on("connect", () => {
-        console.log("Connected to server:", this.socket.id);
         this.emit("connected", { socketId: this.socket.id });
         resolve();
       });
@@ -35,34 +34,28 @@ class SocketClient {
       });
 
       this.socket.on("disconnect", () => {
-        console.log("Disconnected from server");
         this.emit("disconnected");
       });
 
       this.socket.on("room-joined", (data) => {
-        console.log("Room joined:", data);
         this.roomCode = data.roomCode;
         this.role = data.role;
         this.emit("room-joined", data);
       });
 
       this.socket.on("room-full", () => {
-        console.log("Room is full");
         this.emit("room-full");
       });
 
       this.socket.on("user-joined", (data) => {
-        console.log("User joined:", data);
         this.emit("user-joined", data);
       });
 
       this.socket.on("user-left", (data) => {
-        console.log("User left:", data);
         this.emit("user-left", data);
       });
 
       this.socket.on("settings-updated", (settings) => {
-        console.log("Settings updated:", settings);
         this.emit("settings-updated", settings);
       });
 
@@ -70,23 +63,19 @@ class SocketClient {
         this.emit("opponent-code-update", data);
       });
 
-      this.socket.on("match-started", (data) => {
-        console.log("Match started:", data);
-        this.emit("match-started", data);
+    this.socket.on("match-started", (data) => {
+      this.emit("match-started", data);
       });
 
-      this.socket.on("opponent-submitted", (data) => {
-        console.log("Opponent submitted");
+    this.socket.on("opponent-submitted", (data) => {
       this.emit("opponent-submitted", data);
     });
 
     this.socket.on("match-result", (data) => {
-      console.log("Match result:", data);
       this.emit("match-result", data);
     });
 
     this.socket.on("next-round", (data) => {
-      console.log("Next round:", data);
       this.emit("next-round", data);
     });
 
@@ -96,22 +85,18 @@ class SocketClient {
     });
 
       this.socket.on("player-joined", (data) => {
-        console.log("Player joined (socket):", data);
         this.emit("player-joined", data);
       });
 
       this.socket.on("player-left", (data) => {
-        console.log("Player left (socket):", data);
         this.emit("player-left", data);
       });
 
       this.socket.on("player-ready-update", (data) => {
-        console.log("Player ready update (socket):", data);
         this.emit("player-ready-update", data);
       });
 
       this.socket.on("room-state", (data) => {
-        console.log("Room state (socket):", data);
         this.emit("room-state", data);
       });
 

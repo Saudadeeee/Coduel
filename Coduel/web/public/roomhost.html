@@ -638,8 +638,6 @@
     window.addEventListener('DOMContentLoaded', initializePage);
 
     function initializePage() {
-      console.log('=== Page Initialization Started ===');
-      
       if (typeof io === 'undefined') {
         console.error('Socket.IO not loaded!');
         document.getElementById('loadingScreen').innerHTML = 
@@ -655,9 +653,6 @@
           '<div style="margin-top: 20px;"><a href="/mainmenu.html" style="color: #4a9eff;">← Back to Main Menu</a></div>';
         return;
       }
-
-      console.log('✓ Socket.IO loaded');
-      console.log('✓ SocketClient loaded');
 
     const roomCodeDisplay = document.getElementById('roomCodeDisplay');
     const roomCodeText = document.getElementById('roomCodeText');
@@ -827,15 +822,12 @@
         roundInput.disabled = false;
         spectatorSelect.disabled = false;
 
-        console.log('Room created as HOST:', currentRoomCode, 'Username:', username);
-
         refreshSummary();
 
         try {
           await socketClient.connect();
           await socketClient.joinRoom(currentRoomCode, username, 'host');
           syncSettings();
-          console.log('Socket connected for room:', currentRoomCode);
         } catch (error) {
           console.error('Failed to connect socket:', error);
         }
@@ -855,8 +847,6 @@
       
       joinRoomSection.style.display = 'block';
       lobbyLayout.style.display = 'none';
-      
-      console.log('Join mode - waiting for room code');
     }
 
     async function joinRoomAsPlayer(roomCode) {
@@ -884,13 +874,11 @@
         document.getElementById('btnIncRounds').disabled = true;
         document.getElementById('btnDecRounds').disabled = true;
 
-        console.log('Joined room as PLAYER:', currentRoomCode, 'Username:', username);
         refreshSummary();
 
         try {
           await socketClient.connect();
           await socketClient.joinRoom(currentRoomCode, username, 'player');
-          console.log('Socket connected for room:', currentRoomCode);
         } catch (error) {
           console.error('Failed to connect socket:', error);
           alert('Failed to join room. Please check the room code.');
@@ -912,7 +900,6 @@
         spectator: spectatorSelect.value === 'true'
       };
 
-      console.log('Syncing settings to server:', settings);
       socketClient.updateSettings(settings);
     }
 
@@ -929,8 +916,6 @@
       }));
 
     socketClient.on('settings-updated', (data) => {
-      console.log('Settings updated from server:', data);
-      
       if (userRole === 'player') {
         difficultySelect.value = data.settings.difficulty;
         languageSelect.value = data.settings.language;
@@ -949,29 +934,24 @@
     });
 
     socketClient.on('room-joined', (data) => {
-      console.log('Room joined confirmed:', data);
       if (data.roomState && data.roomState.players) {
         updatePlayerList(data.roomState.players);
       }
     });
 
     socketClient.on('player-joined', (data) => {
-      console.log('Player joined:', data);
       updatePlayerList(data.players);
     });
 
     socketClient.on('player-left', (data) => {
-      console.log('Player left:', data);
       updatePlayerList(data.players);
     });
 
     socketClient.on('player-ready-update', (data) => {
-      console.log('Player ready status updated:', data);
       updatePlayerList(data.players);
     });
 
     socketClient.on('room-state', (data) => {
-      console.log('Room state received:', data);
       if (data.players) {
         updatePlayerList(data.players);
       }
@@ -987,7 +967,6 @@
 
     
     socketClient.on('match-started', (data) => {
-      console.log('Match started!', data);
       if (currentRoomCode && userRole !== 'host') {
         window.location.href = `/workspace.html?room=${currentRoomCode}&username=${encodeURIComponent(username)}&role=${userRole}`;
       }
@@ -1106,7 +1085,6 @@
 
       if (currentRoomCode && username) {
         socketClient.sendReadyStatus(isReady);
-        console.log('Ready status sent:', isReady);
       }
     });
 
@@ -1117,10 +1095,7 @@
       }
       
       if (currentRoomCode && userRole === 'host') {
-        console.log('Host starting match for room:', currentRoomCode);
-        
         socketClient.on('match-started', (data) => {
-          console.log('Match started! Redirecting to workspace...');
           setTimeout(() => {
             window.location.href = `/workspace.html?room=${currentRoomCode}&username=${encodeURIComponent(username)}&role=${userRole}`;
           }, 100);
@@ -1157,8 +1132,6 @@
     }
 
     } 
-
-    console.log('=== Page Script Loaded ===');
   </script>
 </body>
 </html>

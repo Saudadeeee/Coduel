@@ -1560,7 +1560,6 @@ const editorModeMap = {
 };
 
 if (window.CodeMirror && codeArea) {
-  console.log("Initializing CodeMirror with theme: dracula");
   codeEditor = CodeMirror.fromTextArea(codeArea, {
     mode: "text/x-c++src",
     theme: "dracula",
@@ -1664,8 +1663,6 @@ if (window.CodeMirror && codeArea) {
   cmInput.setAttribute("inputmode", "text");
   setTimeout(() => codeEditor.refresh(), 0);
   applyEditorMode("cpp");
-  console.log("CodeMirror initialized successfully with theme:", codeEditor.getOption("theme"));
-  console.log("CodeMirror mode:", codeEditor.getOption("mode"));
 } else {
   console.error("CodeMirror initialization failed:", {
     hasCodeMirror: !!window.CodeMirror,
@@ -1709,11 +1706,9 @@ function applyEditorMode(langCode) {
     return;
   }
   const mode = editorModeMap[langCode] || editorModeMap.cpp;
-  console.log("Applying editor mode:", langCode, "=>", mode);
   codeEditor.setOption("mode", mode);
   setTimeout(() => {
     codeEditor.refresh();
-    console.log("Editor refreshed with mode:", mode);
   }, 100);
 }
 
@@ -1881,9 +1876,7 @@ function enforceHostLanguage(languageValue) {
 }
 
 async function loadStatement(problemId) {
-  console.log('loadStatement called with:', problemId);
   if (!problemId) {
-    console.warn('Empty problemId, showing default message');
     statementTitle.textContent = "Problem";
     problemMeta.innerHTML = "";
     statementBody.textContent = "Select a problem to view its statement.";
@@ -1907,12 +1900,9 @@ async function loadStatement(problemId) {
   difficultyBadge.textContent = "Difficulty: …";
 
   try {
-    console.log(`Fetching problem from: ${api}/problem/${encodeURIComponent(problemId)}`);
     const res = await fetch(`${api}/problem/${encodeURIComponent(problemId)}`);
-    console.log(`API response status: ${res.status}`);
     if (!res.ok) throw new Error(res.statusText);
     const data = await res.json();
-    console.log('Problem data loaded:', data.problem_id, data.title);
 
     const diffLabel = difficultyLabels[data.difficulty] || (data.difficulty || "unknown");
     difficultyBadge.textContent = `Difficulty: ${diffLabel}`;
@@ -2111,13 +2101,11 @@ if (codeEditor) {
 
 /* load problem list ban đầu */
 async function loadProblemOptions(autoSelect = false) {
-  console.log('loadProblemOptions called, autoSelect:', autoSelect, 'currentProblemId:', currentProblemId);
   try {
     const res = await fetch(`${api}/problems`);
     if (!res.ok) throw new Error(res.statusText);
     const data = await res.json();
     problemsCache = Array.isArray(data.problems) ? data.problems : [];
-    console.log(`Loaded ${problemsCache.length} problems`);
   } catch (err) {
     console.error('Error loading problems:', err);
     problemsCache = [];
@@ -2126,7 +2114,6 @@ async function loadProblemOptions(autoSelect = false) {
   pidInput.innerHTML = "";
 
   if (!problemsCache.length) {
-    console.warn('No problems found');
     const option = document.createElement("option");
     option.value = "";
     option.textContent = "No problems available";
@@ -2160,7 +2147,6 @@ async function loadProblemOptions(autoSelect = false) {
 
   // In online mode without a problem selected yet, show waiting message
   if (isOnlineMode && !currentProblemId) {
-    console.log('Online mode: waiting for match to start');
     pidInput.value = "";
     statementBody.innerHTML = '<div style="text-align: center; padding: 40px; color: #888;">Waiting for host to start the match...</div>';
     difficultyBadge.textContent = "Difficulty: waiting...";
@@ -2172,8 +2158,6 @@ async function loadProblemOptions(autoSelect = false) {
   const desired = currentProblemId && problemsCache.some(p => p.problem_id === currentProblemId)
     ? currentProblemId
     : (isOnlineMode ? "" : problemsCache[0].problem_id);
-
-  console.log('Desired problem:', desired, 'currentProblemId:', currentProblemId, 'isOnlineMode:', isOnlineMode);
   
   if (desired) {
     pidInput.value = desired;
@@ -2181,11 +2165,9 @@ async function loadProblemOptions(autoSelect = false) {
     updateStatusBadge();
     
     // Always load the statement if we have a desired problem
-    console.log('Loading statement for problem:', desired);
     await loadStatement(desired);
   } else {
     // No problem to load (shouldn't happen after the check above)
-    console.log('No desired problem, showing empty state');
     pidInput.value = "";
     loadStatement("");
   }
@@ -2235,26 +2217,22 @@ async function submitCode(isTest = false) {
     }
     const js = await res.json();
     const id = js.submission_id;
-    console.log('Submission ID:', id, isTest ? '(test)' : '(official)');
     statusEl.textContent = "queued ("+id+")" + (isTest ? " [TEST]" : "");
     
     // Notify opponent via socket if in multiplayer mode and not a test
     if (currentRoomCode && !isTest) {
       socketClient.submitCode(currentRoomCode, id);
-      console.log('Notified room about submission:', id);
     }
 
     let tries=0;
     while (tries<120) {
       await new Promise(r=>setTimeout(r,1000));
-      console.log(`Polling attempt ${tries+1}/120 for submission ${id}`);
       const sres = await fetch(api + "/problem/submission/" + id);
       if (!sres.ok) {
         console.error(`Polling failed: ${sres.status} ${sres.statusText}`);
         break;
       }
       const data = await sres.json();
-      console.log('Status update:', data.meta.status, data);
       statusEl.textContent = data.meta.status + (isTest ? " [TEST]" : "");
       updateStatusFromMeta(data.meta.status);
       if (data.compile_log) clog.textContent = data.compile_log;
@@ -2263,13 +2241,11 @@ async function submitCode(isTest = false) {
         "done","failed","compile_error","error",
         "run_timeout","compile_timeout","problem_not_found"
       ].includes(data.meta.status)) {
-        console.log('Final status reached:', data.meta.status);
         break;
       }
       tries++;
     }
     if (tries >= 120) {
-      console.warn('Polling timeout after 120 attempts');
       statusEl.textContent = "timeout - check manually";
     }
   } catch (err) {
@@ -2322,7 +2298,6 @@ const parseMarkdown = (text) => {
 // Initialize and load problems
 // In online mode, don't auto-select - wait for match-started event
 const shouldAutoSelect = !isOnlineMode;
-console.log('Initializing problems, autoSelect:', shouldAutoSelect, 'isOnlineMode:', isOnlineMode);
 loadProblemOptions(shouldAutoSelect).catch(err => {
   console.error('Failed to load problems:', err);
 });
@@ -2670,7 +2645,6 @@ async function initializeSocket() {
   const role = getRoleFromURL();
   
   if (!currentRoomCode) {
-    console.log('No room code found in URL - running in solo mode');
     return;
   }
 
@@ -2715,18 +2689,11 @@ async function initializeSocket() {
     });
     
     socketClient.on('match-result', (data) => {
-      console.log('Match result received:', data);
       showWinnerModal(data);
     });
     
     socketClient.on('next-round', (data) => {
-      console.log('=== NEXT ROUND EVENT ===');
-      console.log('Round:', data.round, '/', data.totalRounds);
-      console.log('New problem:', data.problemId);
-      console.log('Settings:', data.settings);
-      
       // Stop current timer
-      console.log('Stopping current timer...');
       stopTimer();
       
       // Update current problem
@@ -2737,9 +2704,11 @@ async function initializeSocket() {
       // Load new problem
       loadStatement(currentProblemId);
       
-      // Clear code editor
-      if (codeEditor) {
-        codeEditor.setValue('');
+      // Reset code editor to sample code of current language
+      const option = languageMap.get(currentLanguage);
+      if (option && option.sample) {
+        setCodeValue(option.sample, { silent: true });
+        userTouchedCode = false;
       }
       
       // Restart timer if time limit is set - use setTimeout to ensure DOM is ready
@@ -2748,28 +2717,14 @@ async function initializeSocket() {
         const minutes = parseInt(timeLimitStr.replace(/[^\d]/g, ''));
         
         if (!isNaN(minutes) && minutes > 0) {
-          console.log('✓ Will start timer for round', data.round, '-', minutes, 'minutes');
-          
           // Delay timer start slightly to ensure DOM updates complete
           setTimeout(() => {
-            console.log('Starting timer NOW');
             startTimer(minutes * 60 * 1000);
-            
-            // Verify timer is visible
-            const timerDisplay = document.getElementById('timerDisplay');
-            if (timerDisplay) {
-              console.log('Timer display classList:', timerDisplay.classList.toString());
-            }
           }, 100);
-        } else {
-          console.log('✗ Invalid minutes:', minutes);
         }
       } else {
-        console.log('✗ No time limit for next round');
       }
       
-      // Show notification
-      alert(`Round ${data.round} / ${data.totalRounds}${data.status === 'tiebreak' ? ' (TIEBREAK)' : ''}\nNew problem loaded!`);
     });
     
     socketClient.on('match-timeout', (data) => {
@@ -2778,16 +2733,9 @@ async function initializeSocket() {
     });
     
     socketClient.on('match-started', (data) => {
-      console.log('=== MATCH STARTED EVENT ===');
-      console.log('Full data:', JSON.stringify(data, null, 2));
-      
       // Update match settings
       if (data.settings) {
         matchSettings = data.settings;
-        
-        console.log('Match settings:', JSON.stringify(matchSettings, null, 2));
-        console.log('Time limit value:', matchSettings.timeLimit);
-        console.log('Time limit type:', typeof matchSettings.timeLimit);
         
         // Start timer if time limit is set
         if (matchSettings.timeLimit && matchSettings.timeLimit !== 'none') {
@@ -2795,18 +2743,10 @@ async function initializeSocket() {
           const timeLimitStr = String(matchSettings.timeLimit);
           const minutes = parseInt(timeLimitStr.replace(/[^\d]/g, ''));
           
-          console.log('Time limit string:', timeLimitStr);
-          console.log('Parsed minutes:', minutes);
-          console.log('Is valid?', !isNaN(minutes) && minutes > 0);
-          
           if (!isNaN(minutes) && minutes > 0) {
-            console.log('✓ Starting timer for', minutes, 'minutes');
             startTimer(minutes * 60 * 1000);
-          } else {
-            console.log('✗ Invalid time limit - not starting timer');
           }
         } else {
-          console.log('✗ No time limit set (value:', matchSettings.timeLimit, ')');
         }
         
         // Enforce host's language selection
@@ -2816,8 +2756,6 @@ async function initializeSocket() {
         
         // Load the problem selected by the server
         if (data.problemId) {
-          console.log('Loading problem selected by server:', data.problemId);
-          
           // Update UI and load the problem
           currentProblemId = data.problemId;
           pidInput.value = currentProblemId;
@@ -2829,10 +2767,8 @@ async function initializeSocket() {
     });
     
     socketClient.on('room-joined', (data) => {
-      console.log('room-joined event received:', data);
       if (data.roomState && data.roomState.settings) {
         matchSettings = data.roomState.settings;
-        console.log('Room settings:', matchSettings);
         
         if (matchSettings.language) {
           enforceHostLanguage(matchSettings.language);
@@ -2840,17 +2776,11 @@ async function initializeSocket() {
         
         // If match already started, start timer
         if (data.roomState.matchStarted) {
-          console.log('=== MATCH ALREADY STARTED - STARTING TIMER ===');
-          console.log('Time limit:', matchSettings.timeLimit);
-          
           if (matchSettings.timeLimit && matchSettings.timeLimit !== 'none') {
             const timeLimitStr = String(matchSettings.timeLimit);
             const minutes = parseInt(timeLimitStr.replace(/[^\d]/g, ''));
             
-            console.log('Parsed minutes:', minutes);
-            
             if (!isNaN(minutes) && minutes > 0) {
-              console.log('✓ Starting timer for', minutes, 'minutes');
               startTimer(minutes * 60 * 1000);
             }
           }
@@ -2858,22 +2788,17 @@ async function initializeSocket() {
         
         // If room has a problem already selected (match already started), load it
         if (matchSettings.problemId) {
-          console.log('Room has problem already selected:', matchSettings.problemId);
           currentProblemId = matchSettings.problemId;
           pidInput.value = currentProblemId;
           pidInput.disabled = true;
           pidInput.title = "Problem locked for this match";
           loadStatement(currentProblemId);
         } else {
-          console.log('Room has no problem yet - waiting for match to start');
         }
       }
     });
     
-    console.log(`Joining room ${currentRoomCode} as ${username} (${role})`);
     await socketClient.joinRoom(currentRoomCode, username, role);
-    
-    console.log('Socket.IO initialized for room:', currentRoomCode);
   } catch (error) {
     console.error('Failed to initialize socket:', error);
   }
@@ -3081,20 +3006,12 @@ backToRoomBtn.addEventListener('click', () => {
 
 // Expose timer functions globally for testing
 window.testTimer = function(minutes) {
-  console.log('Testing timer with', minutes, 'minutes');
   startTimer(minutes * 60 * 1000);
 };
 
 window.stopTestTimer = function() {
-  console.log('Stopping timer');
   stopTimer();
 };
-
-// Log when page loads
-console.log('Workspace loaded. Timer functions available:');
-console.log('- testTimer(minutes) - Test timer with specified minutes');
-console.log('- stopTestTimer() - Stop the timer');
-console.log('Example: testTimer(5) to test a 5-minute timer');
 
 </script>
 </body>
