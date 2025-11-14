@@ -434,7 +434,7 @@
       <div class="settings-panel">
         <div class="panel-title">
           <span>Room Settings</span>
-          <span class="panel-sub">configure the match</span>
+        
         </div>
 
         <div class="setting-field">
@@ -877,7 +877,7 @@
         
         const nameCell = document.createElement('td');
         const isCurrentUser = player.username === username;
-        nameCell.textContent = isCurrentUser ? 'you' : (player.username || 'Player');
+        nameCell.textContent = isCurrentUser ? `${player.username} (you)` : (player.username || 'Player');
         row.appendChild(nameCell);
 
         // Status column
