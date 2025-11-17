@@ -39,8 +39,8 @@
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter", Roboto, "Helvetica Neue", sans-serif;
 
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: center;
       text-align: center;
       padding: 2rem;
     }
@@ -52,6 +52,8 @@
       gap: 2rem;
       max-width: 360px;
       width: 100%;
+      flex: 1;
+      justify-content: center;
     }
 
     .ascii-logo {
@@ -182,7 +184,8 @@
       line-height: 1.5rem;
       color: var(--c-text-dim);
       user-select: none;
-      margin-top: 7rem;
+      margin-top: auto;
+      padding-bottom: 1rem;
       letter-spacing: 0.05em;
     }
 
@@ -254,11 +257,11 @@
         />
       </div>
     </section>
-
-    <footer class="footer-info">
-      <span class="version-pill">v0.3 By n4nkh</span>
-    </footer>
   </main>
+
+  <footer class="footer-info">
+    <span class="version-pill">v0.3 By n4nkh</span>
+  </footer>
 
   <a href="https://buymeacoffee.com/n4nkh" target="_blank" class="coffee-btn" title="Support this project">
     <img src="https://cdn.buymeacoffee.com/buttons/v2/default-white.png" alt="Buy Me A Coffee">

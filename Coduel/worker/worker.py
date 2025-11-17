@@ -203,7 +203,6 @@ def compile_submission(sub_id):
     std = meta.get("std")
     problem_id = meta["problem_id"]
 
-    # Create temporary directory
     tmpdir = tempfile.mkdtemp(prefix=f"job_{sub_id}_", dir=JOB_TMP_ROOT)
     os.chmod(tmpdir, 0o777)
     cleanup_tmp = True
@@ -327,7 +326,6 @@ def run_submission(job):
                 passed_count += 1
             metric = metrics_map.get(idx)
             
-            # Read input, output, expected output for each test
             input_file = os.path.join(tests_dir, f"input{idx}.txt")
             user_output_file = os.path.join(tmpdir, f"user_out_{idx}.txt")
             expected_file = os.path.join(tests_dir, f"output{idx}.txt")
@@ -426,25 +424,6 @@ def run_submission(job):
         except:
             pass
 
-def main():
-    print("Worker started.", flush=True)
-
-    while True:
-
-        msg = r.brpop("queue:compile", timeout=1)
-        if msg:
-            _, payload = msg
-            sub_id = json.loads(payload)["submission_id"]
-            print(f"[COMPILE] Processing submission {sub_id}", flush=True)
-            compile_submission(sub_id)
-
-        msg2 = r.brpop("queue:run", timeout=1)
-        if msg2:
-            _, payload2 = msg2
-            job = json.loads(payload2)
-            print(f"[RUN] Processing submission {job['submission_id']}", flush=True)
-            run_submission(job)
-
 def compare_submissions(sub_id_a, sub_id_b):
     """
     Compare two submissions using ranking priority:
@@ -472,7 +451,6 @@ def compare_submissions(sub_id_a, sub_id_b):
     accuracy_a = perf_a.get("accuracy", 0)
     accuracy_b = perf_b.get("accuracy", 0)
     
-    # Priority 1: Accuracy
     if accuracy_a != accuracy_b:
         winner = "A" if accuracy_a > accuracy_b else "B"
         return {
@@ -530,6 +508,25 @@ def compare_submissions(sub_id_a, sub_id_b):
             "memory_mb": mem_a / 1024 if mem_a else None
         }
     }
+
+def main():
+    print("Worker started.", flush=True)
+
+    while True:
+
+        msg = r.brpop("queue:compile", timeout=1)
+        if msg:
+            _, payload = msg
+            sub_id = json.loads(payload)["submission_id"]
+            print(f"[COMPILE] Processing submission {sub_id}", flush=True)
+            compile_submission(sub_id)
+
+        msg2 = r.brpop("queue:run", timeout=1)
+        if msg2:
+            _, payload2 = msg2
+            job = json.loads(payload2)
+            print(f"[RUN] Processing submission {job['submission_id']}", flush=True)
+            run_submission(job)
 
 if __name__ == "__main__":
     main()

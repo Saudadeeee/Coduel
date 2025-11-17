@@ -30,37 +30,29 @@ def compare_outputs(user_file, expected_file, epsilon=1e-4):
         print(f"Error reading files: {e}", file=sys.stderr)
         sys.exit(2)
     
-    # Split into tokens (whitespace-insensitive)
     user_tokens = user_output.split()
     expected_tokens = expected_output.split()
     
-    # Check token count
     if len(user_tokens) != len(expected_tokens):
         print("WA")
         sys.exit(1)
     
-    # Compare token by token
     for user_token, expected_token in zip(user_tokens, expected_tokens):
-        # If both are numbers, use epsilon comparison
         if is_number(user_token) and is_number(expected_token):
             user_val = float(user_token)
             expected_val = float(expected_token)
             
-            # Absolute difference
             abs_diff = abs(user_val - expected_val)
             
-            # Relative difference (avoid division by zero)
             if expected_val != 0:
                 rel_diff = abs_diff / abs(expected_val)
             else:
                 rel_diff = abs_diff
             
-            # Accept if either absolute or relative error is within epsilon
             if abs_diff > epsilon and rel_diff > epsilon:
                 print("WA")
                 sys.exit(1)
         else:
-            # For non-numbers, exact match required
             if user_token != expected_token:
                 print("WA")
                 sys.exit(1)

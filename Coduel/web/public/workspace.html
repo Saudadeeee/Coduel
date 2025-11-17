@@ -1521,8 +1521,6 @@ const pidInput = document.getElementById("pid");
 const refreshBtn = document.getElementById("refresh-problems");
 
 const langSelect = document.getElementById("lang-select");
-// const langInput = document.getElementById("lang-input"); // Removed - using langSelect only
-// const langOptionsEl = document.getElementById("language-options"); // Removed - using langSelect only
 
 const statementBody = document.getElementById("statement-body");
 const statementTitle = document.getElementById("statement-title");
@@ -2028,14 +2026,12 @@ if (isOnlineMode) {
     langSelect.disabled = true;
     langSelect.title = "Language is locked by the host";
   }
-  // Removed langInput handling - using langSelect only
   setLanguage(DEFAULT_LANGUAGE, { forceSample: true });
 } else {
   setLanguage(initialLanguageParam || DEFAULT_LANGUAGE, { forceSample: true });
   if (langSelect) {
     langSelect.addEventListener("change", () => setLanguage(langSelect.value));
   }
-  // Removed langInput event listeners - using langSelect only
 }
 
 function handleCodeInputChange() {
@@ -2145,7 +2141,6 @@ async function loadProblemOptions(autoSelect = false) {
     pidInput.appendChild(option);
   });
 
-  // In online mode without a problem selected yet, show waiting message
   if (isOnlineMode && !currentProblemId) {
     pidInput.value = "";
     statementBody.innerHTML = '<div style="text-align: center; padding: 40px; color: #888;">Waiting for host to start the match...</div>';
@@ -2154,7 +2149,6 @@ async function loadProblemOptions(autoSelect = false) {
     return;
   }
 
-  // Determine which problem to select
   const desired = currentProblemId && problemsCache.some(p => p.problem_id === currentProblemId)
     ? currentProblemId
     : (isOnlineMode ? "" : problemsCache[0].problem_id);
@@ -2164,10 +2158,8 @@ async function loadProblemOptions(autoSelect = false) {
     currentProblemId = desired;
     updateStatusBadge();
     
-    // Always load the statement if we have a desired problem
     await loadStatement(desired);
   } else {
-    // No problem to load (shouldn't happen after the check above)
     pidInput.value = "";
     loadStatement("");
   }
@@ -2295,8 +2287,6 @@ const parseMarkdown = (text) => {
     .join("");
 };
 
-// Initialize and load problems
-// In online mode, don't auto-select - wait for match-started event
 const shouldAutoSelect = !isOnlineMode;
 loadProblemOptions(shouldAutoSelect).catch(err => {
   console.error('Failed to load problems:', err);
@@ -2629,25 +2619,21 @@ let codeChangeTimeout = null;
 let timerInterval = null;
 let timerEndTime = null;
 
-// Get room code from URL query parameter
 function getRoomCodeFromURL() {
   const params = new URLSearchParams(window.location.search);
   return params.get('room');
 }
 
-// Get username from URL
 function getUsernameFromURL() {
   const params = new URLSearchParams(window.location.search);
   return params.get('username') || 'Player';
 }
 
-// Get role from URL
 function getRoleFromURL() {
   const params = new URLSearchParams(window.location.search);
   return params.get('role') || 'player';
 }
 
-// Initialize Socket.IO connection
 async function initializeSocket() {
   currentRoomCode = getRoomCodeFromURL();
   const username = getUsernameFromURL();
@@ -2660,7 +2646,6 @@ async function initializeSocket() {
   try {
     await socketClient.connect();
     
-    // Register all event listeners BEFORE joining room
     socketClient.on('settings-updated', (data) => {
       matchSettings = data.settings;
       spectatorEnabled = data.settings.spectator;
@@ -2698,42 +2683,47 @@ async function initializeSocket() {
     });
     
     socketClient.on('match-result', (data) => {
+      stopTimer();
       showWinnerModal(data);
     });
     
+    socketClient.on('submission-rejected', (data) => {
+      stopTimer();
+      statusEl.textContent = data.message || 'Submission rejected: Time limit exceeded';
+      alert(data.message || 'Your submission was rejected because the time limit has been exceeded.');
+    });
+    
+    socketClient.on('time-expired', (data) => {
+      stopTimer();
+      statusEl.textContent = data.message || 'Time limit reached!';
+      alert(data.message || 'Time limit reached. Please submit your code immediately.');
+    });
+    
     socketClient.on('next-round', (data) => {
-      // Stop current timer
       stopTimer();
       
-      // Update current problem
       currentProblemId = data.problemId;
       pidInput.value = currentProblemId;
       pidInput.disabled = true;
       
-      // Load new problem
       loadStatement(currentProblemId);
       
-      // Reset code editor to sample code of current language
       const option = languageMap.get(currentLanguage);
       if (option && option.sample) {
         setCodeValue(option.sample, { silent: true });
         userTouchedCode = false;
       }
       
-      // Restart timer if time limit is set - use setTimeout to ensure DOM is ready
       if (data.settings && data.settings.timeLimit && data.settings.timeLimit !== 'none') {
         const timeLimitStr = String(data.settings.timeLimit);
         const minutes = parseInt(timeLimitStr.replace(/[^\d]/g, ''));
         
         if (!isNaN(minutes) && minutes > 0) {
-          // Delay timer start slightly to ensure DOM updates complete
           setTimeout(() => {
             startTimer(minutes * 60 * 1000);
           }, 100);
         }
-      } else {
       }
-      
     });
     
     socketClient.on('match-timeout', (data) => {
@@ -2755,17 +2745,13 @@ async function initializeSocket() {
           if (!isNaN(minutes) && minutes > 0) {
             startTimer(minutes * 60 * 1000);
           }
-        } else {
         }
         
-        // Enforce host's language selection
         if (matchSettings.language) {
           enforceHostLanguage(matchSettings.language);
         }
         
-        // Load the problem selected by the server
         if (data.problemId) {
-          // Update UI and load the problem
           currentProblemId = data.problemId;
           pidInput.value = currentProblemId;
           pidInput.disabled = true;
@@ -2783,7 +2769,6 @@ async function initializeSocket() {
           enforceHostLanguage(matchSettings.language);
         }
         
-        // If match already started, start timer
         if (data.roomState.matchStarted) {
           if (matchSettings.timeLimit && matchSettings.timeLimit !== 'none') {
             const timeLimitStr = String(matchSettings.timeLimit);
@@ -2795,7 +2780,6 @@ async function initializeSocket() {
           }
         }
         
-        // If room has a problem already selected (match already started), load it
         if (matchSettings.problemId) {
           currentProblemId = matchSettings.problemId;
           pidInput.value = currentProblemId;

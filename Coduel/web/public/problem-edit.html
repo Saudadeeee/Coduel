@@ -625,12 +625,10 @@
         if (!res.ok) throw new Error(res.statusText);
         const data = await res.json();
 
-        // Fill form
         document.getElementById("title").value = data.title || "";
         document.getElementById("difficulty").value = data.difficulty || "fast";
         document.getElementById("description").value = data.description || "";
         
-        // Sample data
         const sample = data.samples && data.samples.length > 0 ? data.samples[0] : null;
         document.getElementById("sample-input").value = sample ? sample.input : "";
         document.getElementById("sample-output").value = sample ? sample.output : "";

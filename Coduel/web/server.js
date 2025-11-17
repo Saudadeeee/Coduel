@@ -87,8 +87,7 @@ app.use('/api', createProxyMiddleware({
     proxyReq.write(bodyData);
     proxyReq.end();
   },
-  onProxyRes: (proxyRes, req, res) => {
-  },
+  onProxyRes: (proxyRes, req, res) => {},
   onError: (err, req, res) => {
     console.error('[Proxy Error]', err.message);
     res.status(500).json({ error: 'Proxy error', message: err.message });
@@ -418,6 +417,12 @@ async function compareAndAnnounceWinner(roomCode) {
     matchState.status = matchStatus;
     matchState.overallWinner = overallWinner;
     
+    // Clear timeout if match is completed
+    if (matchStatus === "completed" && roomState.roundTimeoutId) {
+      clearTimeout(roomState.roundTimeoutId);
+      roomState.roundTimeoutId = null;
+    }
+    
     const matchResult = {
       round: matchState.roundsPlayed,
       roundWinner,
@@ -444,6 +449,12 @@ async function compareAndAnnounceWinner(roomCode) {
     
     roomState.submissions = {};
     
+    // Clear round timeout since round is ending (both players submitted)
+    if (roomState.roundTimeoutId) {
+      clearTimeout(roomState.roundTimeoutId);
+      roomState.roundTimeoutId = null;
+    }
+    
     // If match continues (not completed), start next round
     if (matchStatus === 'in_progress' || matchStatus === 'tiebreak') {
       // Wait a moment for clients to show result modal
@@ -458,10 +469,55 @@ async function compareAndAnnounceWinner(roomCode) {
           const filteredProblems = difficulty === 'any' ? allProblems : allProblems.filter(p => p.difficulty === difficulty);
           const problemsToChoose = filteredProblems.length > 0 ? filteredProblems : allProblems;
           
+          if (problemsToChoose.length === 0) {
+            throw new Error('No problems available');
+          }
+          
           const randomIndex = Math.floor(Math.random() * problemsToChoose.length);
           const selectedProblem = problemsToChoose[randomIndex];
           
+          // If language is "any", randomly select one language for all players
+          if (roomState.settings.language === 'any') {
+            const availableLanguages = ['c', 'cpp', 'python', 'java', 'js'];
+            const randomLangIndex = Math.floor(Math.random() * availableLanguages.length);
+            roomState.settings.language = availableLanguages[randomLangIndex];
+          }
+          
           roomState.settings.problemId = selectedProblem.problem_id;
+          
+          // Clear previous round timeout if exists
+          if (roomState.roundTimeoutId) {
+            clearTimeout(roomState.roundTimeoutId);
+            roomState.roundTimeoutId = null;
+          }
+          
+          // Set up new round timing
+          const timeLimitStr = roomState.settings?.timeLimit || 'none';
+          const timeLimitMinutes = timeLimitStr === 'none' ? null : parseInt(String(timeLimitStr).replace(/[^\d]/g, '')) || null;
+          roomState.roundStartTime = Date.now();
+          roomState.roundTimeLimitMs = timeLimitMinutes ? timeLimitMinutes * 60 * 1000 : null;
+          
+          // Set up server-side auto-submit for new round
+          if (roomState.roundTimeLimitMs) {
+            roomState.roundTimeoutId = setTimeout(() => {
+              const currentState = rooms.get(roomCode);
+              if (!currentState || !currentState.matchStarted) return;
+              
+              // Check if round has already ended (submissions cleared)
+              if (!currentState.submissions || Object.keys(currentState.submissions).length === 0) {
+                return;
+              }
+              
+              const activePlayers = currentState.players.filter(p => (p.role === 'player' || p.role === 'host'));
+              activePlayers.forEach(player => {
+                if (!currentState.submissions?.[player.socketId]) {
+                  io.to(player.socketId).emit('time-expired', {
+                    message: 'Time limit reached. Please submit your code immediately.'
+                  });
+                }
+              });
+            }, roomState.roundTimeLimitMs);
+          }
           
           io.to(roomCode).emit('next-round', {
             round: matchState.roundsPlayed + 1,
@@ -472,6 +528,11 @@ async function compareAndAnnounceWinner(roomCode) {
           });
         } catch (error) {
           console.error('Error starting next round:', error);
+          // Clear timeout on error to prevent leaks
+          if (roomState.roundTimeoutId) {
+            clearTimeout(roomState.roundTimeoutId);
+            roomState.roundTimeoutId = null;
+          }
         }
       }, 3000); // 3 seconds delay to show result
     }
@@ -495,7 +556,7 @@ io.on("connection", (socket) => {
           settings: {
             spectatorEnabled: false,
             difficulty: "fast",
-            language: "cpp",
+            language: "any",
             timeLimit: "none",
             rounds: 3
           },
@@ -611,7 +672,36 @@ io.on("connection", (socket) => {
       resetMatchState(roomState);
       roomState.submissions = {};
       roomState.matchStarted = true;
-      roomState.matchStarted = true;
+      
+      // Track round start time and time limit for server-side enforcement
+      const timeLimitStr = roomState.settings?.timeLimit || 'none';
+      const timeLimitMinutes = timeLimitStr === 'none' ? null : parseInt(String(timeLimitStr).replace(/[^\d]/g, '')) || null;
+      roomState.roundStartTime = Date.now();
+      roomState.roundTimeLimitMs = timeLimitMinutes ? timeLimitMinutes * 60 * 1000 : null;
+      
+      // Set up server-side auto-submit if time limit is set
+      if (roomState.roundTimeLimitMs) {
+        roomState.roundTimeoutId = setTimeout(() => {
+          const currentState = rooms.get(roomCode);
+          if (!currentState || !currentState.matchStarted) return;
+          
+          // Check if round has already ended (submissions cleared)
+          if (!currentState.submissions || Object.keys(currentState.submissions).length === 0) {
+            return;
+          }
+          
+          // Auto-submit for players who haven't submitted
+          const activePlayers = currentState.players.filter(p => (p.role === 'player' || p.role === 'host'));
+          activePlayers.forEach(player => {
+            if (!currentState.submissions?.[player.socketId]) {
+              // Notify player that time expired
+              io.to(player.socketId).emit('time-expired', {
+                message: 'Time limit reached. Please submit your code immediately.'
+              });
+            }
+          });
+        }, roomState.roundTimeLimitMs);
+      }
       
       try {
         const apiUrl = process.env.API_URL || "http://api:8000";
@@ -620,11 +710,22 @@ io.on("connection", (socket) => {
         const allProblems = data.problems || [];
         
         const difficulty = roomState.settings.difficulty;
-        const filteredProblems = allProblems.filter(p => p.difficulty === difficulty);
+        const filteredProblems = difficulty === 'any' ? allProblems : allProblems.filter(p => p.difficulty === difficulty);
         const problemsToChoose = filteredProblems.length > 0 ? filteredProblems : allProblems;
+        
+        if (problemsToChoose.length === 0) {
+          throw new Error('No problems available');
+        }
         
         const randomIndex = Math.floor(Math.random() * problemsToChoose.length);
         const selectedProblem = problemsToChoose[randomIndex];
+        
+        // If language is "any", randomly select one language for all players
+        if (roomState.settings.language === 'any') {
+          const availableLanguages = ['c', 'cpp', 'python', 'java', 'js'];
+          const randomLangIndex = Math.floor(Math.random() * availableLanguages.length);
+          roomState.settings.language = availableLanguages[randomLangIndex];
+        }
         
         roomState.settings.problemId = selectedProblem.problem_id;
         
@@ -634,6 +735,13 @@ io.on("connection", (socket) => {
         });
       } catch (error) {
         console.error('Error selecting problem:', error);
+        
+        // If language is "any", randomly select one language even on error
+        if (roomState.settings.language === 'any') {
+          const availableLanguages = ['c', 'cpp', 'python', 'java', 'js'];
+          const randomLangIndex = Math.floor(Math.random() * availableLanguages.length);
+          roomState.settings.language = availableLanguages[randomLangIndex];
+        }
 
         io.to(roomCode).emit("match-started", {
           settings: roomState.settings
@@ -658,6 +766,20 @@ io.on("connection", (socket) => {
     const player = roomState.players.find(p => p.socketId === socket.id);
     if (!player) {
       return;
+    }
+    
+    // Server-side time limit enforcement
+    if (roomState.roundTimeLimitMs && roomState.roundStartTime) {
+      const elapsed = Date.now() - roomState.roundStartTime;
+      // Use >= to be strict about time limit (including exact boundary)
+      if (elapsed >= roomState.roundTimeLimitMs) {
+        socket.emit("submission-rejected", {
+          message: "Time limit exceeded. Submission rejected.",
+          elapsedMs: elapsed,
+          timeLimitMs: roomState.roundTimeLimitMs
+        });
+        return;
+      }
     }
     
     if (!roomState.submissions) {
@@ -729,14 +851,23 @@ io.on("connection", (socket) => {
         io.to(roomCode).emit("user-left", { username: spectator.username, role: "spectator" });
       }
 
-      if (roomState.players.length === 0 && roomState.spectators.length === 0) {
+      // Clean up timeout if room is being deleted
+      if (roomState.roundTimeoutId) {
+        clearTimeout(roomState.roundTimeoutId);
+        roomState.roundTimeoutId = null;
+      }
 
+      if (roomState.players.length === 0 && roomState.spectators.length === 0) {
         if (!roomState.settings || !roomState.settings.problemId) {
           rooms.delete(roomCode);
         } else {
           setTimeout(() => {
             const currentRoom = rooms.get(roomCode);
             if (currentRoom && currentRoom.players.length === 0 && currentRoom.spectators.length === 0) {
+              // Clean up timeout before deleting room
+              if (currentRoom.roundTimeoutId) {
+                clearTimeout(currentRoom.roundTimeoutId);
+              }
               rooms.delete(roomCode);
             }
           }, 30000);

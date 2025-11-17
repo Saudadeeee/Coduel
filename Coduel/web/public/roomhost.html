@@ -541,6 +541,7 @@
             <span class="hint">(code language)</span>
           </label>
           <select class="setting-select" id="languageSelect">
+            <option value="any">Any</option>
             <option value="c">C</option>
             <option value="cpp">C++</option>
             <option value="python">Python</option>
@@ -739,17 +740,10 @@
       }
     }
 
-    // Setup button event listeners
     document.getElementById('btnIncTime').addEventListener('click', incrementTime);
     document.getElementById('btnDecTime').addEventListener('click', decrementTime);
     document.getElementById('btnIncRounds').addEventListener('click', incrementRounds);
     document.getElementById('btnDecRounds').addEventListener('click', decrementRounds);
-
-    [difficultySelect, languageSelect, spectatorSelect]
-      .forEach(sel => sel.addEventListener('change', refreshSummary));
-    
-    [timeLimitInput, roundInput]
-      .forEach(inp => inp.addEventListener('input', refreshSummary));
 
     const socketClient = SocketClient.getInstance();
     let currentRoomCode = null;
@@ -958,8 +952,13 @@
       if (data.settings && userRole === 'player') {
         difficultySelect.value = data.settings.difficulty;
         languageSelect.value = data.settings.language;
-        timeLimitSelect.value = data.settings.timeLimit;
-        roundSelect.value = data.settings.rounds;
+        const timeLimitStr = data.settings.timeLimit || 'none';
+        if (timeLimitStr === 'none') {
+          timeLimitInput.value = 0;
+        } else {
+          timeLimitInput.value = parseInt(timeLimitStr) || 0;
+        }
+        roundInput.value = data.settings.rounds || 1;
         spectatorSelect.value = data.settings.spectator ? 'true' : 'false';
         refreshSummary();
       }
@@ -1014,7 +1013,6 @@
         nameCell.textContent = isCurrentUser ? `${player.username} (you)` : (player.username || 'Player');
         row.appendChild(nameCell);
 
-        // Status column
         const statusCell = document.createElement('td');
         if (player.role === 'host') {
           statusCell.innerHTML = '<span class="tag-ready">READY</span>';
@@ -1025,7 +1023,6 @@
         }
         row.appendChild(statusCell);
 
-        // Role column
         const roleCell = document.createElement('td');
         if (player.role === 'host') {
           roleCell.innerHTML = '<span class="tag-host">HOST</span>';
@@ -1088,6 +1085,14 @@
       }
     });
 
+    socketClient.on('match-started', (data) => {
+      if (currentRoomCode && userRole === 'host') {
+        setTimeout(() => {
+          window.location.href = `/workspace.html?room=${currentRoomCode}&username=${encodeURIComponent(username)}&role=${userRole}`;
+        }, 100);
+      }
+    });
+
     startBtn.addEventListener('click', () => {
       if (startBtn.disabled) {
         alert('Cannot start match: Not all players are ready yet!');
@@ -1095,11 +1100,6 @@
       }
       
       if (currentRoomCode && userRole === 'host') {
-        socketClient.on('match-started', (data) => {
-          setTimeout(() => {
-            window.location.href = `/workspace.html?room=${currentRoomCode}&username=${encodeURIComponent(username)}&role=${userRole}`;
-          }, 100);
-        });
         socketClient.startMatch();
       }
     });

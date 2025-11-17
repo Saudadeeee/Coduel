@@ -84,6 +84,14 @@ class SocketClient {
       this.emit("match-timeout", data);
     });
 
+    this.socket.on("submission-rejected", (data) => {
+      this.emit("submission-rejected", data);
+    });
+
+    this.socket.on("time-expired", (data) => {
+      this.emit("time-expired", data);
+    });
+
       this.socket.on("player-joined", (data) => {
         this.emit("player-joined", data);
       });
@@ -163,7 +171,6 @@ class SocketClient {
     });
   }
 
-  // Send player ready status
   sendReadyStatus(ready) {
     if (!this.socket || !this.roomCode) {
       console.error("Not in a room");
@@ -212,7 +219,6 @@ class SocketClient {
     callbacks.forEach(callback => callback(data));
   }
 
-  // Singleton pattern
   static getInstance() {
     if (!SocketClient.instance) {
       SocketClient.instance = new SocketClient();

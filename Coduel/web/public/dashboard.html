@@ -485,7 +485,6 @@
 
       renderProblems(filtered);
 
-      // Update active filter button
       document.querySelectorAll(".filter-btn").forEach(btn => {
         btn.classList.toggle("active", btn.dataset.filter === difficulty);
       });
@@ -531,14 +530,12 @@
         .replace(/'/g, "&#39;");
     }
 
-    // Filter buttons
     document.querySelectorAll(".filter-btn").forEach(btn => {
       btn.addEventListener("click", () => {
         filterProblems(btn.dataset.filter);
       });
     });
 
-    // Load problems on page load
     loadProblems();
   </script>
 </body>

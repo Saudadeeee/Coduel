@@ -89,7 +89,6 @@ while true; do
     --stderr "run_${i}.stderr" \
     --metrics "metrics_${i}.json"; then
     
-    # Simple token-based comparison (whitespace-insensitive)
     if python3 /usr/local/bin/compare_output.py "user_out_${i}.txt" "$OUT" > /dev/null 2>&1; then
       echo "TEST $i: OK"
       echo "OK" > "verdict_${i}.txt"
