@@ -1,9 +1,10 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="icon" type="image/png" href="favicon.png" />
-  <title>Coduel | WorkSpace</title>
+  <title>Coduel | Dashboard</title>
   <style>
     :root {
       color-scheme: dark;
@@ -176,10 +177,16 @@
     }
 
     .filter-btn.active,
-    .filter-btn:hover {
+    .filter-btn:hover,
+    .filter-btn:focus {
       background:rgba(125,78,87,0.2);
       border-color:var(--accent);
       color:var(--text-main);
+      outline:none;
+    }
+    .filter-btn:focus-visible {
+      outline:2px solid var(--accent);
+      outline-offset:2px;
     }
 
     .problems-table-wrapper {
@@ -244,6 +251,11 @@
 
     .problem-link:hover {
       color:var(--accent-hover);
+    }
+    .problem-link:focus-visible {
+      outline:2px solid var(--accent);
+      outline-offset:2px;
+      border-radius:4px;
     }
 
     .difficulty-badge {

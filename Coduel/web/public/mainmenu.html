@@ -138,6 +138,11 @@
         inset 0 -1px 0 rgba(255, 255, 255, 0.05);
     }
 
+    .menu-btn:focus-visible {
+      outline: 2px solid var(--c-btn-bg-hover);
+      outline-offset: 3px;
+    }
+
     .join-extra {
       display: flex;
       flex-direction: column;
@@ -179,6 +184,11 @@
         0 24px 48px rgba(0,0,0,0.75);
     }
 
+    .room-input:focus-visible {
+      outline: 2px solid var(--c-btn-bg);
+      outline-offset: 2px;
+    }
+
     .footer-info {
       font-size: 1rem;
       line-height: 1.5rem;
@@ -201,7 +211,6 @@
       color: var(--c-text-main);
     }
 
-    /* Buy Me a Coffee Button */
     .coffee-btn {
       position: fixed;
       bottom: 20px;

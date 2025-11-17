@@ -1,9 +1,10 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="icon" type="image/png" href="favicon.png" />
-  <title>Coduel | WorkSpace</title>
+  <title>Coduel | Add Problem</title>
   <style>
     :root {
       color-scheme: dark;
@@ -163,6 +164,12 @@
         0 24px 48px rgba(0,0,0,0.8);
       background:#1f2531;
     }
+    input:focus-visible,
+    select:focus-visible,
+    textarea:focus-visible {
+      outline:2px solid var(--accent);
+      outline-offset:2px;
+    }
 
     .grid {
       display:grid;
@@ -250,6 +257,10 @@
 
     button.primary:active {
       transform:translateY(0);
+    }
+    button.primary:focus-visible {
+      outline:2px solid var(--accent);
+      outline-offset:2px;
     }
 
     button.outline {
