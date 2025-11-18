@@ -330,7 +330,7 @@ function checkAllPlayersSubmitted(roomCode) {
 async function compareAndAnnounceWinner(roomCode) {
   const roomState = rooms.get(roomCode);
   if (!roomState || !roomState.submissions) {
-    return;
+    return false;
   }
 
   const matchState = ensureMatchState(roomState);
@@ -338,7 +338,7 @@ async function compareAndAnnounceWinner(roomCode) {
   const submissions = Object.values(roomState.submissions).sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
   
   if (submissions.length < 2) {
-    return;
+    return false;
   }
   
   const [sub1, sub2] = submissions;
@@ -359,11 +359,14 @@ async function compareAndAnnounceWinner(roomCode) {
     const finalStatus1 = status1 ? FINAL_STATUSES.has(status1) : Boolean(parsed1);
     const finalStatus2 = status2 ? FINAL_STATUSES.has(status2) : Boolean(parsed2);
 
+    // Wait for both results to be ready
     if (!parsed1 && !finalStatus1) {
-      return;
+      console.log(`Waiting for submission ${sub1.submissionId} result (status: ${status1})`);
+      return false;
     }
     if (!parsed2 && !finalStatus2) {
-      return;
+      console.log(`Waiting for submission ${sub2.submissionId} result (status: ${status2})`);
+      return false;
     }
     const player1 = buildPlayerSnapshot(sub1, parsed1, status1);
     const player2 = buildPlayerSnapshot(sub2, parsed2, status2);
@@ -446,6 +449,7 @@ async function compareAndAnnounceWinner(roomCode) {
     };
     
     io.to(roomCode).emit('match-result', matchResult);
+    console.log(`Match result announced for room ${roomCode}, round ${matchState.roundsPlayed}, winner: ${roundWinner}`);
     
     roomState.submissions = {};
     
@@ -537,9 +541,14 @@ async function compareAndAnnounceWinner(roomCode) {
       }, 3000); // 3 seconds delay to show result
     }
     
+    return true; // Indicate successful comparison
+    
   } catch (error) {
     console.error('Error comparing submissions:', error);
+    return false;
   }
+  
+  return false;
 }
 
 io.on("connection", (socket) => {
@@ -769,16 +778,14 @@ io.on("connection", (socket) => {
     }
     
     // Server-side time limit enforcement
+    // Note: We allow submissions after time limit because client auto-submits when timer expires
+    // The submission will be processed normally to show results
     if (roomState.roundTimeLimitMs && roomState.roundStartTime) {
       const elapsed = Date.now() - roomState.roundStartTime;
-      // Use >= to be strict about time limit (including exact boundary)
-      if (elapsed >= roomState.roundTimeLimitMs) {
-        socket.emit("submission-rejected", {
-          message: "Time limit exceeded. Submission rejected.",
-          elapsedMs: elapsed,
-          timeLimitMs: roomState.roundTimeLimitMs
-        });
-        return;
+      // Only warn if significantly over time limit (more than 5 seconds), but still allow submission
+      if (elapsed > roomState.roundTimeLimitMs + 5000) {
+        // Too late, but we'll still process it for results
+        console.log(`Submission from ${player.username} is ${Math.round((elapsed - roomState.roundTimeLimitMs) / 1000)}s late, but allowing for results`);
       }
     }
     
@@ -800,24 +807,35 @@ io.on("connection", (socket) => {
     
     if (checkAllPlayersSubmitted(roomCode)) {
       let attempts = 0;
-      const maxAttempts = 15;
+      const maxAttempts = 30; // Increased to 60 seconds total (30 * 2s)
+      let hasAnnounced = false;
       
       const pollInterval = setInterval(async () => {
         attempts++;
         
-        await compareAndAnnounceWinner(roomCode);
+        const result = await compareAndAnnounceWinner(roomCode);
         
         const currentState = rooms.get(roomCode);
-        if (!currentState || Object.keys(currentState.submissions || {}).length === 0) {
+        if (!currentState) {
+          clearInterval(pollInterval);
+          return;
+        }
+        
+        // Check if results were announced (submissions cleared means comparison succeeded)
+        if (!currentState.submissions || Object.keys(currentState.submissions).length === 0) {
+          hasAnnounced = true;
           clearInterval(pollInterval);
           return;
         }
         
         if (attempts >= maxAttempts) {
           clearInterval(pollInterval);
-          io.to(roomCode).emit('match-timeout', {
-            message: 'Results taking too long. Please check individual submissions.'
-          });
+          if (!hasAnnounced) {
+            console.error(`Match timeout for room ${roomCode} after ${maxAttempts} attempts`);
+            io.to(roomCode).emit('match-timeout', {
+              message: 'Results taking too long. Please check individual submissions.'
+            });
+          }
         }
       }, 2000);
     }
