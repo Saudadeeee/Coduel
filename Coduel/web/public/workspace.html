@@ -2168,6 +2168,11 @@ async function loadProblemOptions(autoSelect = false) {
 
 /* Shared submission function */
 async function submitCode(isTest = false) {
+  // If this is a real submission (not test), mark as submitted
+  if (!isTest && isOnlineMode) {
+    hasAutoSubmitted = true;
+  }
+  
   statusEl.textContent = "submitting...";
   clog.textContent = ""; rlog.textContent = "";
   renderRunResult(null);
@@ -2520,7 +2525,8 @@ function startTimer(durationMs) {
       clearInterval(timerInterval);
       
       // Auto-submit when time runs out (only in online mode)
-      if (isOnlineMode && currentProblemId) {
+      if (isOnlineMode && currentProblemId && !hasAutoSubmitted) {
+        hasAutoSubmitted = true;
         statusEl.textContent = 'Time\'s up! Auto-submitting...';
         setTimeout(() => {
           submitCode(false);
@@ -2619,6 +2625,7 @@ let spectatorEnabled = false;
 let codeChangeTimeout = null;
 let timerInterval = null;
 let timerEndTime = null;
+let hasAutoSubmitted = false; // Track if we've already auto-submitted
 
 function getRoomCodeFromURL() {
   const params = new URLSearchParams(window.location.search);
@@ -2689,19 +2696,39 @@ async function initializeSocket() {
     });
     
     socketClient.on('submission-rejected', (data) => {
-      stopTimer();
-      statusEl.textContent = data.message || 'Submission rejected: Time limit exceeded';
-      alert(data.message || 'Your submission was rejected because the time limit has been exceeded.');
+      // If we haven't auto-submitted yet, do it now
+      if (!hasAutoSubmitted && isOnlineMode && currentProblemId) {
+        hasAutoSubmitted = true;
+        statusEl.textContent = 'Time\'s up! Auto-submitting...';
+        setTimeout(() => {
+          submitCode(false);
+        }, 500);
+      } else {
+        statusEl.textContent = data.message || 'Submission rejected: Time limit exceeded';
+      }
     });
     
     socketClient.on('time-expired', (data) => {
-      stopTimer();
-      statusEl.textContent = data.message || 'Time limit reached!';
-      alert(data.message || 'Time limit reached. Please submit your code immediately.');
+      // Auto-submit when time expires (if not already submitted)
+      if (!hasAutoSubmitted && isOnlineMode && currentProblemId) {
+        hasAutoSubmitted = true;
+        statusEl.textContent = 'Time\'s up! Auto-submitting...';
+        setTimeout(() => {
+          submitCode(false);
+        }, 500);
+      } else if (!hasAutoSubmitted) {
+        // Fallback: if timer didn't trigger, submit now
+        hasAutoSubmitted = true;
+        statusEl.textContent = 'Time limit reached! Auto-submitting...';
+        setTimeout(() => {
+          submitCode(false);
+        }, 500);
+      }
     });
     
     socketClient.on('next-round', (data) => {
       stopTimer();
+      hasAutoSubmitted = false; // Reset for new round
       
       currentProblemId = data.problemId;
       pidInput.value = currentProblemId;
@@ -2734,6 +2761,8 @@ async function initializeSocket() {
     
     socketClient.on('match-started', (data) => {
       // Update match settings
+      hasAutoSubmitted = false; // Reset for new match
+      
       if (data.settings) {
         matchSettings = data.settings;
         
@@ -2763,6 +2792,8 @@ async function initializeSocket() {
     });
     
     socketClient.on('room-joined', (data) => {
+      hasAutoSubmitted = false; // Reset when joining room
+      
       if (data.roomState && data.roomState.settings) {
         matchSettings = data.roomState.settings;
         
