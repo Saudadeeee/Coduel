@@ -1,0 +1,85 @@
+/* ============================================================
+   Coduel — Theme System
+   Applied via: document.documentElement.setAttribute('data-theme', id)
+   ============================================================ */
+
+/* ── Rose (default) ── */
+:root,
+[data-theme="rose"] {
+  --accent:        #7d4e57;
+  --accent-2:      #a06070;
+  --accent-soft:   rgba(125, 78,  87, 0.15);
+  --accent-btn:    rgba(125, 78,  87, 0.18);
+  --accent-border: rgba(125, 78,  87, 0.38);
+  --accent-glow:   rgba(125, 78,  87, 0.52);
+  --accent-body:   rgba(125, 78,  87, 0.22);
+  --accent-orb:    rgba(125, 78,  87, 0.15);
+  --accent-orb2:   rgba( 90, 60, 100, 0.12);
+  --accent-gradient: linear-gradient(135deg, #7d4e57, #a06070);
+  --accent-logo-mid: #c8a0b0;
+  --accent-logo-end: #7d4e57;
+}
+
+/* ── Ocean ── */
+[data-theme="ocean"] {
+  --accent:        #0284c7;
+  --accent-2:      #38bdf8;
+  --accent-soft:   rgba(  2,132, 199, 0.15);
+  --accent-btn:    rgba(  2,132, 199, 0.18);
+  --accent-border: rgba(  2,132, 199, 0.38);
+  --accent-glow:   rgba(  2,132, 199, 0.52);
+  --accent-body:   rgba(  2,132, 199, 0.20);
+  --accent-orb:    rgba(  2,132, 199, 0.13);
+  --accent-orb2:   rgba( 30, 58, 138, 0.14);
+  --accent-gradient: linear-gradient(135deg, #0284c7, #38bdf8);
+  --accent-logo-mid: #93c5fd;
+  --accent-logo-end: #0284c7;
+}
+
+/* ── Forest ── */
+[data-theme="forest"] {
+  --accent:        #15803d;
+  --accent-2:      #4ade80;
+  --accent-soft:   rgba( 21,128,  61, 0.15);
+  --accent-btn:    rgba( 21,128,  61, 0.18);
+  --accent-border: rgba( 21,128,  61, 0.38);
+  --accent-glow:   rgba( 21,128,  61, 0.52);
+  --accent-body:   rgba( 21,128,  61, 0.20);
+  --accent-orb:    rgba( 21,128,  61, 0.13);
+  --accent-orb2:   rgba( 5,  46,  22, 0.18);
+  --accent-gradient: linear-gradient(135deg, #15803d, #4ade80);
+  --accent-logo-mid: #86efac;
+  --accent-logo-end: #15803d;
+}
+
+/* ── Violet ── */
+[data-theme="violet"] {
+  --accent:        #7c3aed;
+  --accent-2:      #a78bfa;
+  --accent-soft:   rgba(124, 58, 237, 0.15);
+  --accent-btn:    rgba(124, 58, 237, 0.18);
+  --accent-border: rgba(124, 58, 237, 0.38);
+  --accent-glow:   rgba(124, 58, 237, 0.52);
+  --accent-body:   rgba(124, 58, 237, 0.20);
+  --accent-orb:    rgba(124, 58, 237, 0.14);
+  --accent-orb2:   rgba( 49, 10, 101, 0.16);
+  --accent-gradient: linear-gradient(135deg, #7c3aed, #a78bfa);
+  --accent-logo-mid: #c4b5fd;
+  --accent-logo-end: #7c3aed;
+}
+
+/* ── Amber ── */
+[data-theme="amber"] {
+  --accent:        #b45309;
+  --accent-2:      #fbbf24;
+  --accent-soft:   rgba(180, 83,   9, 0.15);
+  --accent-btn:    rgba(180, 83,   9, 0.18);
+  --accent-border: rgba(180, 83,   9, 0.38);
+  --accent-glow:   rgba(180, 83,   9, 0.52);
+  --accent-body:   rgba(180, 83,   9, 0.20);
+  --accent-orb:    rgba(180, 83,   9, 0.14);
+  --accent-orb2:   rgba( 78, 31,   0, 0.18);
+  --accent-gradient: linear-gradient(135deg, #b45309, #fbbf24);
+  --accent-logo-mid: #fcd34d;
+  --accent-logo-end: #b45309;
+}

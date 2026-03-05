@@ -1,22 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" type="image/png" href="favicon.png" />
   <title>Coduel | Main Menu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="themes.css">
   <style>
     :root {
-      --c-bg-top: #11151c;
-      --c-bg-bottom: #212d40;
-      --c-btn-bg: #7d4e57;
-      --c-btn-bg-hover: #915763;
-      --c-stroke: #364156;
-      --c-text-main: #ffffff;
-      --c-text-dim: #9aa4ba;
+      --bg-deep: #0d1017;
+      --bg-top: #11151c;
+      --bg-mid: #161b26;
+      --bg-bottom: #1c2435;
+      --glass-bg: rgba(255, 255, 255, 0.035);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --glass-hover: rgba(255, 255, 255, 0.06);
+      --text-main: #f0f2f8;
+      --text-dim: #8892aa;
+      --text-dimmer: #4e5870;
+      --stroke: rgba(54, 65, 86, 0.6);
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+      --transition: 0.22s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     }
 
-    * {
+    *,
+    *::before,
+    *::after {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
@@ -25,197 +42,418 @@
 
     body {
       min-height: 100vh;
-      background: radial-gradient(
-          circle at 50% 30%,
-          rgba(125,78,87,0.22) 0%,
-          rgba(33,45,64,0) 60%
-        ),
-        linear-gradient(
-          to bottom,
-          var(--c-bg-top) 0%,
-          var(--c-bg-bottom) 100%
-        );
-      color: var(--c-text-main);
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter", Roboto, "Helvetica Neue", sans-serif;
-
+      background-color: var(--bg-deep);
+      color: var(--text-main);
+      font-family: 'Inter', system-ui, sans-serif;
+      overflow-x: hidden;
+      position: relative;
       display: flex;
       flex-direction: column;
       align-items: center;
-      text-align: center;
-      padding: 2rem;
-    }
-
-    .main-stack {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2rem;
-      max-width: 360px;
-      width: 100%;
-      flex: 1;
       justify-content: center;
+      padding: 2rem 1.5rem;
     }
 
-    .ascii-logo {
-      font-family: "JetBrains Mono", "Fira Code", Consolas, monospace;
-      font-size: 1.3rem;
-      line-height: 1.5rem;
-      font-weight: 600;
-      color: var(--c-text-main);
-      text-shadow:
-        0 0 8px rgba(125,78,87,0.6),
-        0 0 32px rgba(125,78,87,0.4),
-        0 20px 40px rgba(0,0,0,0.9);
-      white-space: pre;
+    /* ─── Animated grid background ─── */
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background-image:
+        linear-gradient(rgba(54, 65, 86, 0.18) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(54, 65, 86, 0.18) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, #000 40%, transparent 100%);
+    }
+
+    .bg-glow {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 50% 20%, var(--accent-body, rgba(125, 78, 87, 0.22)) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 30% at 20% 80%, var(--accent-orb2, rgba(90, 60, 100, 0.12)) 0%, transparent 60%),
+        linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
+    }
+
+    /* ─── Floating orbs ─── */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+      z-index: 0;
+      animation: orbFloat 8s ease-in-out infinite;
+    }
+
+    .orb-1 {
+      width: 350px;
+      height: 350px;
+      background: var(--accent-orb, rgba(125, 78, 87, 0.15));
+      top: -80px;
+      left: -80px;
+      animation-delay: 0s;
+    }
+
+    .orb-2 {
+      width: 250px;
+      height: 250px;
+      background: var(--accent-orb2, rgba(80, 50, 100, 0.12));
+      bottom: -60px;
+      right: -60px;
+      animation-delay: -4s;
+    }
+
+    @keyframes orbFloat {
+
+      0%,
+      100% {
+        transform: translateY(0) scale(1);
+      }
+
+      50% {
+        transform: translateY(-30px) scale(1.05);
+      }
+    }
+
+    /* ─── Main layout ─── */
+    .page-center {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2.5rem;
+      width: 100%;
+      max-width: 460px;
+      animation: fadeInUp 0.6s ease both;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(28px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ─── Logo ─── */
+    .logo-block {
+      text-align: center;
       user-select: none;
     }
 
-    .subtitle {
-      font-size: 0.8rem;
-      font-weight: 400;
-      color: var(--c-text-dim);
-      letter-spacing: 0.08em;
-      margin-top: 0.5rem;
-      text-transform: lowercase;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter", Roboto, "Helvetica Neue", sans-serif;
+    .logo-title {
+      font-size: clamp(2.8rem, 10vw, 4.2rem);
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      background: linear-gradient(135deg, #ffffff 20%, var(--accent-logo-mid, #c8a0b0) 60%, var(--accent-logo-end, #7d4e57) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 0 40px var(--accent-glow, rgba(125, 78, 87, 0.5)));
     }
 
-    .menu-buttons {
+    .logo-sub {
+      margin-top: 0.6rem;
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: var(--text-dimmer);
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+    }
+
+    .logo-dot {
+      display: inline-block;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--accent);
+      margin: 0 6px;
+      vertical-align: middle;
+      box-shadow: 0 0 8px var(--accent-glow);
+    }
+
+    /* ─── Menu cards ─── */
+    .menu-cards {
       display: flex;
       flex-direction: column;
+      gap: 0.85rem;
       width: 100%;
-      gap: 0.8rem; 
     }
 
-    .menu-btn {
-      appearance: none;
-      background-color: var(--c-btn-bg);
-      border: 3px solid transparent;
-      border-top-color: rgba(255, 255, 255, 0.3);
-      border-left-color: rgba(255, 255, 255, 0.2);
-      border-right-color: rgba(0, 0, 0, 0.4);
-      border-bottom-color: rgba(0, 0, 0, 0.5);
-      color: var(--c-text-main);
-      font-size: 1rem;
-      font-weight: 600;
-      line-height: 1.2rem;
-      padding: 0.9rem 1rem;
-      width: 100%;
-      border-radius: 999px;
+    .menu-card {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 1.1rem;
+      padding: 1.1rem 1.4rem;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
       cursor: pointer;
+      text-align: left;
+      width: 100%;
+      color: var(--text-main);
+      font-family: inherit;
+      text-decoration: none;
+      transition: all var(--transition);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       box-shadow:
-        0 20px 40px rgba(0,0,0,0.6),
-        0 2px 4px rgba(0,0,0,0.8),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1),
-        inset 0 -2px 4px rgba(0, 0, 0, 0.3);
-      transition: all 0.15s ease;
+        0 4px 24px rgba(0, 0, 0, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      overflow: hidden;
     }
 
-    .menu-btn:hover,
-    .menu-btn:focus {
-      background-color: var(--c-btn-bg-hover);
-      border-top-color: rgba(255, 255, 255, 0.4);
-      border-left-color: rgba(255, 255, 255, 0.3);
-      transform: translateY(-2px) scale(1.02);
+    /* Animated left-border accent */
+    .menu-card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 10%;
+      bottom: 10%;
+      width: 3px;
+      border-radius: 0 3px 3px 0;
+      background: linear-gradient(180deg, var(--accent-2), var(--accent));
+      opacity: 0;
+      transition: opacity var(--transition), top var(--transition), bottom var(--transition);
+    }
+
+    /* Shimmer on hover */
+    .menu-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, 0.04) 50%, transparent 70%);
+      transform: translateX(-100%);
+      transition: transform 0.5s ease;
+    }
+
+    .menu-card:hover {
+      background: var(--glass-hover);
+      border-color: var(--accent-border, rgba(125, 78, 87, 0.4));
+      transform: translateY(-3px) translateX(3px);
       box-shadow:
-        0 30px 60px rgba(0,0,0,0.7),
-        0 4px 8px rgba(0,0,0,0.9),
-        inset 0 1px 0 rgba(255, 255, 255, 0.15),
-        inset 0 -2px 4px rgba(0, 0, 0, 0.2);
-      outline: none;
+        0 16px 48px rgba(0, 0, 0, 0.5),
+        0 0 0 1px var(--accent-soft, rgba(125, 78, 87, 0.2)),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
     }
 
-    .menu-btn:active {
-      transform: translateY(1px) scale(0.98);
-      border-top-color: rgba(0, 0, 0, 0.4);
-      border-left-color: rgba(0, 0, 0, 0.3);
-      border-right-color: rgba(255, 255, 255, 0.2);
-      border-bottom-color: rgba(255, 255, 255, 0.15);
-      box-shadow:
-        0 10px 20px rgba(0,0,0,0.5),
-        0 1px 2px rgba(0,0,0,0.9),
-        inset 0 2px 4px rgba(0, 0, 0, 0.5),
-        inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+    .menu-card:hover::before {
+      opacity: 1;
+      top: 5%;
+      bottom: 5%;
     }
 
-    .menu-btn:focus-visible {
-      outline: 2px solid var(--c-btn-bg-hover);
-      outline-offset: 3px;
+    .menu-card:hover::after {
+      transform: translateX(100%);
     }
 
-    .join-extra {
+    .menu-card:active {
+      transform: translateY(-1px) translateX(1px) scale(0.99);
+    }
+
+    .card-icon {
+      flex-shrink: 0;
+      width: 46px;
+      height: 46px;
+      border-radius: var(--radius-sm);
+      background: var(--accent-btn, rgba(125, 78, 87, 0.18));
+      border: 1px solid var(--accent-border, rgba(125, 78, 87, 0.3));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      transition: transform var(--transition), background var(--transition);
+    }
+
+    .menu-card:hover .card-icon {
+      background: var(--accent-soft, rgba(125, 78, 87, 0.3));
+      transform: scale(1.08) rotate(-2deg);
+    }
+
+    .card-text {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .card-title {
+      font-size: 0.97rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--text-main);
+      margin-bottom: 0.2rem;
+    }
+
+    .card-desc {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      font-weight: 400;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .card-arrow {
+      flex-shrink: 0;
+      color: var(--text-dimmer);
+      font-size: 1rem;
+      transition: transform var(--transition), color var(--transition);
+    }
+
+    .menu-card:hover .card-arrow {
+      transform: translateX(4px);
+      color: var(--accent-2);
+    }
+
+    /* ─── Join room expanded section ─── */
+    .join-section {
+      width: 100%;
       display: flex;
       flex-direction: column;
-      gap: 0.6rem;    
-      width: 100%;
+      gap: 0;
+    }
+
+    .join-input-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 1rem 1.4rem 1rem 1.4rem;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--stroke);
+      border-top: none;
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+      transition: all var(--transition);
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+
+    .join-input-wrap.open {
+      max-height: 80px;
+      padding: 0.85rem 1.4rem;
+      opacity: 1;
+      border-color: rgba(125, 78, 87, 0.35);
+    }
+
+    /* Rounded top when open so card + input look joined */
+    .join-card-active {
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0 !important;
+      border-bottom: 1px solid transparent !important;
     }
 
     .room-input {
-      width: 100%;
-      text-align: center;
-
-      background-color: rgba(17,21,28,0.6);
-      color: var(--c-text-main);
-
-      font-size: 0.9rem;
-      font-weight: 500;
-      line-height: 1.2rem;
-      font-family: inherit;
-      padding: 0.8rem 1rem;
-
-      border-radius: 999px;
-      border: 2px solid var(--c-stroke);
+      flex: 1;
+      background: transparent;
+      border: none;
       outline: none;
-      transition: all 0.15s ease;
-      box-shadow:
-        0 16px 32px rgba(0,0,0,0.6),
-        0 2px 4px rgba(0,0,0,0.8);
+      color: var(--text-main);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      caret-color: var(--accent-2);
     }
 
     .room-input::placeholder {
-      color: var(--c-text-dim);
+      color: var(--text-dimmer);
+      text-transform: none;
+      letter-spacing: 0;
+      font-family: 'Inter', sans-serif;
       font-weight: 400;
+      font-size: 0.82rem;
     }
 
-    .room-input:focus {
-      border-color: var(--c-btn-bg);
-      box-shadow:
-        0 0 12px rgba(125,78,87,0.6),
-        0 24px 48px rgba(0,0,0,0.75);
-    }
-
-    .room-input:focus-visible {
-      outline: 2px solid var(--c-btn-bg);
-      outline-offset: 2px;
-    }
-
-    .footer-info {
-      font-size: 1rem;
-      line-height: 1.5rem;
-      color: var(--c-text-dim);
-      user-select: none;
-      margin-top: auto;
-      padding-bottom: 1rem;
+    .go-btn {
+      flex-shrink: 0;
+      background: var(--accent-gradient, linear-gradient(135deg, #7d4e57, #a06070));
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 0.45rem 1rem;
+      cursor: pointer;
+      transition: all var(--transition);
+      box-shadow: 0 4px 16px var(--accent-glow);
       letter-spacing: 0.05em;
     }
 
-    .version-pill {
-      display: inline-block;
-      border-radius: 999px;
-      border: 1px solid var(--c-stroke);
-      background-color: rgba(17,21,28,0.4);
-      padding: 0.3rem 0.6rem;
-      font-size: 0.65rem;
-      line-height: 1;
-      font-weight: 500;
-      color: var(--c-text-main);
+    .go-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px var(--accent-glow);
     }
 
+    .go-btn:active {
+      transform: translateY(0);
+    }
+
+    /* ─── Footer ─── */
+    .footer {
+      position: relative;
+      z-index: 1;
+      margin-top: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .version-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.3rem 0.75rem;
+      border-radius: 999px;
+      border: 1px solid var(--stroke);
+      background: rgba(17, 21, 28, 0.5);
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--text-dimmer);
+      letter-spacing: 0.05em;
+      backdrop-filter: blur(8px);
+    }
+
+    .version-pill .dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #3ddc84;
+      box-shadow: 0 0 6px #3ddc84;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.5;
+        transform: scale(0.8);
+      }
+    }
+
+    /* ─── Coffee button ─── */
     .coffee-btn {
       position: fixed;
       bottom: 20px;
       right: 20px;
-      z-index: 1000;
+      z-index: 100;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
@@ -225,84 +463,182 @@
     }
 
     .coffee-btn img {
-      height: 50px;
+      height: 46px;
       width: auto;
       border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
+    }
+
+    /* ─── Entrance animations ─── */
+    .menu-card {
+      animation: fadeInUp 0.55s ease both;
+    }
+
+    .menu-cards .join-section {
+      animation: fadeInUp 0.55s ease both;
+      animation-delay: 0.08s;
+    }
+
+    .menu-cards .menu-card:nth-child(1) {
+      animation-delay: 0.05s;
+    }
+
+    .menu-cards .menu-card:nth-child(2) {
+      animation-delay: 0.10s;
     }
   </style>
 </head>
+
 <body>
-  <main class="main-stack">
+  <!-- Background layers -->
+  <div class="bg-grid"></div>
+  <div class="bg-glow"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
 
-    <!-- ASCII LOGO -->
-    <pre class="ascii-logo">
+  <main class="page-center">
 
-
-
- ______     ______     _____     __  __     ______     __       
-/\  ___\   /\  __ \   /\  __-.  /\ \/\ \   /\  ___\   /\ \      
-\ \ \____  \ \ \/\ \  \ \ \/\ \ \ \ \_\ \  \ \  __\   \ \ \____ 
- \ \_____\  \ \_____\  \ \____-  \ \_____\  \ \_____\  \ \_____\
-  \/_____/   \/_____/   \/____/   \/_____/   \/_____/   \/_____/
-
-    </pre>
-
-    <div class="subtitle"> Select your path</div>
-
-    <section class="menu-buttons">
-      <button class="menu-btn" id="btn-training">Training</button>
-      <button class="menu-btn" id="btn-host">Host Room</button>
-
-      <div class="join-extra">
-        <button class="menu-btn" id="btn-join">Join Room</button>
-
-        <input
-          class="room-input"
-          id="room-code"
-          type="text"
-          placeholder="Enter Room Code"
-          maxlength="12"
-        />
+    <!-- Logo -->
+    <div class="logo-block">
+      <div class="logo-title">CODUEL</div>
+      <div class="logo-sub">
+        <span class="logo-dot"></span>
+        Competitive Coding Arena
+        <span class="logo-dot"></span>
       </div>
-    </section>
-  </main>
+    </div>
 
-  <footer class="footer-info">
-    <span class="version-pill">v0.3 By n4nkh</span>
-  </footer>
+    <!-- Menu cards -->
+    <div class="menu-cards">
+      <!-- Training -->
+      <button class="menu-card" id="btn-training">
+        <div class="card-icon">⚡</div>
+        <div class="card-text">
+          <div class="card-title">Training Mode</div>
+          <div class="card-desc">Browse problems and sharpen your skills solo</div>
+        </div>
+        <span class="card-arrow">→</span>
+      </button>
+
+      <!-- Host Room -->
+      <button class="menu-card" id="btn-host">
+        <div class="card-icon">🏆</div>
+        <div class="card-text">
+          <div class="card-title">Host Room</div>
+          <div class="card-desc">Create a 1v1 battle room and invite an opponent</div>
+        </div>
+        <span class="card-arrow">→</span>
+      </button>
+
+      <!-- Join Room (expandable) -->
+      <div class="join-section">
+        <button class="menu-card" id="btn-join">
+          <div class="card-icon">🎯</div>
+          <div class="card-text">
+            <div class="card-title">Join Room</div>
+            <div class="card-desc">Enter a room code to join an existing match</div>
+          </div>
+          <span class="card-arrow" id="join-arrow">→</span>
+        </button>
+        <div class="join-input-wrap" id="join-input-wrap">
+          <input class="room-input" id="room-code" type="text" placeholder="Enter room code…" maxlength="12"
+            autocomplete="off" spellcheck="false" />
+          <button class="go-btn" id="go-btn">GO →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <div class="version-pill">
+        <span class="dot"></span>
+        v0.3 · by n4nkh
+      </div>
+    </div>
+
+  </main>
 
   <a href="https://buymeacoffee.com/n4nkh" target="_blank" class="coffee-btn" title="Support this project">
     <img src="https://cdn.buymeacoffee.com/buttons/v2/default-white.png" alt="Buy Me A Coffee">
   </a>
 
   <script>
-    const roomInput = document.getElementById('room-code');
-    const joinBtn   = document.getElementById('btn-join');
     const trainingBtn = document.getElementById('btn-training');
     const hostBtn = document.getElementById('btn-host');
-    trainingBtn.addEventListener('click', () => {
-      window.location.href = '/dashboard';
-    });
+    const joinBtn = document.getElementById('btn-join');
+    const joinWrap = document.getElementById('join-input-wrap');
+    const roomInput = document.getElementById('room-code');
+    const goBtn = document.getElementById('go-btn');
+    const joinArrow = document.getElementById('join-arrow');
 
-    hostBtn.addEventListener('click', () => {
-      window.location.href = '/roomhost.html';
-    });
+    let joinOpen = false;
+
+    trainingBtn.addEventListener('click', () => navigateTo('/dashboard'));
+    hostBtn.addEventListener('click', () => navigateTo('/roomhost.html'));
 
     joinBtn.addEventListener('click', () => {
-      const code = roomInput.value.trim();
-      if (!code) {
-        alert('Please enter a room code');
-        return;
+      if (!joinOpen) {
+        joinOpen = true;
+        joinWrap.classList.add('open');
+        joinBtn.classList.add('join-card-active');
+        joinArrow.textContent = '↓';
+        setTimeout(() => roomInput.focus(), 200);
       }
-      window.location.href = `/roomhost.html?code=${encodeURIComponent(code)}&mode=join`;
     });
 
-    roomInput.addEventListener('keyup', (e) => {
-      if (e.key === 'Enter') {
-        joinBtn.click();
+    function doJoin() {
+      const code = roomInput.value.trim();
+      if (!code) { roomInput.focus(); shake(joinWrap); return; }
+      navigateTo(`/roomhost.html?code=${encodeURIComponent(code)}&mode=join`);
+    }
+
+    goBtn.addEventListener('click', doJoin);
+    roomInput.addEventListener('keydown', e => { if (e.key === 'Enter') doJoin(); });
+    roomInput.addEventListener('input', () => {
+      roomInput.value = roomInput.value.toUpperCase();
+    });
+
+    function navigateTo(url) {
+      document.querySelector('.page-center').style.animation = 'fadeOutUp 0.3s ease forwards';
+      setTimeout(() => { window.location.href = url; }, 280);
+    }
+
+    function shake(el) {
+      el.animate([
+        { transform: 'translateX(0)' },
+        { transform: 'translateX(-7px)' },
+        { transform: 'translateX(7px)' },
+        { transform: 'translateX(-4px)' },
+        { transform: 'translateX(4px)' },
+        { transform: 'translateX(0)' }
+      ], { duration: 320, easing: 'ease-out' });
+    }
+
+    // Close join panel if clicking outside
+    document.addEventListener('click', e => {
+      if (joinOpen && !e.target.closest('.join-section')) {
+        joinOpen = false;
+        joinWrap.classList.remove('open');
+        joinBtn.classList.remove('join-card-active');
+        joinArrow.textContent = '→';
       }
     });
   </script>
+
+  <style>
+    @keyframes fadeOutUp {
+      from {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      to {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+    }
+  </style>
+  <script src="theme.js"></script>
 </body>
+
 </html>

@@ -1,4 +1,4 @@
-import os, json, time, uuid, shutil, re
+import os, json, time, uuid, shutil, re, threading
 from pathlib import Path
 from typing import Literal
 from fastapi import FastAPI, HTTPException
@@ -31,8 +31,8 @@ DEFAULT_MEMORY_LIMIT_KB = int(os.getenv("DEFAULT_MEMORY_LIMIT_KB", str(256 * 102
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],       
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -405,9 +405,12 @@ def _existing_problem_numbers() -> list[int]:
             numbers.append(int(match.group(1)))
     return numbers
 
+_problem_number_lock = threading.RLock()  # Reentrant lock — safe for nested calls
+
 def _next_problem_number() -> int:
-    numbers = _existing_problem_numbers()
-    return (max(numbers) if numbers else 0) + 1
+    with _problem_number_lock:
+        numbers = _existing_problem_numbers()
+        return (max(numbers) if numbers else 0) + 1
 
 @app.get("/problems")
 def list_problems():
@@ -531,29 +534,29 @@ def problem_detail(problem_id: str):
 
 @app.post("/problem-add")
 def add_problem(req: AddProblemReq):
-    PROBLEMS_DIR.mkdir(parents=True, exist_ok=True)
-    problem_number = _next_problem_number()
-    slug = _slugify(req.title)
-    base_name = f"{problem_number:03d}-{slug}"
-    problem_path = PROBLEMS_DIR / base_name
+    with _problem_number_lock:
+        problem_number = _next_problem_number()
+        slug = _slugify(req.title)
+        base_name = f"{problem_number:03d}-{slug}"
+        problem_path = PROBLEMS_DIR / base_name
 
-    suffix = 1
-    while problem_path.exists():
-        problem_path = PROBLEMS_DIR / f"{base_name}-{suffix}"
-        suffix += 1
+        suffix = 1
+        while problem_path.exists():
+            problem_path = PROBLEMS_DIR / f"{base_name}-{suffix}"
+            suffix += 1
 
-    description_text = req.description.strip() if req.description else None
-    statement_content = req.statement.strip() if req.statement and req.statement.strip() else _compose_statement(
-        problem_number,
-        req.title,
-        req.difficulty,
-        description_text,
-        req.sample_input,
-        req.sample_output,
-        base_name,
-    )
-    if not statement_content.endswith("\n"):
-        statement_content += "\n"
+        description_text = req.description.strip() if req.description else None
+        statement_content = req.statement.strip() if req.statement and req.statement.strip() else _compose_statement(
+            problem_number,
+            req.title,
+            req.difficulty,
+            description_text,
+            req.sample_input,
+            req.sample_output,
+            base_name,
+        )
+        if not statement_content.endswith("\n"):
+            statement_content += "\n"
     try:
         problem_path.mkdir(parents=True, exist_ok=False)
         statement_path = problem_path / "statement.md"

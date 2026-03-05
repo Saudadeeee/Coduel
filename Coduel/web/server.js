@@ -33,23 +33,23 @@ const jsonParser = express.json();
 app.post("/api/compare-submissions", jsonParser, async (req, res) => {
   try {
     const { submissionA, submissionB } = req.body;
-    
+
     if (!submissionA || !submissionB) {
       return res.status(400).json({ error: "Both submission IDs required" });
     }
-    
+
     const resultA = await redisClient.get(`run_result:${submissionA}`);
     const resultB = await redisClient.get(`run_result:${submissionB}`);
-    
+
     if (!resultA || !resultB) {
       return res.status(404).json({ error: "One or both submissions not found" });
     }
-    
+
     const perfA = JSON.parse(resultA).performance;
     const perfB = JSON.parse(resultB).performance;
-    
+
     const comparison = comparePerformance(perfA, perfB);
-    
+
     res.json({
       submissionA: {
         id: submissionA,
@@ -87,7 +87,7 @@ app.use('/api', createProxyMiddleware({
     proxyReq.write(bodyData);
     proxyReq.end();
   },
-  onProxyRes: (proxyRes, req, res) => {},
+  onProxyRes: (proxyRes, req, res) => { },
   onError: (err, req, res) => {
     console.error('[Proxy Error]', err.message);
     res.status(500).json({ error: 'Proxy error', message: err.message });
@@ -320,10 +320,10 @@ const rooms = new Map();
 function checkAllPlayersSubmitted(roomCode) {
   const roomState = rooms.get(roomCode);
   if (!roomState) return false;
-  
+
   const players = roomState.players.filter(p => p.role === 'player' || p.role === 'host');
   const submissions = roomState.submissions || {};
-  
+
   return players.every(p => submissions[p.socketId]);
 }
 
@@ -334,13 +334,13 @@ async function compareAndAnnounceWinner(roomCode) {
   }
 
   const matchState = ensureMatchState(roomState);
-  
+
   const submissions = Object.values(roomState.submissions).sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-  
+
   if (submissions.length < 2) {
     return false;
   }
-  
+
   const [sub1, sub2] = submissions;
   const [meta1, meta2] = await Promise.all([
     redisClient.hGetAll(`sub:${sub1.submissionId}`),
@@ -348,11 +348,11 @@ async function compareAndAnnounceWinner(roomCode) {
   ]);
   const status1 = meta1?.status ? String(meta1.status).toLowerCase() : null;
   const status2 = meta2?.status ? String(meta2.status).toLowerCase() : null;
-  
+
   try {
     const result1 = await redisClient.get(`run_result:${sub1.submissionId}`);
     const result2 = await redisClient.get(`run_result:${sub2.submissionId}`);
-    
+
     const parsed1 = safeParseJSON(result1);
     const parsed2 = safeParseJSON(result2);
 
@@ -372,7 +372,7 @@ async function compareAndAnnounceWinner(roomCode) {
     const player2 = buildPlayerSnapshot(sub2, parsed2, status2);
     const perf1 = player1.performance;
     const perf2 = player2.performance;
-    
+
     const comparison = comparePerformance(perf1, perf2);
     const roundWinner = comparison.winner === 'A' ? sub1.username : comparison.winner === 'B' ? sub2.username : 'TIE';
 
@@ -419,13 +419,13 @@ async function compareAndAnnounceWinner(roomCode) {
 
     matchState.status = matchStatus;
     matchState.overallWinner = overallWinner;
-    
+
     // Clear timeout if match is completed
     if (matchStatus === "completed" && roomState.roundTimeoutId) {
       clearTimeout(roomState.roundTimeoutId);
       roomState.roundTimeoutId = null;
     }
-    
+
     const matchResult = {
       round: matchState.roundsPlayed,
       roundWinner,
@@ -447,18 +447,18 @@ async function compareAndAnnounceWinner(roomCode) {
         roundResults: matchState.roundResults
       }
     };
-    
+
     io.to(roomCode).emit('match-result', matchResult);
     console.log(`Match result announced for room ${roomCode}, round ${matchState.roundsPlayed}, winner: ${roundWinner}`);
-    
+
     roomState.submissions = {};
-    
+
     // Clear round timeout since round is ending (both players submitted)
     if (roomState.roundTimeoutId) {
       clearTimeout(roomState.roundTimeoutId);
       roomState.roundTimeoutId = null;
     }
-    
+
     // If match continues (not completed), start next round
     if (matchStatus === 'in_progress' || matchStatus === 'tiebreak') {
       // Wait a moment for clients to show result modal
@@ -468,61 +468,59 @@ async function compareAndAnnounceWinner(roomCode) {
           const response = await fetch(`${apiUrl}/problems`);
           const data = await response.json();
           const allProblems = data.problems || [];
-          
+
           const difficulty = roomState.settings.difficulty;
           const filteredProblems = difficulty === 'any' ? allProblems : allProblems.filter(p => p.difficulty === difficulty);
           const problemsToChoose = filteredProblems.length > 0 ? filteredProblems : allProblems;
-          
+
           if (problemsToChoose.length === 0) {
             throw new Error('No problems available');
           }
-          
+
           const randomIndex = Math.floor(Math.random() * problemsToChoose.length);
           const selectedProblem = problemsToChoose[randomIndex];
-          
-          // If language is "any", randomly select one language for all players
-          if (roomState.settings.language === 'any') {
+
+          // Re-randomize language each round if original setting was "any"
+          if (roomState.settings._originalLanguage === 'any') {
             const availableLanguages = ['c', 'cpp', 'python', 'java', 'js'];
-            const randomLangIndex = Math.floor(Math.random() * availableLanguages.length);
-            roomState.settings.language = availableLanguages[randomLangIndex];
+            roomState.settings.language = availableLanguages[Math.floor(Math.random() * availableLanguages.length)];
           }
-          
+
           roomState.settings.problemId = selectedProblem.problem_id;
-          
+
           // Clear previous round timeout if exists
           if (roomState.roundTimeoutId) {
             clearTimeout(roomState.roundTimeoutId);
             roomState.roundTimeoutId = null;
           }
-          
+
           // Set up new round timing
           const timeLimitStr = roomState.settings?.timeLimit || 'none';
           const timeLimitMinutes = timeLimitStr === 'none' ? null : parseInt(String(timeLimitStr).replace(/[^\d]/g, '')) || null;
           roomState.roundStartTime = Date.now();
           roomState.roundTimeLimitMs = timeLimitMinutes ? timeLimitMinutes * 60 * 1000 : null;
-          
+
           // Set up server-side auto-submit for new round
           if (roomState.roundTimeLimitMs) {
-            roomState.roundTimeoutId = setTimeout(() => {
+            roomState.roundTimeoutId = setTimeout(async () => {
               const currentState = rooms.get(roomCode);
               if (!currentState || !currentState.matchStarted) return;
-              
-              // Check if round has already ended (submissions cleared)
-              if (!currentState.submissions || Object.keys(currentState.submissions).length === 0) {
-                return;
-              }
-              
+              if (!currentState.submissions || Object.keys(currentState.submissions).length === 0) return;
+
               const activePlayers = currentState.players.filter(p => (p.role === 'player' || p.role === 'host'));
-              activePlayers.forEach(player => {
-                if (!currentState.submissions?.[player.socketId]) {
-                  io.to(player.socketId).emit('time-expired', {
-                    message: 'Time limit reached. Please submit your code immediately.'
-                  });
-                }
-              });
+              const pending = activePlayers.filter(p => !currentState.submissions?.[p.socketId]);
+              await Promise.all(pending.map(async player => {
+                io.to(player.socketId).emit('time-expired', { message: 'Time limit reached. Your submission has been auto-submitted.' });
+                await createTimeoutSubmission(player, roomCode);
+              }));
+              if (checkAllPlayersSubmitted(roomCode) && !currentState.isPolling) {
+                currentState.isPolling = true;
+                const announced = await compareAndAnnounceWinner(roomCode);
+                if (!announced) currentState.isPolling = false;
+              }
             }, roomState.roundTimeLimitMs);
           }
-          
+
           io.to(roomCode).emit('next-round', {
             round: matchState.roundsPlayed + 1,
             totalRounds: matchState.totalRounds,
@@ -540,22 +538,42 @@ async function compareAndAnnounceWinner(roomCode) {
         }
       }, 3000); // 3 seconds delay to show result
     }
-    
+
     return true; // Indicate successful comparison
-    
+
   } catch (error) {
     console.error('Error comparing submissions:', error);
     return false;
   }
-  
-  return false;
+}
+
+async function createTimeoutSubmission(player, roomCode) {
+  const fakeSubId = `timeout_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+  await Promise.all([
+    redisClient.hSet(`sub:${fakeSubId}`, {
+      status: 'run_timeout',
+      problem_id: 'timeout',
+      language: 'none',
+      created_at: String(Math.floor(Date.now() / 1000))
+    }),
+    redisClient.set(`run_result:${fakeSubId}`, JSON.stringify({
+      ok: false,
+      tests: [],
+      performance: { total_tests: 0, passed: 0, failed: 0, accuracy: 0, overall: 'timeout' }
+    }), { EX: 3600 })
+  ]);
+  const roomState = rooms.get(roomCode);
+  if (roomState) {
+    roomState.submissions[player.socketId] = { submissionId: fakeSubId, username: player.username, timestamp: Date.now() };
+  }
+  return fakeSubId;
 }
 
 io.on("connection", (socket) => {
   socket.on("join-room", async ({ roomCode, username, role }) => {
     try {
       socket.join(roomCode);
-      
+
       let roomState = rooms.get(roomCode);
       if (!roomState) {
         roomState = {
@@ -576,7 +594,7 @@ io.on("connection", (socket) => {
       }
 
       const user = { socketId: socket.id, username, role, ready: role === 'host' ? true : false };
-      
+
       if (role === "player" || role === "host") {
         if (roomState.players.length < 2) {
           roomState.players.push(user);
@@ -593,11 +611,11 @@ io.on("connection", (socket) => {
         roomCode,
         role,
         roomState: {
-          players: roomState.players.map(p => ({ 
-            username: p.username, 
-            socketId: p.socketId, 
+          players: roomState.players.map(p => ({
+            username: p.username,
+            socketId: p.socketId,
             role: p.role,
-            ready: p.ready 
+            ready: p.ready
           })),
           spectators: roomState.spectators.map(s => ({ username: s.username })),
           settings: roomState.settings,
@@ -605,24 +623,24 @@ io.on("connection", (socket) => {
         }
       });
 
-      io.to(roomCode).emit("player-joined", { 
-        username, 
+      io.to(roomCode).emit("player-joined", {
+        username,
         role,
-        players: roomState.players.map(p => ({ 
-          username: p.username, 
-          socketId: p.socketId, 
+        players: roomState.players.map(p => ({
+          username: p.username,
+          socketId: p.socketId,
           role: p.role,
-          ready: p.ready 
+          ready: p.ready
         })),
         settings: roomState.settings
       });
 
       socket.emit("room-state", {
-        players: roomState.players.map(p => ({ 
-          username: p.username, 
-          socketId: p.socketId, 
+        players: roomState.players.map(p => ({
+          username: p.username,
+          socketId: p.socketId,
           role: p.role,
-          ready: p.ready 
+          ready: p.ready
         })),
         settings: roomState.settings
       });
@@ -636,8 +654,8 @@ io.on("connection", (socket) => {
     const roomState = rooms.get(roomCode);
     if (roomState && roomState.players[0]?.socketId === socket.id) {
       roomState.settings = { ...roomState.settings, ...settings };
-      io.to(roomCode).emit("settings-updated", { 
-        settings: roomState.settings 
+      io.to(roomCode).emit("settings-updated", {
+        settings: roomState.settings
       });
     }
   });
@@ -648,13 +666,13 @@ io.on("connection", (socket) => {
       const player = roomState.players.find(p => p.socketId === socket.id);
       if (player) {
         player.ready = ready;
-        
+
         io.to(roomCode).emit("player-ready-update", {
-          players: roomState.players.map(p => ({ 
-            username: p.username, 
-            socketId: p.socketId, 
+          players: roomState.players.map(p => ({
+            username: p.username,
+            socketId: p.socketId,
             role: p.role,
-            ready: p.ready 
+            ready: p.ready
           }))
         });
       }
@@ -665,7 +683,7 @@ io.on("connection", (socket) => {
     const roomState = rooms.get(roomCode);
     if (roomState) {
       roomState.playerCodes[socket.id] = code;
-      
+
       socket.to(roomCode).emit("opponent-code-update", {
         socketId: socket.id,
         code,
@@ -681,75 +699,73 @@ io.on("connection", (socket) => {
       resetMatchState(roomState);
       roomState.submissions = {};
       roomState.matchStarted = true;
-      
+      roomState.isPolling = false;
+
       // Track round start time and time limit for server-side enforcement
       const timeLimitStr = roomState.settings?.timeLimit || 'none';
       const timeLimitMinutes = timeLimitStr === 'none' ? null : parseInt(String(timeLimitStr).replace(/[^\d]/g, '')) || null;
       roomState.roundStartTime = Date.now();
       roomState.roundTimeLimitMs = timeLimitMinutes ? timeLimitMinutes * 60 * 1000 : null;
-      
+
       // Set up server-side auto-submit if time limit is set
       if (roomState.roundTimeLimitMs) {
-        roomState.roundTimeoutId = setTimeout(() => {
+        roomState.roundTimeoutId = setTimeout(async () => {
           const currentState = rooms.get(roomCode);
           if (!currentState || !currentState.matchStarted) return;
-          
-          // Check if round has already ended (submissions cleared)
-          if (!currentState.submissions || Object.keys(currentState.submissions).length === 0) {
-            return;
-          }
-          
-          // Auto-submit for players who haven't submitted
+          if (!currentState.submissions || Object.keys(currentState.submissions).length === 0) return;
+
           const activePlayers = currentState.players.filter(p => (p.role === 'player' || p.role === 'host'));
-          activePlayers.forEach(player => {
-            if (!currentState.submissions?.[player.socketId]) {
-              // Notify player that time expired
-              io.to(player.socketId).emit('time-expired', {
-                message: 'Time limit reached. Please submit your code immediately.'
-              });
-            }
-          });
+          const pending = activePlayers.filter(p => !currentState.submissions?.[p.socketId]);
+          await Promise.all(pending.map(async player => {
+            io.to(player.socketId).emit('time-expired', { message: 'Time limit reached. Your submission has been auto-submitted.' });
+            await createTimeoutSubmission(player, roomCode);
+          }));
+          if (checkAllPlayersSubmitted(roomCode) && !currentState.isPolling) {
+            currentState.isPolling = true;
+            const announced = await compareAndAnnounceWinner(roomCode);
+            if (!announced) currentState.isPolling = false;
+          }
         }, roomState.roundTimeLimitMs);
       }
-      
+
       try {
         const apiUrl = process.env.API_URL || "http://api:8000";
         const response = await fetch(`${apiUrl}/problems`);
         const data = await response.json();
         const allProblems = data.problems || [];
-        
+
         const difficulty = roomState.settings.difficulty;
         const filteredProblems = difficulty === 'any' ? allProblems : allProblems.filter(p => p.difficulty === difficulty);
         const problemsToChoose = filteredProblems.length > 0 ? filteredProblems : allProblems;
-        
+
         if (problemsToChoose.length === 0) {
           throw new Error('No problems available');
         }
-        
+
         const randomIndex = Math.floor(Math.random() * problemsToChoose.length);
         const selectedProblem = problemsToChoose[randomIndex];
-        
-        // If language is "any", randomly select one language for all players
+
+        // If language is "any", track original intent and pick a random language for this round
         if (roomState.settings.language === 'any') {
+          roomState.settings._originalLanguage = 'any';
           const availableLanguages = ['c', 'cpp', 'python', 'java', 'js'];
-          const randomLangIndex = Math.floor(Math.random() * availableLanguages.length);
-          roomState.settings.language = availableLanguages[randomLangIndex];
+          roomState.settings.language = availableLanguages[Math.floor(Math.random() * availableLanguages.length)];
         }
-        
+
         roomState.settings.problemId = selectedProblem.problem_id;
-        
+
         io.to(roomCode).emit("match-started", {
           settings: roomState.settings,
           problemId: selectedProblem.problem_id
         });
       } catch (error) {
         console.error('Error selecting problem:', error);
-        
-        // If language is "any", randomly select one language even on error
+
+        // If language is "any", track original intent and pick a random language for this round
         if (roomState.settings.language === 'any') {
+          roomState.settings._originalLanguage = 'any';
           const availableLanguages = ['c', 'cpp', 'python', 'java', 'js'];
-          const randomLangIndex = Math.floor(Math.random() * availableLanguages.length);
-          roomState.settings.language = availableLanguages[randomLangIndex];
+          roomState.settings.language = availableLanguages[Math.floor(Math.random() * availableLanguages.length)];
         }
 
         io.to(roomCode).emit("match-started", {
@@ -771,12 +787,12 @@ io.on("connection", (socket) => {
       });
       return;
     }
-    
+
     const player = roomState.players.find(p => p.socketId === socket.id);
     if (!player) {
       return;
     }
-    
+
     // Server-side time limit enforcement
     // Note: We allow submissions after time limit because client auto-submits when timer expires
     // The submission will be processed normally to show results
@@ -788,47 +804,52 @@ io.on("connection", (socket) => {
         console.log(`Submission from ${player.username} is ${Math.round((elapsed - roomState.roundTimeLimitMs) / 1000)}s late, but allowing for results`);
       }
     }
-    
+
     if (!roomState.submissions) {
       roomState.submissions = {};
     }
-    
+
     roomState.submissions[socket.id] = {
       submissionId,
       username: player.username,
       timestamp: Date.now()
     };
-    
+
     socket.to(roomCode).emit("opponent-submitted", {
       socketId: socket.id,
       username: player.username,
       submissionId
     });
-    
+
     if (checkAllPlayersSubmitted(roomCode)) {
+      const guardState = rooms.get(roomCode);
+      if (!guardState || guardState.isPolling) return; // Prevent duplicate poll interval
+      guardState.isPolling = true;
+
       let attempts = 0;
-      const maxAttempts = 30; // Increased to 60 seconds total (30 * 2s)
+      const maxAttempts = 30;
       let hasAnnounced = false;
-      
+
       const pollInterval = setInterval(async () => {
         attempts++;
-        
-        const result = await compareAndAnnounceWinner(roomCode);
-        
+
+        await compareAndAnnounceWinner(roomCode);
+
         const currentState = rooms.get(roomCode);
         if (!currentState) {
           clearInterval(pollInterval);
           return;
         }
-        
-        // Check if results were announced (submissions cleared means comparison succeeded)
+
         if (!currentState.submissions || Object.keys(currentState.submissions).length === 0) {
           hasAnnounced = true;
+          currentState.isPolling = false;
           clearInterval(pollInterval);
           return;
         }
-        
+
         if (attempts >= maxAttempts) {
+          currentState.isPolling = false;
           clearInterval(pollInterval);
           if (!hasAnnounced) {
             console.error(`Match timeout for room ${roomCode} after ${maxAttempts} attempts`);
@@ -845,24 +866,24 @@ io.on("connection", (socket) => {
     for (const [roomCode, roomState] of rooms.entries()) {
       const playerIndex = roomState.players.findIndex(p => p.socketId === socket.id);
       const spectatorIndex = roomState.spectators.findIndex(s => s.socketId === socket.id);
-      
+
       if (playerIndex !== -1) {
         const player = roomState.players[playerIndex];
         roomState.players.splice(playerIndex, 1);
         delete roomState.playerCodes[socket.id];
-        
-        io.to(roomCode).emit("player-left", { 
-          username: player.username, 
+
+        io.to(roomCode).emit("player-left", {
+          username: player.username,
           role: player.role,
-          players: roomState.players.map(p => ({ 
-            username: p.username, 
-            socketId: p.socketId, 
+          players: roomState.players.map(p => ({
+            username: p.username,
+            socketId: p.socketId,
             role: p.role,
-            ready: p.ready 
+            ready: p.ready
           }))
         });
       }
-      
+
       if (spectatorIndex !== -1) {
         const spectator = roomState.spectators[spectatorIndex];
         roomState.spectators.splice(spectatorIndex, 1);

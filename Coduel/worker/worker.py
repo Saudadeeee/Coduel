@@ -172,7 +172,7 @@ def _compare_performance_with_tolerance(value_a, value_b, tolerance=PERFORMANCE_
     
     return 'A_BETTER' if value_a < value_b else 'B_BETTER'
 
-def docker_run(cmd, mounts=None, readonly_root=True, timeout=None):
+def docker_run(cmd, mounts=None, readonly_root=True, timeout=None, extra_env=None):
     base = ["docker", "run", "--rm", "--network", "none"]
     if CPU_LIMIT:
         base += ["--cpus", CPU_LIMIT]
@@ -185,6 +185,9 @@ def docker_run(cmd, mounts=None, readonly_root=True, timeout=None):
             base += ["--tmpfs", "/work"]
     if DOCKER_RUN_EXTRA_ARGS:
         base += DOCKER_RUN_EXTRA_ARGS
+    if extra_env:
+        for k, v in extra_env.items():
+            base += ["-e", f"{k}={v}"]
     if mounts:
         for host_path, cont_path, mode in mounts:
             base += ["-v", f"{host_path}:{cont_path}:{mode}"]
@@ -261,7 +264,10 @@ def run_submission(job):
         source_for_run = SOURCE_FILE_MAP.get(lang, "main.cpp")
         std_arg = std or ""
         cmd = ["bash", "-lc", f"compile_run.sh --run-only {shlex.quote(lang)} {shlex.quote(source_for_run)} {shlex.quote(std_arg)}"]
-        res = docker_run(cmd, mounts=mounts, timeout=RUN_TIMEOUT)
+        # Scale total timeout to account for multi-run (RUNS_PER_TEST) per test
+        container_timeout = RUN_TIMEOUT * max(RUNS_PER_TEST, 1)
+        res = docker_run(cmd, mounts=mounts, timeout=container_timeout,
+                         extra_env={"RUNS_PER_TEST": str(RUNS_PER_TEST)})
         if res.returncode not in (0,):
             error_payload = {
                 "error": "judge_container_failed",
@@ -276,36 +282,46 @@ def run_submission(job):
         metrics = []
         for i in range(1, 1000):
             vfile = os.path.join(tmpdir, f"verdict_{i}.txt")
-            json_metrics = os.path.join(tmpdir, f"metrics_{i}.json")
-            txt_metrics = os.path.join(tmpdir, f"metrics_{i}.txt")
             if not os.path.exists(vfile):
                 break
             verdicts.append(open(vfile).read().strip())
 
-            elapsed_sec = None
-            elapsed_str = None
-            maxrss = None
-            exit_code = None
+            # Collect metrics from all per-run files: metrics_{i}_run{j}.json
+            run_elapsed = []
+            run_maxrss = []
+            for run in range(1, RUNS_PER_TEST + 1):
+                json_metrics = os.path.join(tmpdir, f"metrics_{i}_run{run}.json")
+                if os.path.exists(json_metrics):
+                    try:
+                        data = json.loads(open(json_metrics, encoding="utf-8").read())
+                        e = _parse_elapsed_seconds(data.get("elapsed_seconds"))
+                        if e is not None:
+                            run_elapsed.append(e)
+                        m = data.get("max_rss_kb")
+                        if m is not None:
+                            run_maxrss.append(float(m))
+                    except Exception:
+                        pass
 
-            if os.path.exists(json_metrics):
-                try:
-                    data = json.loads(open(json_metrics, encoding="utf-8").read())
-                except json.JSONDecodeError:
-                    data = {}
-                elapsed_sec = _parse_elapsed_seconds(data.get("elapsed_seconds"))
-                if elapsed_sec is not None:
-                    elapsed_str = f"{elapsed_sec:.6f}"
-                maxrss = data.get("max_rss_kb")
-                exit_code = data.get("exit_code")
-            elif os.path.exists(txt_metrics):
-                txt = open(txt_metrics, encoding="utf-8").read()
-                m1 = re.search(r"Elapsed \\(wall clock\\) time.*:\\s*(.*)", txt)
-                m2 = re.search(r"Maximum resident set size \\(kbytes\\):\\s*(\\d+)", txt)
-                if m1:
-                    elapsed_str = m1.group(1).strip()
-                    elapsed_sec = _parse_elapsed_seconds(elapsed_str)
-                if m2:
-                    maxrss = int(m2.group(1))
+            # Fallback: legacy single-run metrics_{i}.json
+            if not run_elapsed:
+                json_metrics = os.path.join(tmpdir, f"metrics_{i}.json")
+                if os.path.exists(json_metrics):
+                    try:
+                        data = json.loads(open(json_metrics, encoding="utf-8").read())
+                        e = _parse_elapsed_seconds(data.get("elapsed_seconds"))
+                        if e is not None:
+                            run_elapsed = [e]
+                        m = data.get("max_rss_kb")
+                        if m is not None:
+                            run_maxrss = [float(m)]
+                    except Exception:
+                        pass
+
+            elapsed_sec = _calculate_median(run_elapsed)
+            elapsed_str = f"{elapsed_sec:.6f}" if elapsed_sec is not None else None
+            maxrss = _calculate_median(run_maxrss)
+            exit_code = None
 
             if elapsed_sec is not None or maxrss is not None:
                 metrics.append({

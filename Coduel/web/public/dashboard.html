@@ -1,554 +1,886 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" type="image/png" href="favicon.png" />
   <title>Coduel | Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="themes.css">
   <style>
     :root {
-      color-scheme: dark;
+      --bg-deep: #0d1017;
       --bg-top: #11151c;
-      --bg-bottom: #212d40;
-      --panel-bg: rgba(17,21,28,0.6);
-      --panel-bg-soft: rgba(17,21,28,0.3);
-      --border: #364156;
-      --border-soft: rgba(54,65,86,0.4);
+      --bg-bottom: #1c2435;
+      --panel: rgba(255, 255, 255, 0.03);
+      --panel-hover: rgba(255, 255, 255, 0.055);
+      --border: rgba(54, 65, 86, 0.55);
+      --border-hover: var(--accent-border, rgba(125, 78, 87, 0.5));
       --accent: #7d4e57;
-      --accent-hover: #915763;
-      --text-main: #ffffff;
-      --text-dim: #9aa4ba;
-      --text-dimmer: rgba(154,164,186,0.6);
-      --code-bg: #1a1f29;
-      --code-fg: #e8e9f4;
-      --chip-pass-bg: #1f3a2a;
-      --chip-pass-fg: #85ffa8;
-      --chip-warn-bg: #3a2f1f;
-      --chip-warn-fg: #ffb37a;
-      --chip-new-bg: #2f3442;
-      --chip-new-fg: #d0d4e6;
+      --accent-2: #a06070;
+      --accent-soft: rgba(125, 78, 87, 0.15);
+      --accent-glow: rgba(125, 78, 87, 0.5);
+      --text-main: #f0f2f8;
+      --text-dim: #8892aa;
+      --text-dimmer: #4e5870;
+      --green: #3ddc84;
+      --yellow: #fbbf24;
+      --red: #f87171;
+      --blue: #60a5fa;
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+      --transition: 0.22s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     }
 
-    * {
-      box-sizing:border-box;
-      margin:0;
-      padding:0;
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
       -webkit-font-smoothing: antialiased;
     }
 
     body {
-      margin:0;
-      font-family:system-ui, sans-serif;
+      min-height: 100vh;
       background:
-        radial-gradient(circle at 50% 20%, rgba(125,78,87,0.22) 0%, rgba(33,45,64,0) 60%),
-        linear-gradient(to bottom, var(--bg-top) 0%, var(--bg-bottom) 100%);
-      color:var(--text-main);
-      min-height:100vh;
-      display:flex;
-      flex-direction:column;
+        radial-gradient(ellipse 70% 40% at 50% 0%, var(--accent-body, rgba(125, 78, 87, 0.18)) 0%, transparent 60%),
+        linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
+      background-color: var(--bg-deep);
+      color: var(--text-main);
+      font-family: 'Inter', system-ui, sans-serif;
     }
 
-    header {
-      background:rgba(17,21,28,0.8);
-      color:var(--text-main);
-      padding:18px 28px;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      border-bottom:1px solid var(--border);
-      box-shadow:0 24px 48px rgba(0,0,0,0.7), 0 2px 4px rgba(0,0,0,0.8);
-      backdrop-filter: blur(4px);
-      position:sticky;
-      top:0;
-      z-index:10;
+    /* ─── Background grid ─── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(54, 65, 86, 0.13) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(54, 65, 86, 0.13) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 20%, transparent 80%);
+      z-index: 0;
     }
 
-    header h1 {
-      margin:0;
-      font-size:20px;
-      font-weight:600;
-      letter-spacing:-0.03em;
-      color:var(--text-main);
+    /* ─── Nav ─── */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.9rem 1.75rem;
+      background: rgba(13, 16, 23, 0.82);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
     }
 
-    .nav-links {
-      display:flex;
-      gap:12px;
-      flex-wrap:wrap;
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      text-decoration: none;
+      transition: opacity var(--transition);
     }
 
-    header a {
-      color:var(--text-main);
-      text-decoration:none;
-      font-weight:600;
-      padding:8px 14px;
-      border:1px solid rgba(125,78,87,0.4);
-      border-radius:999px;
-      background:rgba(125,78,87,0.18);
-      font-size:13px;
-      line-height:1.2rem;
-      box-shadow:0 16px 32px rgba(0,0,0,0.7);
-      transition:all 0.15s ease;
-    }
-    header a:hover {
-      background:rgba(145,87,99,0.3);
-      box-shadow:0 24px 48px rgba(0,0,0,0.8),
-                 0 0 12px rgba(125,78,87,0.6);
+    .nav-brand:hover {
+      opacity: 0.8;
     }
 
+    .nav-logo {
+      font-size: 1.15rem;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      background: linear-gradient(130deg, #fff 20%, #c8a0b0 70%, #7d4e57 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .nav-tag {
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: var(--text-dimmer);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      border: 1px solid var(--border);
+      padding: 0.2rem 0.5rem;
+      border-radius: 999px;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.45rem 1rem;
+      border-radius: 999px;
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all var(--transition);
+      letter-spacing: 0.01em;
+    }
+
+    .nav-btn-ghost {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+    }
+
+    .nav-btn-ghost:hover {
+      border-color: var(--accent-border, rgba(125, 78, 87, 0.4));
+      color: var(--text-main);
+      background: var(--accent-soft);
+    }
+
+    .nav-btn-accent {
+      background: var(--accent-gradient, linear-gradient(135deg, #7d4e57, #a06070));
+      border: 1px solid transparent;
+      color: #fff;
+      box-shadow: 0 4px 14px var(--accent-glow);
+    }
+
+    .nav-btn-accent:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 22px var(--accent-glow);
+    }
+
+    /* ─── Main content ─── */
     main {
-      flex:1;
-      width:100%;
-      max-width:1200px;
-      margin:0 auto;
-      padding:30px 20px;
-      display:flex;
-      flex-direction:column;
-      gap:24px;
+      position: relative;
+      z-index: 1;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      animation: fadeInUp 0.5s ease both;
     }
 
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(22px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ─── Stat cards ─── */
     .stats-grid {
-      display:grid;
-      grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
-      gap:18px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
     }
 
     .stat-card {
-      background:var(--panel-bg);
-      border-radius:12px;
-      padding:20px;
-      border:1px solid var(--border);
-      box-shadow:
-        0 24px 48px rgba(0,0,0,0.7),
-        0 2px 4px rgba(0,0,0,0.8);
-      display:flex;
-      flex-direction:column;
-      gap:8px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.35rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      position: relative;
+      overflow: hidden;
+      transition: all var(--transition);
+      backdrop-filter: blur(8px);
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      background: radial-gradient(ellipse at 80% 20%, var(--card-glow, rgba(125, 78, 87, 0.15)) 0%, transparent 60%);
+      transition: opacity var(--transition);
+    }
+
+    .stat-card:hover {
+      border-color: var(--accent-border, rgba(125, 78, 87, 0.45));
+      transform: translateY(-2px);
+    }
+
+    .stat-card:hover::before {
+      opacity: 1;
+    }
+
+    .stat-card.total {
+      --card-glow: var(--accent-body, rgba(125, 78, 87, 0.2));
+    }
+
+    .stat-card.done {
+      --card-glow: rgba(61, 220, 132, 0.15);
+    }
+
+    .stat-card.wip {
+      --card-glow: rgba(251, 191, 36, 0.15);
+    }
+
+    .stat-card.fresh {
+      --card-glow: rgba(96, 165, 250, 0.12);
+    }
+
+    .stat-icon {
+      font-size: 1.4rem;
+      line-height: 1;
     }
 
     .stat-label {
-      font-size:13px;
-      font-weight:600;
-      color:var(--text-dim);
-      text-transform:uppercase;
-      letter-spacing:0.08em;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--text-dimmer);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
     }
 
     .stat-value {
-      font-size:32px;
-      font-weight:700;
-      color:var(--text-main);
-      line-height:1;
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1;
+      letter-spacing: -0.03em;
+      font-variant-numeric: tabular-nums;
+      transition: color 0.3s;
     }
 
-    .section-header {
-      display:flex;
-      justify-content:space-between;
-      align-items:baseline;
-      flex-wrap:wrap;
-      gap:12px;
-      margin-bottom:20px;
+    .stat-card.done .stat-value {
+      color: var(--green);
+    }
+
+    .stat-card.wip .stat-value {
+      color: var(--yellow);
+    }
+
+    .stat-card.fresh .stat-value {
+      color: var(--blue);
+    }
+
+    /* ─── Toolbar ─── */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
     }
 
     .section-title {
-      font-size:20px;
-      font-weight:600;
-      color:var(--text-main);
-      letter-spacing:-0.03em;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text-main);
+      flex: 0 0 auto;
+      margin-right: 0.5rem;
     }
 
-    .filter-bar {
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
+    .search-wrap {
+      flex: 1;
+      min-width: 180px;
+      max-width: 320px;
+      position: relative;
     }
 
-    .filter-btn {
-      background:transparent;
-      border:1px solid var(--border);
-      color:var(--text-dim);
-      padding:6px 14px;
-      border-radius:999px;
-      font-size:12px;
-      font-weight:600;
-      cursor:pointer;
-      transition:all 0.15s ease;
+    .search-icon {
+      position: absolute;
+      left: 0.8rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-dimmer);
+      font-size: 0.9rem;
+      pointer-events: none;
     }
 
-    .filter-btn.active,
-    .filter-btn:hover,
-    .filter-btn:focus {
-      background:rgba(125,78,87,0.2);
-      border-color:var(--accent);
-      color:var(--text-main);
-      outline:none;
-    }
-    .filter-btn:focus-visible {
-      outline:2px solid var(--accent);
-      outline-offset:2px;
-    }
-
-    .problems-table-wrapper {
-      background:var(--panel-bg);
-      border-radius:12px;
-      padding:20px;
-      border:1px solid var(--border);
-      box-shadow:
-        0 24px 48px rgba(0,0,0,0.7),
-        0 2px 4px rgba(0,0,0,0.8);
-      overflow-x:auto;
+    .search-input {
+      width: 100%;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.82rem;
+      padding: 0.5rem 1rem 0.5rem 2.2rem;
+      outline: none;
+      transition: all var(--transition);
     }
 
-    .problems-table {
-      width:100%;
-      border-collapse:collapse;
-      min-width:600px;
+    .search-input::placeholder {
+      color: var(--text-dimmer);
     }
 
-    .problems-table thead th {
-      text-align:left;
-      padding:12px;
-      font-size:12px;
-      font-weight:600;
-      color:var(--text-dim);
-      text-transform:uppercase;
-      letter-spacing:0.08em;
-      border-bottom:2px solid var(--border);
+    .search-input:focus {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      box-shadow: 0 0 0 3px var(--accent-soft);
     }
 
-    .problems-table tbody tr {
-      border-bottom:1px solid var(--border-soft);
-      transition:background 0.15s ease;
+    .filter-pills {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      margin-left: auto;
     }
 
-    .problems-table tbody tr:hover {
-      background:rgba(125,78,87,0.08);
+    .filter-pill {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      padding: 0.4rem 0.9rem;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      letter-spacing: 0.04em;
+      transition: all var(--transition);
     }
 
-    .problems-table tbody td {
-      padding:14px 12px;
-      font-size:14px;
-      color:var(--text-main);
+    .filter-pill:hover {
+      border-color: var(--accent-border, rgba(125, 78, 87, 0.5));
+      color: var(--text-main);
+      background: var(--accent-soft);
     }
 
-    .problem-number {
-      font-family:ui-monospace, monospace;
-      color:var(--text-dim);
-      font-size:13px;
+    .filter-pill.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+      box-shadow: 0 4px 12px var(--accent-glow);
+    }
+
+    .filter-pill.active-fast {
+      background: #1e3a2a;
+      border-color: rgba(61, 220, 132, 0.5);
+      color: var(--green);
+    }
+
+    .filter-pill.active-easy {
+      background: #1e3a2a;
+      border-color: rgba(61, 220, 132, 0.5);
+      color: var(--green);
+    }
+
+    .filter-pill.active-medium {
+      background: #3a2e10;
+      border-color: rgba(251, 191, 36, 0.5);
+      color: var(--yellow);
+    }
+
+    .filter-pill.active-hard {
+      background: #3a1010;
+      border-color: rgba(248, 113, 113, 0.5);
+      color: var(--red);
+    }
+
+    /* ─── Problem grid ─── */
+    .problems-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+
+    /* Skeleton */
+    .skeleton-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      overflow: hidden;
+    }
+
+    .sk-line {
+      height: 12px;
+      border-radius: 6px;
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.09) 50%, rgba(255, 255, 255, 0.04) 100%);
+      background-size: 200% 100%;
+      animation: shimmer 1.6s infinite;
+    }
+
+    .sk-line.short {
+      width: 45%;
+    }
+
+    .sk-line.long {
+      width: 80%;
+    }
+
+    .sk-line.thin {
+      height: 8px;
+      width: 60%;
+    }
+
+    @keyframes shimmer {
+      0% {
+        background-position: 200% 0;
+      }
+
+      100% {
+        background-position: -200% 0;
+      }
+    }
+
+    /* Problem card */
+    .problem-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem 1.4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      transition: all var(--transition);
+      position: relative;
+      overflow: hidden;
+      animation: fadeInUp 0.4s ease both;
+    }
+
+    .problem-card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 10%;
+      bottom: 10%;
+      width: 3px;
+      border-radius: 0 3px 3px 0;
+      background: var(--diff-color, var(--accent));
+      opacity: 0;
+      transition: opacity var(--transition), top var(--transition), bottom var(--transition);
+    }
+
+    .problem-card:hover {
+      background: var(--panel-hover);
+      border-color: var(--diff-color, var(--accent-border, rgba(125, 78, 87, 0.5)));
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35), 0 0 0 1px var(--accent-soft);
+    }
+
+    .problem-card:hover::before {
+      opacity: 1;
+      top: 5%;
+      bottom: 5%;
+    }
+
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .problem-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-dimmer);
+      letter-spacing: 0.06em;
+    }
+
+    .diff-badge {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.22rem 0.6rem;
+      border-radius: 999px;
+      flex-shrink: 0;
+    }
+
+    .diff-badge.fast {
+      background: rgba(61, 220, 132, 0.14);
+      color: var(--green);
+      border: 1px solid rgba(61, 220, 132, 0.3);
+    }
+
+    .diff-badge.easy {
+      background: rgba(61, 220, 132, 0.14);
+      color: var(--green);
+      border: 1px solid rgba(61, 220, 132, 0.3);
+    }
+
+    .diff-badge.medium {
+      background: rgba(251, 191, 36, 0.14);
+      color: var(--yellow);
+      border: 1px solid rgba(251, 191, 36, 0.3);
+    }
+
+    .diff-badge.hard {
+      background: rgba(248, 113, 113, 0.14);
+      color: var(--red);
+      border: 1px solid rgba(248, 113, 113, 0.3);
     }
 
     .problem-title {
-      font-weight:600;
-      color:var(--text-main);
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: -0.01em;
+      line-height: 1.3;
     }
 
-    .problem-link {
-      color:var(--text-main);
-      text-decoration:none;
-      transition:color 0.15s ease;
+    .card-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+      margin-top: auto;
     }
 
-    .problem-link:hover {
-      color:var(--accent-hover);
-    }
-    .problem-link:focus-visible {
-      outline:2px solid var(--accent);
-      outline-offset:2px;
-      border-radius:4px;
-    }
-
-    .difficulty-badge {
-      display:inline-block;
-      padding:4px 10px;
-      border-radius:999px;
-      font-size:11px;
-      font-weight:700;
-      letter-spacing:0.06em;
-      text-transform:uppercase;
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.72rem;
+      color: var(--text-dimmer);
+      font-weight: 500;
     }
 
-    .difficulty-badge.fast {
-      background:rgba(133,255,168,0.15);
-      color:#85ffa8;
-      border:1px solid rgba(133,255,168,0.3);
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
     }
 
-    .difficulty-badge.easy {
-      background:rgba(52,211,153,0.15);
-      color:#34d399;
-      border:1px solid rgba(52,211,153,0.3);
+    .status-dot.completed {
+      background: var(--green);
+      box-shadow: 0 0 6px var(--green);
     }
 
-    .difficulty-badge.medium {
-      background:rgba(251,191,36,0.15);
-      color:#fbbf24;
-      border:1px solid rgba(251,191,36,0.3);
+    .status-dot.in-progress {
+      background: var(--yellow);
+      box-shadow: 0 0 6px var(--yellow);
     }
 
-    .difficulty-badge.hard {
-      background:rgba(239,68,68,0.15);
-      color:#ef4444;
-      border:1px solid rgba(239,68,68,0.3);
+    .status-dot.new {
+      background: var(--text-dimmer);
     }
 
-    .status-indicator {
-      display:inline-block;
-      width:8px;
-      height:8px;
-      border-radius:50%;
-      margin-right:6px;
+    /* Diff colors for hover border */
+    .problem-card.fast,
+    .problem-card.easy {
+      --diff-color: rgba(61, 220, 132, 0.55);
     }
 
-    .status-indicator.completed {
-      background:var(--chip-pass-fg);
-      box-shadow:0 0 6px var(--chip-pass-fg);
+    .problem-card.medium {
+      --diff-color: rgba(251, 191, 36, 0.55);
     }
 
-    .status-indicator.in-progress {
-      background:var(--chip-warn-fg);
-      box-shadow:0 0 6px var(--chip-warn-fg);
+    .problem-card.hard {
+      --diff-color: rgba(248, 113, 113, 0.55);
     }
 
-    .status-indicator.new {
-      background:var(--text-dimmer);
-    }
-
+    /* ─── Empty / error states ─── */
     .empty-state {
-      text-align:center;
-      padding:60px 20px;
-      color:var(--text-dim);
-      font-size:14px;
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 5rem 2rem;
+      color: var(--text-dim);
     }
 
-    .loading {
-      text-align:center;
-      padding:40px;
-      color:var(--text-dim);
+    .empty-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
     }
 
-    @media (max-width:640px) {
+    .empty-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+      color: var(--text-main);
+    }
+
+    .empty-desc {
+      font-size: 0.82rem;
+    }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 600px) {
       main {
-        padding:20px 14px;
+        padding: 1.25rem 1rem 3rem;
       }
-      .stats-grid {
-        grid-template-columns:1fr;
+
+      .toolbar {
+        flex-direction: column;
+        align-items: stretch;
       }
-      header {
-        flex-direction:column;
-        gap:12px;
-        align-items:flex-start;
+
+      .search-wrap {
+        max-width: none;
+      }
+
+      .filter-pills {
+        margin-left: 0;
+      }
+
+      .nav {
+        padding: 0.75rem 1rem;
+      }
+
+      .nav-tag {
+        display: none;
       }
     }
   </style>
 </head>
+
 <body>
-  <header>
-    <a href="/mainmenu.html" style="text-decoration:none; color:inherit;">
-      <h1>Coduel</h1>
+
+  <!-- Nav -->
+  <nav class="nav">
+    <a class="nav-brand" href="/mainmenu.html">
+      <span class="nav-logo">CODUEL</span>
+      <span class="nav-tag">Dashboard</span>
     </a>
-  </header>
+    <div class="nav-actions">
+      <a class="nav-btn nav-btn-ghost" href="/problem-add">+ New Problem</a>
+    </div>
+  </nav>
 
   <main>
     <!-- Stats -->
     <section class="stats-grid">
-      <div class="stat-card">
+      <div class="stat-card total">
+        <div class="stat-icon">📚</div>
         <div class="stat-label">Total Problems</div>
-        <div class="stat-value" id="stat-total">0</div>
+        <div class="stat-value" id="stat-total">—</div>
       </div>
-      <div class="stat-card">
+      <div class="stat-card done">
+        <div class="stat-icon">✅</div>
         <div class="stat-label">Completed</div>
-        <div class="stat-value" id="stat-completed">0</div>
+        <div class="stat-value" id="stat-completed">—</div>
       </div>
-      <div class="stat-card">
+      <div class="stat-card wip">
+        <div class="stat-icon">⚡</div>
         <div class="stat-label">In Progress</div>
-        <div class="stat-value" id="stat-progress">0</div>
+        <div class="stat-value" id="stat-progress">—</div>
       </div>
-      <div class="stat-card">
+      <div class="stat-card fresh">
+        <div class="stat-icon">🆕</div>
         <div class="stat-label">Not Started</div>
-        <div class="stat-value" id="stat-new">0</div>
+        <div class="stat-value" id="stat-new">—</div>
       </div>
     </section>
 
-    <!-- Problems List -->
-    <section>
-      <div class="section-header">
-        <h2 class="section-title">Problems</h2>
-        <div class="filter-bar">
-          <button class="filter-btn active" data-filter="all">All</button>
-          <button class="filter-btn" data-filter="fast">Fast</button>
-          <button class="filter-btn" data-filter="easy">Easy</button>
-          <button class="filter-btn" data-filter="medium">Medium</button>
-          <button class="filter-btn" data-filter="hard">Hard</button>
-        </div>
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <span class="section-title">Problems</span>
+
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input class="search-input" id="search-input" type="text" placeholder="Search problems…" autocomplete="off" />
       </div>
 
-      <div class="problems-table-wrapper">
-        <div id="loading" class="loading">Loading problems...</div>
-        <table class="problems-table" id="problems-table" style="display:none;">
-          <thead>
-            <tr>
-              <th style="width:60px;">Status</th>
-              <th style="width:80px;">#</th>
-              <th>Title</th>
-              <th style="width:120px;">Difficulty</th>
-              <th style="width:100px;">Tests</th>
-            </tr>
-          </thead>
-          <tbody id="problems-tbody">
-          </tbody>
-        </table>
-        <div id="empty-state" class="empty-state" style="display:none;">
-          No problems found.
-        </div>
+      <div class="filter-pills">
+        <button class="filter-pill active" data-filter="all">All</button>
+        <button class="filter-pill" data-filter="fast">Fast</button>
+        <button class="filter-pill" data-filter="easy">Easy</button>
+        <button class="filter-pill" data-filter="medium">Medium</button>
+        <button class="filter-pill" data-filter="hard">Hard</button>
       </div>
-    </section>
+    </div>
+
+    <!-- Problems grid -->
+    <div class="problems-grid" id="problems-grid">
+      <!-- Skeleton -->
+      <div class="skeleton-card">
+        <div class="sk-line short"></div>
+        <div class="sk-line long"></div>
+        <div class="sk-line thin"></div>
+      </div>
+      <div class="skeleton-card">
+        <div class="sk-line short"></div>
+        <div class="sk-line long"></div>
+        <div class="sk-line thin"></div>
+      </div>
+      <div class="skeleton-card">
+        <div class="sk-line short"></div>
+        <div class="sk-line long"></div>
+        <div class="sk-line thin"></div>
+      </div>
+      <div class="skeleton-card">
+        <div class="sk-line short"></div>
+        <div class="sk-line long"></div>
+        <div class="sk-line thin"></div>
+      </div>
+    </div>
   </main>
 
   <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const roomCode = urlParams.get('room');
-    if (roomCode) {
-      alert('Dashboard is not available in online mode. Please go back to the match.');
-      window.location.href = '/workspace.html?room=' + roomCode;
-    }
-
-    const api = "/api"; 
-    const STATUS_KEY = "oj-problem-status";
-
+    const STATUS_KEY = 'oj-problem-status';
     let allProblems = [];
-    let currentFilter = "all";
+    let currentFilter = 'all';
+    let searchQuery = '';
 
     function loadStatuses() {
-      try {
-        return JSON.parse(localStorage.getItem(STATUS_KEY) || "{}");
-      } catch {
-        return {};
-      }
+      try { return JSON.parse(localStorage.getItem(STATUS_KEY) || '{}'); }
+      catch { return {}; }
     }
 
-    function getProblemStatus(problemId) {
-      const statuses = loadStatuses();
-      return statuses[problemId] || "new";
+    function getStatus(pid) { return loadStatuses()[pid] || 'new'; }
+
+    // Animated counter
+    function animateCount(el, target) {
+      const duration = 700;
+      const start = performance.now();
+      const from = 0;
+      function step(now) {
+        const t = Math.min((now - start) / duration, 1);
+        const ease = 1 - Math.pow(1 - t, 3);
+        el.textContent = Math.round(from + (target - from) * ease);
+        if (t < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
     }
 
     function updateStats(problems) {
       const statuses = loadStatuses();
-      let completed = 0;
-      let inProgress = 0;
-      let newCount = 0;
-
+      let completed = 0, inProgress = 0, fresh = 0;
       problems.forEach(p => {
-        const status = statuses[p.problem_id] || "new";
-        if (status === "completed") completed++;
-        else if (status === "in-progress") inProgress++;
-        else newCount++;
+        const s = statuses[p.problem_id] || 'new';
+        if (s === 'completed') completed++;
+        else if (s === 'in-progress') inProgress++;
+        else fresh++;
       });
-
-      document.getElementById("stat-total").textContent = problems.length;
-      document.getElementById("stat-completed").textContent = completed;
-      document.getElementById("stat-progress").textContent = inProgress;
-      document.getElementById("stat-new").textContent = newCount;
+      animateCount(document.getElementById('stat-total'), problems.length);
+      animateCount(document.getElementById('stat-completed'), completed);
+      animateCount(document.getElementById('stat-progress'), inProgress);
+      animateCount(document.getElementById('stat-new'), fresh);
     }
 
     function renderProblems(problems) {
-      const tbody = document.getElementById("problems-tbody");
-      tbody.innerHTML = "";
+      const grid = document.getElementById('problems-grid');
 
-      problems.forEach(problem => {
-        const status = getProblemStatus(problem.problem_id);
-        const row = document.createElement("tr");
+      if (problems.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">🔍</div>
+            <div class="empty-title">No problems found</div>
+            <div class="empty-desc">Try a different filter or search query.</div>
+          </div>`;
+        return;
+      }
 
-        const statusClass = status === "completed" ? "completed" :
-                           status === "in-progress" ? "in-progress" : "new";
+      grid.innerHTML = '';
+      const statuses = loadStatuses();
 
-        const numberDisplay = typeof problem.number === "number"
-          ? String(problem.number).padStart(3, "0")
-          : "—";
+      problems.forEach((p, i) => {
+        const status = statuses[p.problem_id] || 'new';
+        const diff = (p.difficulty || 'unknown').toLowerCase();
+        const numStr = typeof p.number === 'number' ? String(p.number).padStart(3, '0') : '—';
+        const title = escapeHtml(p.title || p.problem_id);
+        const tests = p.tests || 0;
 
-        const difficulty = problem.difficulty || "unknown";
-        const tests = problem.tests || 0;
-
-        row.innerHTML = `
-          <td>
-            <span class="status-indicator ${statusClass}"></span>
-          </td>
-          <td class="problem-number">${numberDisplay}</td>
-          <td class="problem-title">
-            <a href="/workspace.html?pid=${encodeURIComponent(problem.problem_id)}" class="problem-link">
-              ${escapeHtml(problem.title || problem.problem_id)}
-            </a>
-          </td>
-          <td>
-            <span class="difficulty-badge ${difficulty}">${difficulty}</span>
-          </td>
-          <td>${tests}</td>
-        `;
-
-        tbody.appendChild(row);
+        const card = document.createElement('a');
+        card.className = `problem-card ${diff}`;
+        card.href = `/workspace.html?pid=${encodeURIComponent(p.problem_id)}`;
+        card.style.animationDelay = `${i * 35}ms`;
+        card.innerHTML = `
+          <div class="card-top">
+            <span class="problem-num">#${numStr}</span>
+            <span class="diff-badge ${diff}">${diff}</span>
+          </div>
+          <div class="problem-title">${title}</div>
+          <div class="card-meta">
+            <span class="meta-item">
+              <span class="status-dot ${status}"></span>
+              ${status === 'completed' ? 'Solved' : status === 'in-progress' ? 'In Progress' : 'New'}
+            </span>
+            <span class="meta-item">📋 ${tests} test${tests !== 1 ? 's' : ''}</span>
+          </div>`;
+        grid.appendChild(card);
       });
     }
 
-    function filterProblems(difficulty) {
-      currentFilter = difficulty;
-      const filtered = difficulty === "all"
-        ? allProblems
-        : allProblems.filter(p => p.difficulty === difficulty);
-
-      renderProblems(filtered);
-
-      document.querySelectorAll(".filter-btn").forEach(btn => {
-        btn.classList.toggle("active", btn.dataset.filter === difficulty);
+    function getFiltered() {
+      return allProblems.filter(p => {
+        const matchFilter = currentFilter === 'all' || p.difficulty === currentFilter;
+        const matchSearch = !searchQuery || (p.title || '').toLowerCase().includes(searchQuery) ||
+          (p.problem_id || '').toLowerCase().includes(searchQuery);
+        return matchFilter && matchSearch;
       });
+    }
+
+    function applyFilter(filter) {
+      currentFilter = filter;
+      document.querySelectorAll('.filter-pill').forEach(btn => {
+        const f = btn.dataset.filter;
+        btn.classList.remove('active', 'active-fast', 'active-easy', 'active-medium', 'active-hard');
+        if (f === filter) {
+          if (filter === 'all') btn.classList.add('active');
+          else btn.classList.add(`active-${filter}`);
+        }
+      });
+      renderProblems(getFiltered());
     }
 
     async function loadProblems() {
-      const loading = document.getElementById("loading");
-      const table = document.getElementById("problems-table");
-      const emptyState = document.getElementById("empty-state");
-
-      loading.style.display = "block";
-      table.style.display = "none";
-      emptyState.style.display = "none";
-
       try {
-        const res = await fetch(`${api}/problems`);
+        const res = await fetch('/api/problems');
         if (!res.ok) throw new Error(res.statusText);
         const data = await res.json();
-
         allProblems = Array.isArray(data.problems) ? data.problems : [];
-
-        loading.style.display = "none";
-
-        if (allProblems.length === 0) {
-          emptyState.style.display = "block";
-        } else {
-          table.style.display = "table";
-          updateStats(allProblems);
-          filterProblems(currentFilter);
-        }
+        updateStats(allProblems);
+        renderProblems(getFiltered());
       } catch (err) {
-        console.error(err);
-        loading.textContent = "Failed to load problems.";
+        document.getElementById('problems-grid').innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">⚠️</div>
+            <div class="empty-title">Failed to load problems</div>
+            <div class="empty-desc">${escapeHtml(String(err.message))}</div>
+          </div>`;
       }
     }
 
-    function escapeHtml(text) {
-      return String(text)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#39;");
+    function escapeHtml(t) {
+      return String(t)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     }
 
-    document.querySelectorAll(".filter-btn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        filterProblems(btn.dataset.filter);
-      });
+    document.querySelectorAll('.filter-pill').forEach(btn => {
+      btn.addEventListener('click', () => applyFilter(btn.dataset.filter));
     });
+
+    document.getElementById('search-input').addEventListener('input', e => {
+      searchQuery = e.target.value.trim().toLowerCase();
+      renderProblems(getFiltered());
+    });
+
+    // Redirect if in room context
+    const roomCode = new URLSearchParams(location.search).get('room');
+    if (roomCode) window.location.href = '/workspace.html?room=' + roomCode;
 
     loadProblems();
   </script>
+  <script src="theme.js"></script>
 </body>
+
 </html>
